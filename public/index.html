@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction</title>
+    <script>
+        window.TRANSACTION_ID = "%%TRANSACTION_ID%%";
+        console.log('Set TRANSACTION_ID:', window.TRANSACTION_ID);
+    </script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="transactionInfo" class="form-group">
+            <label>Transaction ID:</label>
+            <div id="txIdDisplay"></div>
+        </div>
+        
+        <div id="walletActions" class="form-group">
+            <button id="phantomButton">Connect Phantom Wallet</button>
+        </div>
+
+        <div id="response" class="form-group"></div>
+    </div>
+
+    <script>
+        try {
+            console.log('Main script started');
+            
+       
+            let phantom = null;
+            let connected = false;
+
+      
+            function initializeDisplay() {
+                const txId = window.TRANSACTION_ID;
+                console.log('Retrieved transaction ID:', txId);
+                
+                const txIdDisplay = document.getElementById('txIdDisplay');
+                const phantomButton = document.getElementById('phantomButton');
+                
+                if (txId && txId !== "%%TRANSACTION_ID%%") {
+                    console.log('Setting transaction ID display:', txId);
+                    txIdDisplay.textContent = txId;
+                    phantomButton.disabled = false;
+                } else {
+                    console.log('No valid transaction ID provided');
+                    txIdDisplay.textContent = 'No transaction ID provided';
+                    phantomButton.disabled = true;
+                }
+            }
+
+        
+            async function checkPhantomWallet() {
+                if (typeof window.solana !== 'undefined') {
+                    phantom = window.solana;
+                    if (phantom.isPhantom) {
+                        if (phantom.isConnected) {
+                            connected = true;
+                            updateButtonState();
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        
+            function updateButtonState() {
+                const button = document.getElementById('phantomButton');
+                if (!phantom) {
+                    button.textContent = 'Install Phantom Wallet';
+                    button.onclick = () => window.open('https://phantom.app/', '_blank');
+                } else if (!connected) {
+                    button.textContent = 'Connect Wallet';
+                    button.onclick = connectWallet;
+                } else {
+                    button.textContent = 'Sign and Send Transaction';
+                    button.onclick = sendTransaction;
+                }
+            }
+
+          
+            async function handlePhantomAction() {
+                if (!phantom) {
+                    window.open('https://phantom.app/', '_blank');
+                } else if (!connected) {
+                    await connectWallet();
+                } else {
+                    await sendTransaction();
+                }
+            }
+
+        
+            async function connectWallet() {
+                try {
+                    const { publicKey } = await phantom.connect();
+                    console.log('Wallet connected:', publicKey.toString());
+                    connected = true;
+                    updateButtonState();
+                } catch (error) {
+                    console.error('Failed to connect wallet:', error);
+                    showResponse('Failed to connect wallet', false);
+                }
+            }
+
+        
+            async function fetchUnsignedTransaction(txId, publicKey) {
+                try {
+                    const response = await fetch('http://localhost:8001/api/v1/transaction/build', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ txId, publicKey }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch transaction');
+                    }
+
+                    const data = await response.json();
+                    if (!data.success || !data.transaction?.base64) {
+                        throw new Error('Invalid transaction data');
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('Failed to fetch transaction:', error);
+                    throw error;
+                }
+            }
+
+        
+            async function sendTransaction() {
+                try {
+                    const txId = window.TRANSACTION_ID;
+                    if (!txId || txId === "%%TRANSACTION_ID%%") {
+                        showResponse('No transaction ID provided', false);
+                        return;
+                    }
+
+                    if (!phantom || !connected) {
+                        showResponse('Please connect Phantom wallet first', false);
+                        return;
+                    }
+
+                    const publicKey = phantom.publicKey.toString();
+                    const transactionData = await fetchUnsignedTransaction(txId, publicKey);
+                    const transactionBuffer = new Uint8Array(atob(transactionData.transaction.base64).split('').map(c => c.charCodeAt(0)));
+
+                    let transaction;
+                    if (transactionData.transaction.type === 'legacy') {
+                        transaction = solanaWeb3.Transaction.from(transactionBuffer);
+                    } else {
+                        transaction = solanaWeb3.VersionedTransaction.deserialize(transactionBuffer);
+                    }
+
+                    const { signature } = await phantom.signAndSendTransaction(transaction);
+                    console.log("Transaction sent, signature:", signature);
+                    showResponse('Transaction successful!', true);
+                } catch (error) {
+                    console.error('Failed to send transaction:', error);
+                    showResponse('Failed to send transaction. Please ensure wallet is connected and address is correct', false);
+                }
+            }
+
+         
+            function showResponse(message, isSuccess) {
+                const responseDiv = document.getElementById('response');
+                responseDiv.textContent = message;
+                responseDiv.className = isSuccess ? 'success' : 'error';
+                responseDiv.style.display = 'block';
+            }
+
+       
+            document.addEventListener('DOMContentLoaded', () => {
+                initializeDisplay();
+            });
+
+       
+            window.addEventListener('load', async () => {
+                await checkPhantomWallet();
+                updateButtonState();
+                document.getElementById('phantomButton').addEventListener('click', handlePhantomAction);
+            });
+        } catch (error) {
+            console.error('Script execution error:', error);
+        }
+    </script>
+</body>
+</html> 

@@ -4,9 +4,24 @@ import { DataSource } from "typeorm";
 import { Transaction } from "./entity/Transaction";
 import { handlerRegistry } from "./handlers";
 import { v4 as uuidv4 } from "uuid";
+import path from "path";
+import fs from 'fs';
 
 const app = express();
 app.use(express.json());
+
+const publicPath = path.join(__dirname, '../public');
+console.log('Static files path:', publicPath);
+app.use(express.static(publicPath));
+
+app.get('/transaction/:txId', (req: Request, res: Response) => {
+    const txId = req.params.txId;
+    const htmlPath = path.join(publicPath, 'index.html');
+    let html = fs.readFileSync(htmlPath, 'utf8');
+    html = html.replace('%%TRANSACTION_ID%%', txId);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+});
 
 const AppDataSource = new DataSource({
   type: "sqlite",

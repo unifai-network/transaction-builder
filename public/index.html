@@ -165,7 +165,7 @@
         
             async function fetchUnsignedTransaction(txId, publicKey) {
                 try {
-                    const response = await fetch('http://localhost:8001/api/v1/transaction/build', {
+                    const response = await fetch('/transaction/build', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -189,6 +189,28 @@
                 }
             }
 
+            async function completeTransaction(txId, txHash) {
+                try {
+                    const response = await fetch('/transaction/complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ txId, txHash }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to complete transaction');
+                    }
+
+                    const data = await response.json();
+
+                    console.log('Transaction completed successfully:', data);
+                } catch (error) {
+                    console.error('Failed to complete transaction:', error);
+                    throw error;
+                }
+            }
         
             async function sendTransaction() {
                 try {
@@ -216,7 +238,13 @@
 
                     const { signature } = await phantom.signAndSendTransaction(transaction);
                     console.log("Transaction sent, signature:", signature);
-                    showResponse('Transaction successful!', true);
+                    showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
+
+                    try {
+                        await completeTransaction(txId, signature);
+                    } catch (error) {
+                        console.error('Failed to complete transaction:', error);
+                    }
                 } catch (error) {
                     console.error('Failed to send transaction:', error);
                     showResponse('Failed to send transaction. Please ensure wallet is connected and address is correct', false);
@@ -240,7 +268,20 @@
             window.addEventListener('load', async () => {
                 await checkPhantomWallet();
                 updateButtonState();
-                document.getElementById('phantomButton').addEventListener('click', handlePhantomAction);
+                if (phantom && !connected) {
+                    try {
+                        await connectWallet();
+                    } catch (error) {
+                        console.error('Failed to connect wallet:', error);
+                    }
+                }
+                if (phantom && connected) {
+                    try {
+                        await sendTransaction();
+                    } catch (error) {
+                        console.error('Failed to send transaction:', error);
+                    }
+                }
             });
         } catch (error) {
             console.error('Script execution error:', error);

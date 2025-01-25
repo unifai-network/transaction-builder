@@ -16,4 +16,10 @@ export class Transaction {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @Column({ nullable: true })
+  expirationTime?: Date;
+
+  @Column({ nullable: true, unique: true })
+  txnHash?: string;
 }

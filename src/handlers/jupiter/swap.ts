@@ -99,7 +99,8 @@ export class SwapHandler implements TransactionHandler {
         body: JSON.stringify({
           quoteResponse,
           userPublicKey: publicKey,
-          wrapAndUnwrapSol: true
+          wrapAndUnwrapSol: true,
+          dynamicSlippage: { "maxBps": 300 },
         })
       })
     ).json();

@@ -14,20 +14,13 @@ const publicPath = path.join(__dirname, '../public');
 console.log('Static files path:', publicPath);
 app.use(express.static(publicPath));
 
-app.get('/transaction/:txId', (req: Request, res: Response) => {
-    const txId = req.params.txId;
-    const htmlPath = path.join(publicPath, 'index.html');
-    let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('%%TRANSACTION_ID%%', txId);
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(html);
-});
+const EXPIRATION_TIME_SECONDS = 3600;
 
 const AppDataSource = new DataSource({
   type: "sqlite",
   database: "db.sqlite",
   entities: [Transaction],
-  synchronize: true, // Set to false in production
+  synchronize: false,
   logging: false,
 });
 
@@ -35,12 +28,47 @@ AppDataSource.initialize()
   .then(async (connection) => {
     console.log("Database connected");
 
+    async function getPendingTransaction(connection: DataSource, txId: string): Promise<Transaction> {
+      const transaction = await connection.manager.findOneBy(Transaction, { id: txId });
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      if (transaction.expirationTime && transaction.expirationTime < new Date()) {
+        throw new Error("Transaction has expired");
+      }
+
+      if (transaction.txnHash) {
+        throw new Error("Transaction already completed");
+      }
+
+      return transaction;
+    }
+
+    app.get('/transaction/:txId', async (req: Request, res: Response) => {
+      const txId = req.params.txId;
+      let transaction: Transaction;
+      try {
+        transaction = await getPendingTransaction(connection, txId);
+      } catch (error) {
+        res.status(404).json({ error: (error as Error).message });
+        return;
+      }
+
+      const htmlPath = path.join(publicPath, 'index.html');
+      let html = fs.readFileSync(htmlPath, 'utf8');
+      html = html.replace('%%TRANSACTION_ID%%', txId);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    });
+
     interface CreateTransactionRequest {
       type: string;
       payload: any;
     }
 
-    app.post("/api/v1/transaction/create", async (req: Request, res: Response) => {
+    app.post("/transaction/create", async (req: Request, res: Response) => {
       try {
         const { type, payload } = req.body as CreateTransactionRequest;
 
@@ -63,6 +91,7 @@ AppDataSource.initialize()
         transaction.id = txId;
         transaction.type = type;
         transaction.data = JSON.stringify(data);
+        transaction.expirationTime = new Date(Date.now() + EXPIRATION_TIME_SECONDS * 1000);
         
         await connection.manager.save(transaction);
         
@@ -81,16 +110,18 @@ AppDataSource.initialize()
       publicKey: string;
     }
   
-    app.post("/api/v1/transaction/build", async (req: Request, res: Response) => {
+    app.post("/transaction/build", async (req: Request, res: Response) => {
       try {
         const { txId, publicKey } = req.body as BuildTransactionRequest;
         if (!txId) {
           return res.status(400).json({ error: "Missing transaction ID" });
         }
 
-        const transaction = await connection.manager.findOneBy(Transaction, { id: txId });
-        if (!transaction) {
-          return res.status(404).json({ error: "Transaction not found" });
+        let transaction: Transaction;
+        try {
+          transaction = await getPendingTransaction(connection, txId);
+        } catch (error) {
+          return res.status(404).json({ error: (error as Error).message });
         }
 
         const handler = handlerRegistry.get(transaction.type);
@@ -107,6 +138,31 @@ AppDataSource.initialize()
         } else {
           res.status(500).json({ error: "Transaction build failed" });
         }
+      } catch (error) {
+        const errorMessage = (error as Error).message;
+        res.status(500).json({ error: errorMessage });
+      }
+    });
+
+    app.post("/transaction/complete", async (req: Request, res: Response) => {
+      try {
+        const { txId, txHash } = req.body;
+
+        if (!txId || !txHash) {
+          return res.status(400).json({ error: "Missing transaction ID or hash" });
+        }
+
+        let transaction: Transaction;
+        try {
+          transaction = await getPendingTransaction(connection, txId);
+        } catch (error) {
+          return res.status(404).json({ error: (error as Error).message });
+        }
+
+        transaction.txnHash = txHash;
+        await connection.manager.save(transaction);
+
+        res.status(200).json({ message: "Transaction completed successfully" });
       } catch (error) {
         const errorMessage = (error as Error).message;
         res.status(500).json({ error: errorMessage });

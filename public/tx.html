@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction</title>
     <script>
-        window.TRANSACTION_ID = "%%TRANSACTION_ID%%";
-        console.log('Set TRANSACTION_ID:', window.TRANSACTION_ID);
+        const urlParts = window.location.pathname.split('/');
+        console.log('urlParts:', urlParts);
+        if (urlParts.length > 0) {
+            window.TRANSACTION_ID = urlParts[urlParts.length - 1];
+            console.log('Set TRANSACTION_ID:', window.TRANSACTION_ID);
+        }
     </script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <style>
@@ -97,7 +101,7 @@
                 const txIdDisplay = document.getElementById('txIdDisplay');
                 const phantomButton = document.getElementById('phantomButton');
                 
-                if (txId && txId !== "%%TRANSACTION_ID%%") {
+                if (txId) {
                     console.log('Setting transaction ID display:', txId);
                     txIdDisplay.textContent = txId;
                     phantomButton.disabled = false;
@@ -165,7 +169,7 @@
         
             async function fetchUnsignedTransaction(txId, publicKey) {
                 try {
-                    const response = await fetch('/transaction/build', {
+                    const response = await fetch('/api/tx/build', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -191,7 +195,7 @@
 
             async function completeTransaction(txId, txHash) {
                 try {
-                    const response = await fetch('/transaction/complete', {
+                    const response = await fetch('/api/tx/complete', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -215,7 +219,7 @@
             async function sendTransaction() {
                 try {
                     const txId = window.TRANSACTION_ID;
-                    if (!txId || txId === "%%TRANSACTION_ID%%") {
+                    if (!txId) {
                         showResponse('No transaction ID provided', false);
                         return;
                     }

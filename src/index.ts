@@ -100,6 +100,7 @@ AppDataSource.initialize()
           message: `Transaction created, ask the user to approve it at ${baseUrl}/transaction/${txId}`,
         });
       } catch (error) {
+        console.error(error);
         const errorMessage = (error as Error).message;
         res.status(500).json({ error: errorMessage });
       }
@@ -136,9 +137,11 @@ AppDataSource.initialize()
         if (txn) {
           res.json({ success: true, transaction: { type: "versioned", base64: txn } });
         } else {
+          console.error("Transaction build failed:");
           res.status(500).json({ error: "Transaction build failed" });
         }
       } catch (error) {
+        console.error(error);
         const errorMessage = (error as Error).message;
         res.status(500).json({ error: errorMessage });
       }
@@ -164,6 +167,7 @@ AppDataSource.initialize()
 
         res.status(200).json({ message: "Transaction completed successfully" });
       } catch (error) {
+        console.error(error);
         const errorMessage = (error as Error).message;
         res.status(500).json({ error: errorMessage });
       }

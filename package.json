@@ -5,6 +5,7 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
+    "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "express": "^4.21.2",
     "pg": "^8.13.1",

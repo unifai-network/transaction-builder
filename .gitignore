@@ -7,4 +7,6 @@ yarn-error.log*
 dist/
 coverage/
 .DS_Store
-db.sqlite
+db.sqlite*
+.vercel
+.env*

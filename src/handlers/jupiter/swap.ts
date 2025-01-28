@@ -48,7 +48,7 @@ export class SwapHandler implements TransactionHandler {
       await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${data.inputToken}\
 &outputMint=${data.outputToken}\
 &amount=${data.amount}\
-&slippageBps=50`)
+&slippageBps=300`)
     ).json();
 
     // Get swap transaction

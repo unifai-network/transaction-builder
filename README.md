@@ -11,6 +11,8 @@ Check out [unifai-toolkits](https://github.com/unifai-network/unifai-toolkits) f
 
 ## Local Development
 
+Copy `.env.local.example` to `.env.local` and fill in the `DATABASE_URL` with your local postgres URL starting with `postgresql://`.
+
 Start the server locally:
 
 ```bash

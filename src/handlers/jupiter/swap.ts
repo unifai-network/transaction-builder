@@ -42,7 +42,7 @@ export class SwapHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<string> {
+  async build(data: Payload, publicKey: string): Promise<{ chain: string, base64: string, type?: string }> {
     // Get quote
     const quoteResponse = await (
       await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${data.inputToken}\
@@ -67,6 +67,10 @@ export class SwapHandler implements TransactionHandler {
       })
     ).json();
 
-    return swapTransaction;
+    return {
+      chain: "solana",
+      type: "versioned",
+      base64: swapTransaction,
+    };
   }
 }

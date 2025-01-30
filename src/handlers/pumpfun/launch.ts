@@ -32,7 +32,12 @@ export class PumpFunLaunchHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<string> {
-    return launchPumpFunToken(publicKey, data.tokenName, data.tokenTicker, data.description, data.imageUrl, data);
+  async build(data: Payload, publicKey: string): Promise<{ chain: string, base64: string, type?: string }> {
+    const txn = await launchPumpFunToken(publicKey, data.tokenName, data.tokenTicker, data.description, data.imageUrl, data);
+    return {
+      chain: "solana",
+      type: "versioned",
+      base64: txn,
+    };
   }
 }

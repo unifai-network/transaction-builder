@@ -51,7 +51,7 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
     const txn = await handler.build(data, publicKey);
 
     if (txn) {
-      res.json({ success: true, transaction: { type: "versioned", base64: txn } });
+      res.json({ success: true, transaction: txn });
     } else {
       throw new Error("Transaction build failed");
     }

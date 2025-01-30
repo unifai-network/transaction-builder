@@ -9,6 +9,28 @@ To build or use toolkits, check out our SDKs:
 
 Check out [unifai-toolkits](https://github.com/unifai-network/unifai-toolkits) for official toolkits.
 
+## Local Development
+
+Start the server locally:
+
+```bash
+npm i
+npm start
+```
+
+To create a transaction, run the following command in another terminal:
+
+```bash
+curl -X POST http://127.0.0.1:8001/api/tx/create \
+     -H "Content-Type: application/json" \
+     -d '{
+           "type": "xxx",
+           "payload": {"xxx": "xxx"}
+         }'
+```
+
+with your actual handler type and payload. You should get a message with a URL to approve the transaction in browser.
+
 ## Contributing
 
 We welcome contributions! Here's how you can help:

@@ -1,12 +1,12 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
 import "reflect-metadata";
 import express from "express";
-import dotenv from 'dotenv';
 import transactionApi from './routes/transactionApi';
 import transactionPage from './routes/transactionPage';
 import { errorHandler } from './middleware/errorHandler';
 import path from "path";
-
-dotenv.config({ path: '.env.local' });
 
 const app = express();
 const PORT = process.env.PORT || 8001;

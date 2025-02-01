@@ -38,6 +38,20 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
   }
 });
 
+router.get("/get/:txId", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { txId } = req.params;
+    const transaction = await getPendingTransaction(txId);
+    const data = JSON.parse(transaction.data);
+    res.json({
+      type: transaction.type,
+      data: data,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/build", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { txId, publicKey } = req.body;

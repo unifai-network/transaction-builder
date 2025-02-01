@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
 import { getMint } from "@solana/spl-token";
 import { TransactionHandler } from "../TransactionHandler";
-import { validateTokenAddress } from '../../utils';
+import { validateSolanaAddress } from '../../utils/solana';
 
 const PayloadSchema = z.object({
   inputToken: z.string().nonempty("Missing required field: inputToken"),
@@ -22,8 +22,8 @@ export class SwapHandler implements TransactionHandler {
       throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
 
-    validateTokenAddress(payload.inputToken);
-    validateTokenAddress(payload.outputToken);
+    validateSolanaAddress(payload.inputToken);
+    validateSolanaAddress(payload.outputToken);
 
     return {
       chain: "solana",

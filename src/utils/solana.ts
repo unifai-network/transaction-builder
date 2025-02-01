@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 
-export function validateTokenAddress(token: string) {
+export function validateSolanaAddress(token: string) {
   try {
     new PublicKey(token);
   } catch (error) {

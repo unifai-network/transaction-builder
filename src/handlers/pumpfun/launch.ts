@@ -18,24 +18,22 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 export class PumpFunLaunchHandler implements TransactionHandler {
-  async create(payload: Payload): Promise<{ data?: Payload, error?: string }> {
+  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
-      return {
-        error: validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
-      };
+      throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
 
     return {
+      chain: "solana",
       data: payload,
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<{ chain: string, base64: string, type?: string }> {
+  async build(data: Payload, publicKey: string): Promise<{ base64: string, type?: string }> {
     const txn = await launchPumpFunToken(publicKey, data.tokenName, data.tokenTicker, data.description, data.imageUrl, data);
     return {
-      chain: "solana",
       type: "versioned",
       base64: txn,
     };

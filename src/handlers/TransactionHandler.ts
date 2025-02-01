@@ -1,4 +1,4 @@
 export interface TransactionHandler {
-  create(payload: any): Promise<{ data?: any, error?: string }>;
-  build(data: any, publicKey: string): Promise<{ chain: string, base64: string }>;
+  create(payload: any): Promise<{ chain: string, data: any }>;
+  build(data: any, publicKey: string): Promise<{ base64: string }>;
 }

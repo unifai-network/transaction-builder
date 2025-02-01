@@ -15,8 +15,8 @@ const PORT = process.env.PORT || 8001;
 app.set('trust proxy', true);
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:8001','https://txbuilder.unifai.network'], 
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  origin: ['http://localhost:3000', 'http://localhost:8001', 'https://tx.unifai.network', 'https://txbuilder.unifai.network'], 
+  methods: ['GET', 'POST', 'OPTIONS'], 
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true 
 };

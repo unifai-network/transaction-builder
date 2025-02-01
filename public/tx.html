@@ -354,7 +354,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ txId, publicKey }),
+                        body: JSON.stringify({ txId, address: publicKey }),
                     });
 
                     console.log('API Response status:', response.status);

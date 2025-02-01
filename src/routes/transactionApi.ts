@@ -36,7 +36,7 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
 
     let url = `${req.protocol}://${req.get("host")}/tx/${txId}`;
     if (chain !== "solana") { // temporary
-      url = `https://tx.unifai.network/tx/${txId}`;
+      url = `https://tx.unifai.network/evm/${txId}`;
     }
     // todo: use the following when the frontend is ready
     // const url = `${process.env.FRONTEND_URL}/tx/${txId}`;
@@ -65,7 +65,7 @@ router.get("/get/:txId", async (req: Request, res: Response, next: NextFunction)
 
 router.post("/build", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { txId, publicKey } = req.body;
+    const { txId, address } = req.body;
     if (!txId) return res.status(400).json({ error: "Missing transaction ID" });
 
     const transaction = await getPendingTransaction(txId);
@@ -74,7 +74,7 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
 
     const data = JSON.parse(transaction.data);
     const chain = transaction.chain;
-    const txn = await handler.build(data, publicKey);
+    const txn = await handler.build(data, address);
 
     if (txn) {
       res.json({ success: true, transaction: { ...txn, chain } });

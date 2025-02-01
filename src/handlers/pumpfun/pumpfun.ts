@@ -1,4 +1,5 @@
 import { Keypair, VersionedTransaction } from "@solana/web3.js";
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 export interface PumpFunTokenOptions {
   twitter?: string;
@@ -34,8 +35,13 @@ async function uploadMetadata(
     formData.append("website", options.website);
   }
 
-  const imageResponse = await fetch(imageUrl);
-  const imageBlob = await imageResponse.blob();
+  let imageBlob;
+  try {
+    const imageResponse = await fetch(imageUrl);
+    imageBlob = await imageResponse.blob();
+  } catch (error) {
+    throw new Error(`Failed to fetch image: ${error}`);
+  }
   const files = {
     file: new File([imageBlob], "token_image.png", { type: "image/png" }),
   };
@@ -51,10 +57,18 @@ async function uploadMetadata(
     finalFormData.append("file", files.file);
   }
 
-  const metadataResponse = await fetch("https://pump.fun/api/ipfs", {
+  const fetchOptions: RequestInit & { agent?: HttpsProxyAgent } = {
     method: "POST",
     body: finalFormData,
-  });
+    agent: process.env.IPFS_HTTP_PROXY ? new HttpsProxyAgent(process.env.IPFS_HTTP_PROXY) : undefined,
+  };
+
+  let metadataResponse;
+  try {
+    metadataResponse = await fetch("https://pump.fun/api/ipfs", fetchOptions);
+  } catch (error) {
+    throw new Error(`Failed to upload metadata: ${error}`);
+  }
 
   if (!metadataResponse.ok) {
     throw new Error(`Metadata upload failed: ${metadataResponse.statusText}`);

@@ -57,7 +57,7 @@ async function uploadMetadata(
     finalFormData.append("file", files.file);
   }
 
-  const fetchOptions: RequestInit & { agent?: HttpsProxyAgent } = {
+  const fetchOptions: RequestInit & { agent?: HttpsProxyAgent<string> } = {
     method: "POST",
     body: finalFormData,
     agent: process.env.IPFS_HTTP_PROXY ? new HttpsProxyAgent(process.env.IPFS_HTTP_PROXY) : undefined,

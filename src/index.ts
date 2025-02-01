@@ -3,6 +3,7 @@ dotenv.config({ path: '.env.local' });
 
 import "reflect-metadata";
 import express from "express";
+import cors from "cors";
 import transactionApi from './routes/transactionApi';
 import transactionPage from './routes/transactionPage';
 import { errorHandler } from './middleware/errorHandler';
@@ -13,6 +14,14 @@ const PORT = process.env.PORT || 8001;
 
 app.set('trust proxy', true);
 
+const corsOptions = {
+  origin: ['http://localhost:3000', 'http://localhost:8001','https://txbuilder.unifai.network'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true 
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 

@@ -13,73 +13,137 @@
         }
     </script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://bundle.run/buffer@6.0.3"></script>
+    <link rel="stylesheet" href="/styles.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #e6e6fa;
+        }
+        .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
         }
-        .container {
-            background-color: white;
-            padding: 20px;
+        .tx-info {
+  
+        }
+        .tx-row {
+            margin: 12px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        .tx-row .label {
+            font-weight: 500;
+            width: 150px;
+            color: #b39ddb;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            text-align: right;
+            padding-right: 10px;
+        }
+        .tx-row .value {
+       
+            word-break: break-all;
+            color: #e6e6fa;
+        }
+        .tx-row pre.value {
+            background: rgba(103, 58, 183, 0.2);
+            padding: 12px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+            white-space: pre-wrap;
+            border: 1px solid rgba(147, 112, 219, 0.2);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"], textarea {
+        .wallet-select {
+            background: rgba(103, 58, 183, 0.1);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            color: #e6e6fa;
+            padding: 8px 12px;
+            border-radius: 8px;
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            margin-bottom: 10px;
         }
         button {
-            background-color: #4CAF50;
+            background: rgba(103, 58, 183, 0.8);
             color: white;
-            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background: rgba(103, 58, 183, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3);
         }
-        #response {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
+        button:disabled {
+            background: rgba(103, 58, 183, 0.3);
+            cursor: not-allowed;
         }
         .success {
-            background-color: #dff0d8;
-            border: 1px solid #d6e9c6;
-            color: #3c763d;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #81c784;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
         }
         .error {
-            background-color: #f2dede;
-            border: 1px solid #ebccd1;
-            color: #a94442;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #e57373;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        .json-key {
+            color: #ff79c6;
+        }
+        .json-string {
+            color: #50fa7b;
+        }
+        .json-number {
+            color: #bd93f9;
+        }
+        .json-boolean {
+            color: #ffb86c;
+        }
+        .json-null {
+            color: #ff5555;
+        }
+        .json-mark {
+            color: #6272a4;
+        }
+        .json-indent {
+            margin-left: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="transactionInfo" class="form-group">
-            <label>Transaction ID:</label>
+       
             <div id="txIdDisplay"></div>
         </div>
         
         <div id="walletActions" class="form-group">
-            <button id="phantomButton">Connect Phantom Wallet</button>
+            <div class="wallet-dropdown">
+                <select id="walletSelect" class="wallet-select">
+                    <option value="phantom">Phantom Wallet</option>
+                    <option value="coinbase">Coinbase Wallet</option>
+                </select>
+            </div>
+            <div class="wallet-connect">
+                <button id="connectButton">Connect Wallet</button>
+                <button id="disconnectButton" style="display: none;">Disconnect</button>
+            </div>
         </div>
 
         <div id="response" class="form-group"></div>
@@ -89,86 +153,202 @@
         try {
             console.log('Main script started');
             
-       
             let phantom = null;
+            let coinbaseProvider = null;
+            let currentWallet = null;
             let connected = false;
+            let selectedWalletType = 'phantom'; 
+            let currentAccount = null;
 
-      
+            const getProvider = () => {
+                switch (selectedWalletType) {
+                    case 'phantom':
+                        if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+                            return window.solana;
+                        }
+                        window.open('https://phantom.app/', '_blank');
+                        break;
+                    case 'coinbase':
+                        if ('coinbaseSolana' in window) {
+                            return window.coinbaseSolana;
+                        }
+                        window.open('https://www.coinbase.com/wallet', '_blank');
+                        break;
+                }
+                return null;
+            };
+
+            const WALLET_URLS = {
+                'phantom': 'https://phantom.app/',
+                'coinbase': 'https://www.coinbase.com/wallet'
+            };
+
+            const WALLET_NAMES = {
+                'phantom': 'Phantom',
+                'coinbase': 'Coinbase'
+            };
+
+            async function initializeWallets() {
+                const provider = getProvider();
+                if (provider) {
+                    if (selectedWalletType === 'phantom') {
+                        phantom = provider;
+                    } else {
+                        coinbaseProvider = provider;
+                    }
+                    console.log(`${selectedWalletType} wallet provider detected:`, provider);
+                } else {
+                    console.log(`${selectedWalletType} wallet provider not detected`);
+                    showResponse(`Please install ${selectedWalletType === 'phantom' ? 'Phantom' : 'Coinbase'} wallet first`, false);
+                }
+            }
+
+            function handleWalletChange(event) {
+                selectedWalletType = event.target.value;
+                if (connected) {
+                    disconnectWallet();
+                }
+                
+                const provider = getProvider();
+                if (!provider) {
+                    showResponse(`Please install ${selectedWalletType === 'phantom' ? 'Phantom' : 'Coinbase'} wallet first`, false);
+                }
+                
+                updateButtonState();
+            }
+
             function initializeDisplay() {
                 const txId = window.TRANSACTION_ID;
                 console.log('Retrieved transaction ID:', txId);
                 
                 const txIdDisplay = document.getElementById('txIdDisplay');
-                const phantomButton = document.getElementById('phantomButton');
+                const connectButton = document.getElementById('connectButton');
                 
                 if (txId) {
                     console.log('Setting transaction ID display:', txId);
                     txIdDisplay.textContent = txId;
-                    phantomButton.disabled = false;
+                    connectButton.disabled = false;
                 } else {
                     console.log('No valid transaction ID provided');
                     txIdDisplay.textContent = 'No transaction ID provided';
-                    phantomButton.disabled = true;
+                    connectButton.disabled = true;
                 }
             }
 
-        
-            async function checkPhantomWallet() {
-                if (typeof window.solana !== 'undefined') {
-                    phantom = window.solana;
-                    if (phantom.isPhantom) {
-                        if (phantom.isConnected) {
-                            connected = true;
-                            updateButtonState();
+            async function connectWallet() {
+                try {
+                    if (selectedWalletType === 'coinbase') {
+                        if (!window.coinbaseSolana) {
+                            showResponse('Please install Coinbase wallet first', false);
+                            return;
                         }
+                        
+                        try {
+                            await window.coinbaseSolana.connect();
+                            const publicKey = window.coinbaseSolana.publicKey;
+                            
+                            if (!publicKey) {
+                                throw new Error('Unable to get Coinbase wallet address');
+                            }
+
+                            console.log('Coinbase wallet connected:', {
+                                publicKey: publicKey.toString(),
+                                isConnected: true
+                            });
+                            
+                            connected = true;
+                            currentAccount = publicKey;
+                            currentWallet = window.coinbaseSolana;
+                            showResponse(`Wallet connected successfully: ${publicKey.toString()}`, true);
+                            updateButtonState();
+                        } catch (err) {
+                            console.error('Coinbase connection error:', err);
+                            showResponse('Failed to connect Coinbase wallet: ' + (err.message || 'Unknown error'), false);
+                        }
+                    } else {
+                        const provider = getProvider();
+                        if (!provider) {
+                            showResponse(`Please install ${WALLET_NAMES[selectedWalletType]} wallet first`, false);
+                            return;
+                        }
+
+                        try {
+                            await provider.connect();
+                            if (!provider.publicKey) {
+                                throw new Error('Unable to get wallet address');
+                            }
+
+                            connected = true;
+                            currentAccount = provider.publicKey;
+                            currentWallet = provider;
+                            showResponse(`Wallet connected successfully: ${provider.publicKey.toString()}`, true);
+                            updateButtonState();
+                        } catch (err) {
+                            console.error('Wallet connection error:', err);
+                            showResponse('Failed to connect wallet: ' + (err.message || 'Unknown error'), false);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Connection error:', err);
+                    showResponse('Connection failed: ' + (err.message || 'Unknown error'), false);
+                }
+            }
+
+            async function checkWalletConnection() {
+                if (selectedWalletType === 'coinbase') {
+                    if (window.coinbaseSolana?.publicKey) {
+                        connected = true;
+                        currentAccount = window.coinbaseSolana.publicKey;
+                        currentWallet = window.coinbaseSolana;
+                        console.log('Coinbase wallet already connected:', {
+                            publicKey: window.coinbaseSolana.publicKey.toString()
+                        });
+                        updateButtonState();
+                        return true;
+                    }
+                } else {
+                    const provider = getProvider();
+                    if (provider?.isConnected && provider.publicKey) {
+                        connected = true;
+                        currentAccount = provider.publicKey;
+                        currentWallet = provider;
+                        updateButtonState();
                         return true;
                     }
                 }
                 return false;
             }
 
-        
             function updateButtonState() {
-                const button = document.getElementById('phantomButton');
-                if (!phantom) {
-                    button.textContent = 'Install Phantom Wallet';
-                    button.onclick = () => window.open('https://phantom.app/', '_blank');
+                const button = document.getElementById('connectButton');
+                const disconnectBtn = document.getElementById('disconnectButton');
+                
+                const provider = getProvider();
+                
+                if (!provider) {
+                    const walletName = WALLET_NAMES[selectedWalletType];
+                    button.textContent = `Install ${walletName} Wallet`;
+                    button.onclick = () => window.open(WALLET_URLS[selectedWalletType], '_blank');
+                    showResponse(`Please install ${walletName} wallet first`, false);
+                    disconnectBtn.style.display = 'none';
                 } else if (!connected) {
                     button.textContent = 'Connect Wallet';
                     button.onclick = connectWallet;
+                    disconnectBtn.style.display = 'none';
                 } else {
                     button.textContent = 'Sign and Send Transaction';
                     button.onclick = sendTransaction;
+                    disconnectBtn.style.display = 'inline-block';
                 }
             }
 
-          
-            async function handlePhantomAction() {
-                if (!phantom) {
-                    window.open('https://phantom.app/', '_blank');
-                } else if (!connected) {
-                    await connectWallet();
-                } else {
-                    await sendTransaction();
-                }
-            }
-
-        
-            async function connectWallet() {
-                try {
-                    const { publicKey } = await phantom.connect();
-                    console.log('Wallet connected:', publicKey.toString());
-                    connected = true;
-                    updateButtonState();
-                } catch (error) {
-                    console.error('Failed to connect wallet:', error);
-                    showResponse('Failed to connect wallet', false);
-                }
-            }
-
-        
             async function fetchUnsignedTransaction(txId, publicKey) {
                 try {
+                    console.log('——————————Fetching unsigned transaction with:', {
+                        txId,
+                        publicKey
+                    });
+                    
                     const response = await fetch('/api/tx/build', {
                         method: 'POST',
                         headers: {
@@ -177,12 +357,19 @@
                         body: JSON.stringify({ txId, publicKey }),
                     });
 
+                    console.log('API Response status:', response.status);
+                    
                     if (!response.ok) {
-                        throw new Error('Failed to fetch transaction');
+                        const errorData = await response.json();
+                        console.error('API Error:', errorData);
+                        throw new Error('Failed to fetch transaction: ' + (errorData.error || 'Unknown error'));
                     }
 
                     const data = await response.json();
+                    console.log('API Response data:', data);
+                    
                     if (!data.success || !data.transaction?.base64) {
+                        console.error('Invalid transaction data:', data);
                         throw new Error('Invalid transaction data');
                     }
 
@@ -224,30 +411,83 @@
                         return;
                     }
 
-                    if (!phantom || !connected) {
-                        showResponse('Please connect Phantom wallet first', false);
+                    if (!connected || !currentWallet) {
+                        showResponse('Please connect wallet first', false);
                         return;
                     }
 
-                    const publicKey = phantom.publicKey.toString();
-                    const transactionData = await fetchUnsignedTransaction(txId, publicKey);
-                    const transactionBuffer = new Uint8Array(atob(transactionData.transaction.base64).split('').map(c => c.charCodeAt(0)));
-
-                    let transaction;
-                    if (transactionData.transaction.type === 'legacy') {
-                        transaction = solanaWeb3.Transaction.from(transactionBuffer);
-                    } else {
-                        transaction = solanaWeb3.VersionedTransaction.deserialize(transactionBuffer);
-                    }
-
-                    const { signature } = await phantom.signAndSendTransaction(transaction);
-                    console.log("Transaction sent, signature:", signature);
-                    showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
-
                     try {
-                        await completeTransaction(txId, signature);
+                        const transactionData = await fetchUnsignedTransaction(txId, currentAccount.toString());
+                        console.log('Transaction data:', transactionData);
+
+                        const transactionBuffer = new Uint8Array(atob(transactionData.transaction.base64).split('').map(c => c.charCodeAt(0)));
+                        console.log('Transaction buffer:', transactionBuffer);
+
+                        let transaction;
+                        if (transactionData.transaction.type === 'legacy') {
+                    
+                            transaction = solanaWeb3.Transaction.from(transactionBuffer);
+                            console.log('Creating legacy transaction',transaction);
+                        } else {
+                     
+                            transaction = solanaWeb3.VersionedTransaction.deserialize(transactionBuffer);
+                            console.log('Creating versioned transaction',transaction);
+                        }
+
+                        console.log('--------------------------------Created transaction--------------------------------', {
+                            type: transactionData.transaction.type,
+                            isVersioned: transaction instanceof solanaWeb3.VersionedTransaction,
+                            isLegacy: transaction instanceof solanaWeb3.Transaction,
+                            feePayer: transaction.feePayer?.toString(),
+                            recentBlockhash: transaction.recentBlockhash
+                        });
+
+                        if (selectedWalletType === 'coinbase') {
+                            try {
+                                console.log('Coinbase wallet signAndSendTransaction',transaction);
+                                const { signature } = await window.coinbaseSolana.signAndSendTransaction(transaction);
+                                showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
+                                try {
+                                    await completeTransaction(txId, signature);
+                                } catch (error) {
+                                    console.error('Failed to complete transaction:', error);
+                                }
+                            } catch (error) {
+                                console.error('Coinbase transaction error:', error);
+                            }
+                        } else {
+                            try {
+                                console.log('Using other wallet flow');
+                                const signedTransaction = await currentWallet.signTransaction(transaction);
+                                console.log('Transaction signed');
+
+                                const connection = new solanaWeb3.Connection(
+                                    'https://api.mainnet-beta.solana.com',
+                                    'confirmed'
+                                );
+
+                                const signature = await connection.sendRawTransaction(
+                                    signedTransaction.serialize()
+                                );
+                                console.log('Transaction sent:', signature);
+
+                                showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
+
+                                try {
+                                    await completeTransaction(txId, signature);
+                                } catch (error) {
+                                    console.error('Failed to complete transaction:', error);
+                                }
+                            } catch (error) {
+                                console.error('Transaction error:', error);
+                                showResponse('Transaction failed: ' + (error.message || 'Unknown error'), false);
+                                throw error;
+                            }
+                        }
                     } catch (error) {
-                        console.error('Failed to complete transaction:', error);
+                        console.error('Transaction preparation error:', error);
+                        showResponse('Failed to prepare transaction: ' + (error.message || 'Unknown error'), false);
+                        throw error;
                     }
                 } catch (error) {
                     console.error('Failed to send transaction:', error);
@@ -255,7 +495,24 @@
                 }
             }
 
-         
+            async function disconnectWallet() {
+                try {
+                    const provider = getProvider();
+                    if (provider && provider.disconnect) {
+                        await provider.disconnect();
+                        console.log('Wallet disconnected');
+                    }
+                    connected = false;
+                    currentAccount = null;
+                    currentWallet = null;
+                    updateButtonState();
+                    showResponse('Wallet disconnected successfully', true);
+                } catch (error) {
+                    console.error('Failed to disconnect wallet:', error);
+                    showResponse('Failed to disconnect wallet', false);
+                }
+            }
+
             function showResponse(message, isSuccess) {
                 const responseDiv = document.getElementById('response');
                 responseDiv.textContent = message;
@@ -263,29 +520,124 @@
                 responseDiv.style.display = 'block';
             }
 
-       
-            document.addEventListener('DOMContentLoaded', () => {
+            async function formatJSON(obj) {
+                const jsonLine = (key, value, isLast = false) => {
+                    const comma = isLast ? '' : ',';
+                    if (typeof value === 'object' && value !== null) {
+                        return `<div class="json-indent">
+                            <span class="json-key">"${key}"</span><span class="json-mark">: </span>${formatJSON(value)}${comma}
+                        </div>`;
+                    }
+                    return `<div class="json-indent">
+                        <span class="json-key">"${key}"</span><span class="json-mark">: </span>${formatJSONValue(value)}${comma}
+                    </div>`;
+                };
+
+                const formatJSONValue = (value) => {
+                    if (typeof value === 'string') {
+                        return `<span class="json-string">"${value}"</span>`;
+                    }
+                    if (typeof value === 'number') {
+                        return `<span class="json-number">${value}</span>`;
+                    }
+                    if (typeof value === 'boolean') {
+                        return `<span class="json-boolean">${value}</span>`;
+                    }
+                    if (value === null) {
+                        return `<span class="json-null">null</span>`;
+                    }
+                    return value;
+                };
+
+                if (Array.isArray(obj)) {
+                    if (obj.length === 0) return '[]';
+                    return `<span class="json-mark">[</span>
+                        ${obj.map((item, index) => formatJSONValue(item) + (index < obj.length - 1 ? ',' : '')).join('')}
+                    <span class="json-mark">]</span>`;
+                }
+
+                const entries = Object.entries(obj);
+                if (entries.length === 0) return '{}';
+                
+                return `<span class="json-mark">{</span>
+                    ${entries.map(([key, value], index) => 
+                        jsonLine(key, value, index === entries.length - 1)
+                    ).join('')}
+                <span class="json-mark">}</span>`;
+            }
+
+            function formatTransactionDetails(data) {
+                if (!data) return '<div class="tx-row"><span class="label">详情:</span><span class="value">无详情</span></div>';
+                
+                let detailsHtml = '';
+                
+                // 将每个字段单独一行显示
+                Object.entries(data).forEach(([key, value]) => {
+                    let displayValue = typeof value === 'object' ? JSON.stringify(value) : value;
+                    detailsHtml += `
+                        <div class="tx-row">
+                            <span class="label">${key}:</span>
+                            <span class="value">${displayValue}</span>
+                        </div>
+                    `;
+                });
+                
+                return detailsHtml;
+            }
+
+            async function fetchTransactionInfo(txId) {
+                try {
+                    const response = await fetch(`/api/tx/get/${txId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch transaction info');
+                    }
+                    const data = await response.json();
+                    console.log('Transaction info:', data);
+                    
+                    const txIdDisplay = document.getElementById('txIdDisplay');
+                    let displayContent = `
+                        <div class="tx-info">
+                            <div class="tx-row">
+                                <span class="label">type:</span>
+                                <span class="value">${data.type}</span>
+                            </div>
+                            ${formatTransactionDetails(data.data)}
+                        </div>
+                    `;
+                    txIdDisplay.innerHTML = displayContent;
+                    
+                    return data;
+                } catch (error) {
+                    console.error('Failed to fetch transaction info:', error);
+                    showResponse('Failed to fetch transaction info: ' + (error.message || 'Unknown error'), false);
+                    throw error;
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', async function() {
+                console.log('DOM loaded, initializing...');
+                initializeWallets();
                 initializeDisplay();
+                
+                const txId = window.TRANSACTION_ID;
+                if (txId) {
+                    try {
+                        await fetchTransactionInfo(txId);
+                    } catch (error) {
+                        console.error('Failed to fetch initial transaction info:', error);
+                    }
+                }
+                
+                document.getElementById('walletSelect').addEventListener('change', handleWalletChange);
+                document.getElementById('disconnectButton').addEventListener('click', disconnectWallet);
+                
+                checkWalletConnection();
+                updateButtonState();
             });
 
-       
             window.addEventListener('load', async () => {
-                await checkPhantomWallet();
+                await checkWalletConnection();
                 updateButtonState();
-                if (phantom && !connected) {
-                    try {
-                        await connectWallet();
-                    } catch (error) {
-                        console.error('Failed to connect wallet:', error);
-                    }
-                }
-                if (phantom && connected) {
-                    try {
-                        await sendTransaction();
-                    } catch (error) {
-                        console.error('Failed to send transaction:', error);
-                    }
-                }
             });
         } catch (error) {
             console.error('Script execution error:', error);

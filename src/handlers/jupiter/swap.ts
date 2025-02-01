@@ -15,39 +15,35 @@ type Payload = z.infer<typeof PayloadSchema>;
 const connection = new Connection(process.env.SOLANA_RPC_URL || clusterApiUrl('mainnet-beta'), 'confirmed');
 
 export class SwapHandler implements TransactionHandler {
-  async create(payload: Payload): Promise<{ data?: Payload, error?: string }> {
+  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
-      return {
-        error: validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
-      };
+      throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
 
-    let inputMint;
-    try {
-      validateTokenAddress(payload.inputToken);
-      validateTokenAddress(payload.outputToken);
-      inputMint = await getMint(connection, new PublicKey(payload.inputToken));
-    } catch (error) {
-      return { error: (error as Error).message };
-    }
+    validateTokenAddress(payload.inputToken);
+    validateTokenAddress(payload.outputToken);
 
     return {
+      chain: "solana",
       data: {
         inputToken: payload.inputToken,
         outputToken: payload.outputToken,
-        amount: payload.amount * (10 ** inputMint.decimals),
+        amount: payload.amount,
       },
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<{ chain: string, base64: string, type?: string }> {
+  async build(data: Payload, publicKey: string): Promise<{ base64: string, type?: string }> {
+    const inputMint = await getMint(connection, new PublicKey(data.inputToken));
+    const amount = data.amount * (10 ** inputMint.decimals);
+
     // Get quote
     const quoteResponse = await (
       await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${data.inputToken}\
 &outputMint=${data.outputToken}\
-&amount=${data.amount}\
+&amount=${amount}\
 &slippageBps=300`)
     ).json();
 
@@ -68,7 +64,6 @@ export class SwapHandler implements TransactionHandler {
     ).json();
 
     return {
-      chain: "solana",
       type: "versioned",
       base64: swapTransaction,
     };

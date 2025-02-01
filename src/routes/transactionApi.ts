@@ -16,22 +16,32 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
     const handler = handlerRegistry.get(type);
     if (!handler) return res.status(400).json({ error: "Unsupported transaction type" });
 
-    const { data, error } = await handler.create(payload);
-    if (error) return res.status(400).json({ error });
+    let chain, data;
+    try {
+      ({ chain, data } = await handler.create(payload));
+    } catch (error) {
+      return res.status(400).json({ error: (error as Error).message });
+    }
 
     const txId = uuidv4();
     await prisma.transaction.create({
       data: {
         id: txId,
         type,
+        chain,
         data: JSON.stringify(data),
         expirationTime: new Date(Date.now() + EXPIRATION_TIME_SECONDS * 1000),
       },
     });
 
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    let url = `${req.protocol}://${req.get("host")}/tx/${txId}`;
+    if (chain !== "solana") { // temporary
+      url = `https://tx.unifai.network/tx/${txId}`;
+    }
+    // todo: use the following when the frontend is ready
+    // const url = `${process.env.FRONTEND_URL}/tx/${txId}`;
     res.status(200).json({
-      message: `Transaction created, ask the user to approve it at ${baseUrl}/tx/${txId}`,
+      message: `Transaction created, ask the user to approve it at ${url}`,
     });
   } catch (error) {
     next(error);
@@ -45,6 +55,7 @@ router.get("/get/:txId", async (req: Request, res: Response, next: NextFunction)
     const data = JSON.parse(transaction.data);
     res.json({
       type: transaction.type,
+      chain: transaction.chain,
       data: data,
     });
   } catch (error) {
@@ -62,10 +73,11 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
     if (!handler) return res.status(400).json({ error: "Unsupported transaction type" });
 
     const data = JSON.parse(transaction.data);
+    const chain = transaction.chain;
     const txn = await handler.build(data, publicKey);
 
     if (txn) {
-      res.json({ success: true, transaction: txn });
+      res.json({ success: true, transaction: { ...txn, chain } });
     } else {
       throw new Error("Transaction build failed");
     }
@@ -79,7 +91,8 @@ router.post("/complete", async (req: Request, res: Response, next: NextFunction)
     const { txId, txHash } = req.body;
     if (!txId || !txHash) return res.status(400).json({ error: "Missing transaction ID or hash" });
 
-    const transaction = await getPendingTransaction(txId);
+    await getPendingTransaction(txId);
+
     await prisma.transaction.update({
       where: { id: txId },
       data: { txnHash: txHash },

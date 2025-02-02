@@ -26,3 +26,13 @@ export function validateEvmChain(chain: string) {
     throw new Error(`Unsupported EVM chain: ${chain}`);
   }
 }
+
+export async function getTokenDecimals(chain: string, tokenAddress: string): Promise<number> {
+  const provider = getEvmProvider(chain);
+  const tokenContract = new ethers.Contract(
+    tokenAddress,
+    ['function decimals() view returns (uint8)'],
+    provider
+  );
+  return await tokenContract.decimals();
+}

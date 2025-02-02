@@ -342,7 +342,7 @@
                 }
             }
 
-            async function fetchUnsignedTransaction(txId, publicKey) {
+            async function fetchUnsignedTransactions(txId, publicKey) {
                 try {
                     console.log('——————————Fetching unsigned transaction with:', {
                         txId,
@@ -368,7 +368,7 @@
                     const data = await response.json();
                     console.log('API Response data:', data);
                     
-                    if (!data.success || !data.transaction?.base64) {
+                    if (!data.success || !data.transactions?.length) {
                         console.error('Invalid transaction data:', data);
                         throw new Error('Invalid transaction data');
                     }
@@ -417,71 +417,73 @@
                     }
 
                     try {
-                        const transactionData = await fetchUnsignedTransaction(txId, currentAccount.toString());
-                        console.log('Transaction data:', transactionData);
+                        const data = await fetchUnsignedTransactions(txId, currentAccount.toString());
+                        console.log('Transactions:', data);
 
-                        const transactionBuffer = new Uint8Array(atob(transactionData.transaction.base64).split('').map(c => c.charCodeAt(0)));
-                        console.log('Transaction buffer:', transactionBuffer);
+                        for (const txn of data.transactions) {
+                            const transactionBuffer = new Uint8Array(atob(txn.base64).split('').map(c => c.charCodeAt(0)));
+                            console.log('Transaction buffer:', transactionBuffer);
 
-                        let transaction;
-                        if (transactionData.transaction.type === 'legacy') {
-                    
-                            transaction = solanaWeb3.Transaction.from(transactionBuffer);
-                            console.log('Creating legacy transaction',transaction);
-                        } else {
-                     
-                            transaction = solanaWeb3.VersionedTransaction.deserialize(transactionBuffer);
-                            console.log('Creating versioned transaction',transaction);
-                        }
-
-                        console.log('--------------------------------Created transaction--------------------------------', {
-                            type: transactionData.transaction.type,
-                            isVersioned: transaction instanceof solanaWeb3.VersionedTransaction,
-                            isLegacy: transaction instanceof solanaWeb3.Transaction,
-                            feePayer: transaction.feePayer?.toString(),
-                            recentBlockhash: transaction.recentBlockhash
-                        });
-
-                        if (selectedWalletType === 'coinbase') {
-                            try {
-                                console.log('Coinbase wallet signAndSendTransaction',transaction);
-                                const { signature } = await window.coinbaseSolana.signAndSendTransaction(transaction);
-                                showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
-                                try {
-                                    await completeTransaction(txId, signature);
-                                } catch (error) {
-                                    console.error('Failed to complete transaction:', error);
-                                }
-                            } catch (error) {
-                                console.error('Coinbase transaction error:', error);
+                            let transaction;
+                            if (txn.type === 'legacy') {
+                        
+                                transaction = solanaWeb3.Transaction.from(transactionBuffer);
+                                console.log('Creating legacy transaction',transaction);
+                            } else {
+                        
+                                transaction = solanaWeb3.VersionedTransaction.deserialize(transactionBuffer);
+                                console.log('Creating versioned transaction',transaction);
                             }
-                        } else {
-                            try {
-                                console.log('Using other wallet flow');
-                                const signedTransaction = await currentWallet.signTransaction(transaction);
-                                console.log('Transaction signed');
 
-                                const connection = new solanaWeb3.Connection(
-                                    'https://api.mainnet-beta.solana.com',
-                                    'confirmed'
-                                );
+                            console.log('--------------------------------Created transaction--------------------------------', {
+                                type: txn.type,
+                                isVersioned: transaction instanceof solanaWeb3.VersionedTransaction,
+                                isLegacy: transaction instanceof solanaWeb3.Transaction,
+                                feePayer: transaction.feePayer?.toString(),
+                                recentBlockhash: transaction.recentBlockhash
+                            });
 
-                                const signature = await connection.sendRawTransaction(
-                                    signedTransaction.serialize()
-                                );
-                                console.log('Transaction sent:', signature);
-
-                                showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
-
+                            if (selectedWalletType === 'coinbase') {
                                 try {
-                                    await completeTransaction(txId, signature);
+                                    console.log('Coinbase wallet signAndSendTransaction',transaction);
+                                    const { signature } = await window.coinbaseSolana.signAndSendTransaction(transaction);
+                                    showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
+                                    try {
+                                        await completeTransaction(txId, signature);
+                                    } catch (error) {
+                                        console.error('Failed to complete transaction:', error);
+                                    }
                                 } catch (error) {
-                                    console.error('Failed to complete transaction:', error);
+                                    console.error('Coinbase transaction error:', error);
                                 }
-                            } catch (error) {
-                                console.error('Transaction error:', error);
-                                showResponse('Transaction failed: ' + (error.message || 'Unknown error'), false);
-                                throw error;
+                            } else {
+                                try {
+                                    console.log('Using other wallet flow');
+                                    const signedTransaction = await currentWallet.signTransaction(transaction);
+                                    console.log('Transaction signed');
+
+                                    const connection = new solanaWeb3.Connection(
+                                        solanaWeb3.clusterApiUrl('mainnet-beta'),
+                                        'confirmed'
+                                    );
+
+                                    const signature = await connection.sendRawTransaction(
+                                        signedTransaction.serialize()
+                                    );
+                                    console.log('Transaction sent:', signature);
+
+                                    showResponse(`Transaction sent: https://solscan.io/tx/${signature}`, true);
+
+                                    try {
+                                        await completeTransaction(txId, signature);
+                                    } catch (error) {
+                                        console.error('Failed to complete transaction:', error);
+                                    }
+                                } catch (error) {
+                                    console.error('Transaction error:', error);
+                                    showResponse('Transaction failed: ' + (error.message || 'Unknown error'), false);
+                                    throw error;
+                                }
                             }
                         }
                     } catch (error) {

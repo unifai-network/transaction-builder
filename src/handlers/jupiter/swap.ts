@@ -20,6 +20,8 @@ export class SwapHandler implements TransactionHandler {
       throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
 
+    payload = validation.data;
+
     validateSolanaAddress(payload.inputToken);
     validateSolanaAddress(payload.outputToken);
 
@@ -33,7 +35,7 @@ export class SwapHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<{ base64: string, type?: string }> {
+  async build(data: Payload, publicKey: string): Promise<Array<{ base64: string, type?: string }>> {
     const inputMint = await getMint(connection, new PublicKey(data.inputToken));
     const amount = data.amount * (10 ** inputMint.decimals);
 
@@ -61,9 +63,9 @@ export class SwapHandler implements TransactionHandler {
       })
     ).json();
 
-    return {
+    return [{
       type: "versioned",
       base64: swapTransaction,
-    };
+    }];
   }
 }

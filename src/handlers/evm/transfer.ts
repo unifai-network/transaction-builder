@@ -38,7 +38,7 @@ export class TransferHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, address: string): Promise<{ json: string }> {
+  async build(data: Payload, address: string): Promise<{ hex: string }> {
     validateEvmAddress(address);
 
     const provider = getEvmProvider(data.chain);
@@ -78,8 +78,10 @@ export class TransferHandler implements TransactionHandler {
       };
     }
 
+    const serializedTx = ethers.Transaction.from(transaction).serialized;
+
     return {
-      json: transaction,
+      hex: serializedTx,
     }
   }
 }

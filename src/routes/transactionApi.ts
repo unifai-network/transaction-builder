@@ -74,10 +74,10 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
 
     const data = JSON.parse(transaction.data);
     const chain = transaction.chain;
-    const txn = await handler.build(data, address);
+    const txns = await handler.build(data, address);
 
-    if (txn) {
-      res.json({ success: true, transaction: { ...txn, chain } });
+    if (txns && txns.length > 0) {
+      res.json({ success: true, transactions: txns.map(txn => ({ ...txn, chain })) });
     } else {
       throw new Error("Transaction build failed");
     }

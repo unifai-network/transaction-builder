@@ -1,12 +1,15 @@
 import { z } from 'zod';
 import { ethers } from 'ethers';
 import { TransactionHandler } from "../TransactionHandler";
-import { EVM_CHAIN_IDS, validateEvmAddress, validateEvmChain, getEvmProvider } from '../../utils/evm';
+import { EVM_CHAIN_IDS, validateEvmAddress, validateEvmChain, getEvmProvider, getTokenDecimals } from '../../utils/evm';
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
   recipient: z.string().nonempty("Missing required field: recipient"),
-  amount: z.string().nonempty("Missing required field: amount"),
+  amount: z.union([
+    z.string().nonempty("Missing required field: amount"),
+    z.number().positive("Amount must be positive")
+  ]),
   token: z.string().optional(),
 });
 
@@ -20,12 +23,14 @@ export class TransferHandler implements TransactionHandler {
       throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
 
+    payload = validation.data;
+
     validateEvmChain(payload.chain);
 
     validateEvmAddress(payload.recipient);
 
-    if (payload.token && !ethers.isAddress(payload.token)) {
-      throw new Error('Invalid token address');
+    if (payload.token) {
+      validateEvmAddress(payload.token);
     }
 
     if (isNaN(Number(payload.amount))) {
@@ -38,20 +43,21 @@ export class TransferHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, address: string): Promise<{ hex: string }> {
+  async build(data: Payload, address: string): Promise<Array<{ hex: string }>> {
     validateEvmAddress(address);
 
     const provider = getEvmProvider(data.chain);
     
     const feeData = await provider.getFeeData();
     
-    const amountInWei = ethers.parseEther(data.amount);
-    
     let transaction: any;
 
     const chainId = EVM_CHAIN_IDS[data.chain];
 
     if (data.token) {
+      const decimals = await getTokenDecimals(data.chain, data.token);
+      const amountInWei = ethers.parseUnits(data.amount.toString(), decimals);
+
       const erc20Interface = new ethers.Interface([
         'function transfer(address to, uint256 amount)'
       ]);
@@ -69,6 +75,7 @@ export class TransferHandler implements TransactionHandler {
         maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString(),
       };
     } else {
+      const amountInWei = ethers.parseEther(data.amount.toString());
       transaction = {
         chainId,
         to: data.recipient,
@@ -78,10 +85,10 @@ export class TransferHandler implements TransactionHandler {
       };
     }
 
-    const serializedTx = ethers.Transaction.from(transaction).serialized;
+    const serializedTx = ethers.Transaction.from(transaction).unsignedSerialized;
 
-    return {
+    return [{
       hex: serializedTx,
-    }
+    }];
   }
 }

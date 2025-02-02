@@ -25,17 +25,19 @@ export class PumpFunLaunchHandler implements TransactionHandler {
       throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
 
+    payload = validation.data;
+
     return {
       chain: "solana",
       data: payload,
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<{ base64: string, type?: string }> {
+  async build(data: Payload, publicKey: string): Promise<Array<{ base64: string, type?: string }>> {
     const txn = await launchPumpFunToken(publicKey, data.tokenName, data.tokenTicker, data.description, data.imageUrl, data);
-    return {
+    return [{
       type: "versioned",
       base64: txn,
-    };
+    }];
   }
 }

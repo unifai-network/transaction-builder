@@ -28,6 +28,9 @@ export function validateEvmChain(chain: string) {
 }
 
 export async function getTokenDecimals(chain: string, tokenAddress: string): Promise<number> {
+  if (tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+    return 18;
+  }
   const provider = getEvmProvider(chain);
   const tokenContract = new ethers.Contract(
     tokenAddress,

@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { getMint } from "@solana/spl-token";
 import { TransactionHandler } from "../TransactionHandler";
-import { validateSolanaAddress } from '../../utils/solana';
+import { connection, validateSolanaAddress } from '../../utils/solana';
 
 const PayloadSchema = z.object({
   inputToken: z.string().nonempty("Missing required field: inputToken"),
@@ -11,8 +11,6 @@ const PayloadSchema = z.object({
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
-
-const connection = new Connection(process.env.SOLANA_RPC_URL || clusterApiUrl('mainnet-beta'), 'confirmed');
 
 export class SwapHandler implements TransactionHandler {
   async create(payload: Payload): Promise<{ chain: string, data: Payload }> {

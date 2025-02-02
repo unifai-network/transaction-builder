@@ -1,4 +1,6 @@
-import { PublicKey } from '@solana/web3.js';
+import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+
+export const connection = new Connection(process.env.SOLANA_RPC_URL || clusterApiUrl('mainnet-beta'), 'confirmed');
 
 export function validateSolanaAddress(token: string) {
   try {

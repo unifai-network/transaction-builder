@@ -48,8 +48,16 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
 router.get("/get/:txId", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { txId } = req.params;
-    const transaction = await getPendingTransaction(txId);
+
+    let transaction;
+    try {
+      transaction = await getPendingTransaction(txId);
+    } catch (error) {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+
     const data = JSON.parse(transaction.data);
+
     res.json({
       type: transaction.type,
       chain: transaction.chain,
@@ -65,7 +73,13 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
     const { txId, address } = req.body;
     if (!txId) return res.status(400).json({ error: "Missing transaction ID" });
 
-    const transaction = await getPendingTransaction(txId);
+    let transaction;
+    try {
+      transaction = await getPendingTransaction(txId);
+    } catch (error) {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+
     const handler = handlerRegistry.get(transaction.type);
     if (!handler) return res.status(400).json({ error: "Unsupported transaction type" });
 
@@ -88,7 +102,11 @@ router.post("/complete", async (req: Request, res: Response, next: NextFunction)
     const { txId, txHash } = req.body;
     if (!txId || !txHash) return res.status(400).json({ error: "Missing transaction ID or hash" });
 
-    await getPendingTransaction(txId);
+    try {
+      await getPendingTransaction(txId);
+    } catch (error) {
+      return res.status(404).json({ error: (error as Error).message });
+    }
 
     await prisma.transaction.update({
       where: { id: txId },

@@ -19,11 +19,12 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
     let chain, data;
     try {
       ({ chain, data } = await handler.create(payload));
+      chain = chain.toLowerCase();
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
     }
 
-    const txId = uuidv4();
+    const txId = `${chain}-${uuidv4()}`;
     await prisma.transaction.create({
       data: {
         id: txId,

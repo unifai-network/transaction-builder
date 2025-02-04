@@ -2,7 +2,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "start": "ts-node src/index.ts",
+    "start": "NODE_ENV=development ts-node src/index.ts",
     "vercel-build": "prisma generate && prisma migrate deploy && tsc"
   },
   "dependencies": {

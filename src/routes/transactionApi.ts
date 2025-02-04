@@ -34,9 +34,7 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
       },
     });
 
-    const url = process.env.NODE_ENV === 'development'
-      ? `${req.protocol}://localhost:3000/tx/${txId}`
-      : `${req.protocol}://${req.get("host")}/tx/${txId}`;
+    const url = `${process.env.FRONTEND_URL}/tx/${txId}`;
 
     res.status(200).json({
       message: `Transaction created, ask the user to approve it at ${url}`,

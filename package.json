@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
-    "@solana/spl-token": "^0.4.9",
+    "@solana/spl-token": "^0.4.12",
     "@solana/web3.js": "^1.98.0",
     "@types/cors": "^2.8.17",
     "cors": "^2.8.5",

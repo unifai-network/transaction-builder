@@ -5,7 +5,6 @@ import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 import transactionApi from './routes/transactionApi';
-import transactionPage from './routes/transactionPage';
 import { errorHandler } from './middleware/errorHandler';
 import path from "path";
 
@@ -15,10 +14,10 @@ const PORT = process.env.PORT || 8001;
 app.set('trust proxy', true);
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:8001', 'https://tx.unifai.network', 'https://txbuilder.unifai.network'], 
-  methods: ['GET', 'POST', 'OPTIONS'], 
+  origin: [process.env.FRONTEND_URL || ''],
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true 
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -26,7 +25,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/api/tx', transactionApi);
-app.use('/tx', transactionPage);
 
 app.use(errorHandler);
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TransactionHandler } from "../TransactionHandler";
+import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { launchPumpFunToken } from "./pumpfun";
 
 const PayloadSchema = z.object({
@@ -18,7 +18,7 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 export class PumpFunLaunchHandler implements TransactionHandler {
-  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
+  async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
@@ -33,11 +33,13 @@ export class PumpFunLaunchHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<Array<{ base64: string, type?: string }>> {
+  async build(data: Payload, publicKey: string): Promise<BuildTransactionResponse> {
     const txn = await launchPumpFunToken(publicKey, data.tokenName, data.tokenTicker, data.description, data.imageUrl, data);
-    return [{
-      type: "versioned",
-      base64: txn,
-    }];
+    return {
+      transactions: [{
+        type: "versioned",
+        base64: txn,
+      }],
+    };
   }
 }

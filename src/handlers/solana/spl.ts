@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Keypair, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, createInitializeMint2Instruction, createMintToInstruction, TOKEN_PROGRAM_ID, MINT_SIZE, createAssociatedTokenAccountInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { connection, validateSolanaAddress } from '../../utils/solana';
-import { TransactionHandler } from "../TransactionHandler";
+import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 
 const PayloadSchema = z.object({
   decimals: z.number().min(0).max(9).default(9),
@@ -14,7 +14,7 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 export class SplCreateHandler implements TransactionHandler {
-  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
+  async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
@@ -34,10 +34,11 @@ export class SplCreateHandler implements TransactionHandler {
     return {
       chain: "solana",
       data: payload,
+      message: "Token address will be known after transaction is completed",
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<Array<{ base64: string, type?: string, tokenAddress: string }>> {
+  async build(data: Payload, publicKey: string): Promise<BuildTransactionResponse> {
     const pubkey = new PublicKey(publicKey);
     const mintKeypair = Keypair.generate();
     const mintAuthority = data.mintAuthority ? new PublicKey(data.mintAuthority) : pubkey;
@@ -99,10 +100,12 @@ export class SplCreateHandler implements TransactionHandler {
         requireAllSignatures: false,
     });
 
-    return [{
+    return {
+      transactions: [{
         base64: serializedTransaction.toString('base64'),
         type: "legacy",
-        tokenAddress: mintKeypair.publicKey.toString(),
-    }];
+      }],
+      tokenAddress: mintKeypair.publicKey.toString(),
+    };
   }
 }

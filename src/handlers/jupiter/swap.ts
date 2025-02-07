@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PublicKey } from '@solana/web3.js';
 import { getMint } from "@solana/spl-token";
-import { TransactionHandler } from "../TransactionHandler";
+import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { connection, validateSolanaAddress } from '../../utils/solana';
 
 const PayloadSchema = z.object({
@@ -13,7 +13,7 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 export class SwapHandler implements TransactionHandler {
-  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
+  async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
@@ -35,7 +35,7 @@ export class SwapHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, publicKey: string): Promise<Array<{ base64: string, type?: string }>> {
+  async build(data: Payload, publicKey: string): Promise<BuildTransactionResponse> {
     const inputMint = await getMint(connection, new PublicKey(data.inputToken));
     const amount = data.amount * (10 ** inputMint.decimals);
 
@@ -63,9 +63,11 @@ export class SwapHandler implements TransactionHandler {
       })
     ).json();
 
-    return [{
-      type: "versioned",
-      base64: swapTransaction,
-    }];
+    return {
+      transactions: [{
+        type: "versioned",
+        base64: swapTransaction,
+      }],
+    };
   }
 }

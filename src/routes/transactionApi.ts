@@ -16,9 +16,9 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
     const handler = handlerRegistry.get(type);
     if (!handler) return res.status(400).json({ error: "Unsupported transaction type" });
 
-    let chain, data;
+    let chain, data, message, additionalData;
     try {
-      ({ chain, data } = await handler.create(payload));
+      ({ chain, data, message, ...additionalData } = await handler.create(payload));
       chain = chain.toLowerCase();
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
@@ -38,7 +38,8 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
     const url = `${process.env.FRONTEND_URL}/tx/${txId}`;
 
     res.status(200).json({
-      message: `Transaction created, ask the user to approve it at ${url}`,
+      message: `Transaction created, ask the user to approve it at ${url} .${message ? ` ${message}` : ""}`,
+      ...additionalData,
     });
   } catch (error) {
     next(error);
@@ -85,13 +86,13 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
 
     const data = JSON.parse(transaction.data);
     const chain = transaction.chain;
-    const txns = await handler.build(data, address);
+    const { transactions, ...additionalData } = await handler.build(data, address);
 
-    if (txns && txns.length > 0) {
-      res.json({ success: true, transactions: txns.map(txn => ({ ...txn, chain })) });
-    } else {
-      throw new Error("Transaction build failed");
-    }
+    res.json({
+      success: true,
+      transactions: transactions.map((txn: any) => ({ ...txn, chain })),
+      ...additionalData,
+    });
   } catch (error) {
     next(error);
   }

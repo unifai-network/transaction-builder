@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ethers } from 'ethers';
-import { TransactionHandler } from "../TransactionHandler";
+import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { EVM_CHAIN_IDS, validateEvmAddress, validateEvmChain, getEvmProvider, getTokenDecimals } from '../../utils/evm';
 
 const PayloadSchema = z.object({
@@ -16,7 +16,7 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 export class TransferHandler implements TransactionHandler {
-  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
+  async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
@@ -43,7 +43,7 @@ export class TransferHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, address: string): Promise<Array<{ hex: string }>> {
+  async build(data: Payload, address: string): Promise<BuildTransactionResponse> {
     validateEvmAddress(address);
 
     const provider = getEvmProvider(data.chain);
@@ -87,8 +87,10 @@ export class TransferHandler implements TransactionHandler {
 
     const serializedTx = ethers.Transaction.from(transaction).unsignedSerialized;
 
-    return [{
-      hex: serializedTx,
-    }];
+    return {
+      transactions: [{
+        hex: serializedTx,
+      }],
+    };
   }
 }

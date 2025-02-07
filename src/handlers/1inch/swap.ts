@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ethers } from 'ethers';
-import { TransactionHandler } from "../TransactionHandler";
+import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { getTokenDecimals, validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS } from '../../utils/evm';
 
 const PayloadSchema = z.object({
@@ -20,7 +20,7 @@ export class SwapHandler implements TransactionHandler {
   private readonly API_BASE_URL = "https://api.1inch.dev/swap/v6.0";
   private readonly API_KEY = process.env.ONEINCH_API_KEY;
 
-  async create(payload: Payload): Promise<{ chain: string, data: Payload }> {
+  async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
@@ -43,7 +43,7 @@ export class SwapHandler implements TransactionHandler {
     };
   }
 
-  async build(data: Payload, address: string): Promise<Array<{ hex: string }>> {
+  async build(data: Payload, address: string): Promise<BuildTransactionResponse> {
     validateEvmAddress(address);
 
     const decimals = await getTokenDecimals(data.chain, data.inputToken);
@@ -64,7 +64,7 @@ export class SwapHandler implements TransactionHandler {
     delete swapTx.from;
     transactions.push({ hex: ethers.Transaction.from(swapTx).unsignedSerialized });
 
-    return transactions;
+    return { transactions };
   }
 
   private async apiCall(endpoint: string, params: Record<string, any> = {}): Promise<any> {

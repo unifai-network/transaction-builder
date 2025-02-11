@@ -1,16 +1,22 @@
 import { ethers } from 'ethers';
 
 export const EVM_CHAIN_IDS: Record<string, number> = {
+  'eth': 1,
   'ethereum': 1,
   'base': 8453,
+  'bnb': 56,
+  'bsc': 56,
 };
 
 export function getEvmProvider(chain: string) {
-  if (chain === 'ethereum') {
+  if (chain === 'ethereum' || chain === 'eth') {
     return new ethers.JsonRpcProvider(process.env.ETHEREUM_RPC_URL);
   }
   if (chain === 'base') {
     return new ethers.JsonRpcProvider(process.env.BASE_RPC_URL);
+  }
+  if (chain === 'bnb' || chain === 'bsc') {
+    return new ethers.JsonRpcProvider(process.env.BNB_RPC_URL);
   }
   throw new Error(`Unsupported EVM chain: ${chain}`);
 }

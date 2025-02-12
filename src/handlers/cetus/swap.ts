@@ -1,8 +1,9 @@
+import BN from 'bn.js';
 import { z } from 'zod';
+import { Transaction } from '@mysten/sui/transactions';
+import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { suiClient, validateSuiAddress, validateSuiCoinType } from '../../utils/sui'
-import { Transaction } from '@mysten/sui/transactions'
-import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk'
+import { suiClient, validateSuiAddress, validateSuiCoinType } from '../../utils/sui';
 
 const PayloadSchema = z.object({
   from: z.string().nonempty("Missing required field: from"),
@@ -28,27 +29,24 @@ export class SwapHandler implements TransactionHandler {
 
     return {
       chain: "sui",
-      data: {
-        from: payload.from,
-        target: payload.target,
-        amount: payload.amount,
-      },
+      data: payload,
     };
   }
 
   async build(data: Payload, wallet: string): Promise<BuildTransactionResponse> {
     validateSuiAddress(wallet);
-    const cetusClient = new AggregatorClient(undefined, wallet, suiClient, Env.Mainnet)
+
+    const cetusClient = new AggregatorClient(undefined, wallet, suiClient, Env.Mainnet);
 
     const fromCoinMetadata = await suiClient.getCoinMetadata({
       coinType: data.from,
-    })
+    });
 
     if (!fromCoinMetadata) {
       throw new Error(`Coin metadata not found for ${data.from}`);
     }
 
-    const amount = (data.amount * (10 ** fromCoinMetadata.decimals)).toFixed(0);
+    const amount = new BN(data.amount).mul(new BN(10).pow(new BN(fromCoinMetadata.decimals)));
 
     // true means fix input amount, false means fix output amount, default use true.
     const byAmountIn = true;
@@ -58,28 +56,28 @@ export class SwapHandler implements TransactionHandler {
       target: data.target,
       amount,
       byAmountIn,
-    })
+    });
 
     if (!routerRes) {
       throw new Error(`No router found for ${data.from} to ${data.target}`);
     }
 
-    const txb = new Transaction()
+    const txb = new Transaction();
 
     await cetusClient.fastRouterSwap({
       routers: routerRes,
       slippage: data.slippage,
       txb,
       refreshAllCoins: true,
-    })
+    });
 
-    txb.setSender(wallet)
+    txb.setSender(wallet);
 
     const txBytes = await txb.build({
       client: suiClient
-    })
+    });
 
-    const txBase64 = Buffer.from(txBytes).toString('base64')
+    const txBase64 = Buffer.from(txBytes).toString('base64');
 
     return {
       transactions: [{

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { suiClient, validateSuiAddress } from '../../utils/sui'
+import { suiClient, validateSuiAddress, validateSuiCoinType } from '../../utils/sui'
 import { Transaction } from '@mysten/sui/transactions'
 import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk'
 
@@ -23,8 +23,8 @@ export class SwapHandler implements TransactionHandler {
 
     payload = validation.data;
 
-    validateSuiAddress(payload.from);
-    validateSuiAddress(payload.target);
+    await validateSuiCoinType(payload.from);
+    await validateSuiCoinType(payload.target);
 
     return {
       chain: "sui",
@@ -37,6 +37,7 @@ export class SwapHandler implements TransactionHandler {
   }
 
   async build(data: Payload, wallet: string): Promise<BuildTransactionResponse> {
+    validateSuiAddress(wallet);
     const cetusClient = new AggregatorClient(undefined, wallet, suiClient, Env.Mainnet)
 
     const fromCoinMetadata = await suiClient.getCoinMetadata({

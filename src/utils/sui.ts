@@ -7,3 +7,18 @@ export function validateSuiAddress(address: string) {
     throw new Error(`${address} is not a valid Sui address.`);
   }
 }
+
+export async function validateSuiCoinType(coinType: string) {
+  try {
+    const coinTypeObject = await suiClient.getCoinMetadata({
+      coinType,
+    })
+
+    if (!coinTypeObject) {
+      throw new Error(`${coinType} is not a valid Sui coin type.`);
+    }
+  } catch (error) {
+    throw new Error(`${coinType} is not a valid Sui coin type.`);
+  }
+}
+

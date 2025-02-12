@@ -27,11 +27,7 @@ export class SwapHandler implements TransactionHandler {
 
     return {
       chain: "solana",
-      data: {
-        inputToken: payload.inputToken,
-        outputToken: payload.outputToken,
-        amount: payload.amount,
-      },
+      data: payload,
     };
   }
 

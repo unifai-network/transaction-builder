@@ -73,7 +73,7 @@ export class SwapHandler implements TransactionHandler {
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${this.API_KEY}`,
-        'accept': 'application/json'
+        'accept': 'application/json',
       }
     });
     if (!response.ok) {

@@ -25,6 +25,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.6",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.9",
     "prisma": "^6.3.0",

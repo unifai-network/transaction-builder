@@ -6,10 +6,13 @@
     "vercel-build": "prisma generate && prisma migrate deploy && tsc"
   },
   "dependencies": {
+    "@kamino-finance/klend-sdk": "^5.10.29",
     "@prisma/client": "^6.3.0",
     "@solana/spl-token": "^0.4.12",
     "@solana/web3.js": "^1.98.0",
+    "@types/bn.js": "^5.1.6",
     "@types/cors": "^2.8.17",
+    "bn.js": "^5.2.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.5",

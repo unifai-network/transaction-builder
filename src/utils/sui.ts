@@ -10,15 +10,13 @@ export function validateSuiAddress(address: string) {
 }
 
 export async function validateSuiCoinType(coinType: string) {
+  let coinTypeObject;
   try {
-    const coinTypeObject = await suiClient.getCoinMetadata({
-      coinType,
-    })
-
-    if (!coinTypeObject) {
-      throw new Error(`${coinType} is not a valid Sui coin type.`);
-    }
+    coinTypeObject = await suiClient.getCoinMetadata({ coinType });
   } catch (error) {
+    throw new Error(`Error validating Sui coin type: ${error}`);
+  }
+  if (!coinTypeObject) {
     throw new Error(`${coinType} is not a valid Sui coin type.`);
   }
 }

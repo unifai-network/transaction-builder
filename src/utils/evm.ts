@@ -23,12 +23,12 @@ export function getEvmProvider(chain: string) {
 
 export function validateEvmAddress(address: string) {
   if (!ethers.isAddress(address)) {
-    throw new Error('Invalid EVM address');
+    throw new Error(`${address} is not a valid EVM address. If it's a ticker or symbol, please try to search for the corresponding token address first or ask user for it.`);
   }
 }
 
 export function validateEvmChain(chain: string) {
-  if (!EVM_CHAIN_IDS[chain.toLowerCase()]) {
+  if (!EVM_CHAIN_IDS[chain]) {
     throw new Error(`Unsupported EVM chain: ${chain}`);
   }
 }

@@ -5,7 +5,7 @@ export const suiClient = new SuiClient({ url: process.env.SUI_RPC_URL || "https:
 
 export function validateSuiAddress(address: string) {
   if (!isValidSuiAddress(address)) {
-    throw new Error(`${address} is not a valid Sui address.`);
+    throw new Error(`${address} is not a valid Sui address. If it's a ticker or symbol, please try to search for the corresponding token address first or ask user for it.`);
   }
 }
 

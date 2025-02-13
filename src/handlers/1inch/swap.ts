@@ -29,6 +29,10 @@ export class SwapHandler implements TransactionHandler {
 
     payload = validation.data;
 
+    payload.chain = payload.chain.toLowerCase();
+    payload.inputToken = payload.inputToken.toLowerCase();
+    payload.outputToken = payload.outputToken.toLowerCase();
+
     validateEvmChain(payload.chain);
     validateEvmAddress(payload.inputToken);
     validateEvmAddress(payload.outputToken);

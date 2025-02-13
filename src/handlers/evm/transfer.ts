@@ -25,8 +25,10 @@ export class TransferHandler implements TransactionHandler {
 
     payload = validation.data;
 
-    validateEvmChain(payload.chain);
+    payload.chain = payload.chain.toLowerCase();
+    payload.recipient = payload.recipient.toLowerCase();
 
+    validateEvmChain(payload.chain);
     validateEvmAddress(payload.recipient);
 
     if (payload.token) {

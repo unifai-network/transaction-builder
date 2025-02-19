@@ -69,14 +69,12 @@ export class CompoundV2Handler implements TransactionHandler {
     const feeData = await provider.getFeeData();
 
     const decimals = await getTokenDecimals(data.chain, data.asset ? data.asset : '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-    const amountInWei = ethers.parseUnits(data.amount.toString());
+    const amountInWei = ethers.parseUnits(data.amount.toString(), decimals);
     if (data.action === "supply") {
       if(data.asset) {
         const allowance = await this.checkAllowance(data.asset, address, cTokenAddress, provider);
    
         if(allowance < amountInWei) {
-          const amountInWei = ethers.parseUnits(data.amount.toString(), decimals);
-   
           const erc20Interface = new ethers.Interface([
            'function approve(address spender, uint256 amount)'
           ]);
@@ -109,7 +107,7 @@ export class CompoundV2Handler implements TransactionHandler {
 
     }
 
-    const actioncCallData = await this.actionTxCallDataBuild(data.action, data.amount, data.asset?true:false);
+    const actioncCallData = await this.actionTxCallDataBuild(data.action, amountInWei, data.asset?true:false);
 
     const actionTransaction = {
       chainId,
@@ -124,7 +122,7 @@ export class CompoundV2Handler implements TransactionHandler {
     return {transactions};
   }
 
-  private async actionTxCallDataBuild(action: string, amount: number|string, isErc20: boolean) : Promise<string>{
+  private async actionTxCallDataBuild(action: string, amount: bigint, isErc20: boolean) : Promise<string>{
     let abi;
     let functionName = "";
     if(action === "supply") {

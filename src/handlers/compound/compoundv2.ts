@@ -1,41 +1,31 @@
 import { ethers } from "ethers";
-import { boolean, z } from "zod";
+import { z } from "zod";
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS,getEvmProvider, getTokenDecimals } from "../../utils/evm";
+import { validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS, getEvmProvider, getTokenDecimals } from "../../utils/evm";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"), 
   asset: z.string().optional(), 
-  action: z.string().nonempty("Missing required field: action"), 
+  action: z.enum(['supply', 'borrow', 'repayBorrow', 'redeem'], {
+    errorMap: () => ({ message: "Action must be one of: supply, borrow, repayBorrow, redeem" })
+  }),
   amount: z.union([
     z.string().nonempty("Missing required field: amount"),
     z.number().positive("Amount must be positive"), 
   ]),
 });
 
-const actionMapping: Record<string, string> = {
-    supply: "mint",
-    borrow: "borrow",
-    repayBorrow: "repayBorrow",
-    redeem: "redeem",
-};
-
 const NativeAssetCTokenAddresses: { [chainId: number]: string } = {
   1: "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5", // cEther
-  // cbnb 56: "", 
-  // ceth 8453: "", 
 };
 
 const ComptrollerAddresses: { [chainId: number]: string } = {
-  1: "0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b", // Ether
-  // bnb 56: "", 
-  // base 8453: "" 
+  1: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B", // Ether
 };
 
 type Payload = z.infer<typeof PayloadSchema>;
 
-export class CompoundHandler implements TransactionHandler {
-
+export class CompoundV2Handler implements TransactionHandler {
   async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
     if (!validation.success) {
@@ -44,8 +34,14 @@ export class CompoundHandler implements TransactionHandler {
 
     payload = validation.data;
 
+    payload.chain = payload.chain.toLowerCase();
+    payload.asset = payload.asset?.toLowerCase();
+
     validateEvmChain(payload.chain);
-    if(payload.asset) validateEvmAddress(payload.asset);
+
+    if(payload.asset) {
+      validateEvmAddress(payload.asset);
+    }
 
     if (isNaN(Number(payload.amount))) {
       throw new Error("Amount must be a valid number");
@@ -63,21 +59,14 @@ export class CompoundHandler implements TransactionHandler {
     const chainId = EVM_CHAIN_IDS[data.chain];
     const transactions: Array<{ hex: string }> = [];
 
-    const COMPTROLLER_ADDRESS = ComptrollerAddresses[chainId];
     const cTokenAddress = await this.getCTokenAddress(data.asset, data.chain, chainId);
 
     if (!cTokenAddress) {
       throw new Error("cToken not found for the given asset");
     }
 
-    const provider = getEvmProvider(chain);
+    const provider = getEvmProvider(data.chain);
     const feeData = await provider.getFeeData();
-
-    let txData: any;
-    const methodName = actionMapping[data.action];
-    if (!methodName) {
-      throw new Error("Unsupported action");
-    }
 
     const decimals = await getTokenDecimals(data.chain, data.asset ? data.asset : '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
     const amountInWei = ethers.parseUnits(data.amount.toString());
@@ -129,6 +118,7 @@ export class CompoundHandler implements TransactionHandler {
       maxFeePerGas: feeData.maxFeePerGas?.toString(),
       maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString(),
     };
+  
     transactions.push({ hex: ethers.Transaction.from(actionTransaction).unsignedSerialized });
 
     return {transactions};
@@ -151,9 +141,10 @@ export class CompoundHandler implements TransactionHandler {
     } else if (action === 'repayBorrow') {
       abi = 'function repayBorrow(uint repayAmount) returns (uint)'
       functionName = "repayBorrow";
+    } else {
+      throw new Error(`Unsupported action: ${action}`);
     }
 
-    if (abi === undefined) return ''; 
     const actionInterface = new ethers.Interface([abi]);
 
     const callData = actionInterface.encodeFunctionData(
@@ -212,4 +203,3 @@ export class CompoundHandler implements TransactionHandler {
     return BigInt(allowance);
   }
 }
-

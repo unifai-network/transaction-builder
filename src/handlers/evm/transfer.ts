@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ethers } from 'ethers';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { EVM_CHAIN_IDS, validateEvmAddress, validateEvmChain, getEvmProvider, getTokenDecimals } from '../../utils/evm';
+import { EVM_CHAIN_IDS, validateEvmAddress, validateEvmChain, getEvmProvider, getTokenDecimals, parseUnits } from '../../utils/evm';
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
@@ -58,7 +58,7 @@ export class TransferHandler implements TransactionHandler {
 
     if (data.token) {
       const decimals = await getTokenDecimals(data.chain, data.token);
-      const amountInWei = ethers.parseUnits(data.amount.toString(), decimals);
+      const amountInWei = parseUnits(data.amount, decimals);
 
       const erc20Interface = new ethers.Interface([
         'function transfer(address to, uint256 amount)'
@@ -77,7 +77,7 @@ export class TransferHandler implements TransactionHandler {
         maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString(),
       };
     } else {
-      const amountInWei = ethers.parseEther(data.amount.toString());
+      const amountInWei = parseUnits(data.amount, 18);
       transaction = {
         chainId,
         to: data.recipient,

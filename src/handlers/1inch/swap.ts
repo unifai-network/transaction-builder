@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ethers } from 'ethers';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { getTokenDecimals, validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS } from '../../utils/evm';
+import { getTokenDecimals, validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS, parseUnits } from '../../utils/evm';
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
@@ -51,7 +51,7 @@ export class SwapHandler implements TransactionHandler {
     validateEvmAddress(address);
 
     const decimals = await getTokenDecimals(data.chain, data.inputToken);
-    const amountInWei = ethers.parseUnits(data.amount.toString(), decimals);
+    const amountInWei = parseUnits(data.amount, decimals);
     const chainId = EVM_CHAIN_IDS[data.chain];
     const transactions: Array<{ hex: string }> = [];
 
@@ -104,7 +104,7 @@ export class SwapHandler implements TransactionHandler {
     const swapData = await this.apiCall(`/${chainId}/swap`, {
       src: data.inputToken,
       dst: data.outputToken,
-      amount: ethers.parseUnits(data.amount.toString(), decimals).toString(),
+      amount: parseUnits(data.amount, decimals).toString(),
       from: address,
       slippage: data.slippage,
       disableEstimate: 'true',

@@ -1,28 +1,34 @@
 import { ethers } from 'ethers';
 
 export const EVM_CHAIN_IDS: Record<string, number> = {
+  'eth': 1,
   'ethereum': 1,
   'base': 8453,
+  'bnb': 56,
+  'bsc': 56,
 };
 
 export function getEvmProvider(chain: string) {
-  if (chain === 'ethereum') {
+  if (chain === 'ethereum' || chain === 'eth') {
     return new ethers.JsonRpcProvider(process.env.ETHEREUM_RPC_URL);
   }
   if (chain === 'base') {
     return new ethers.JsonRpcProvider(process.env.BASE_RPC_URL);
+  }
+  if (chain === 'bnb' || chain === 'bsc') {
+    return new ethers.JsonRpcProvider(process.env.BNB_RPC_URL);
   }
   throw new Error(`Unsupported EVM chain: ${chain}`);
 }
 
 export function validateEvmAddress(address: string) {
   if (!ethers.isAddress(address)) {
-    throw new Error('Invalid EVM address');
+    throw new Error(`${address} is not a valid EVM address. If it's a ticker or symbol, please try to search for the corresponding token address first or ask user for it.`);
   }
 }
 
 export function validateEvmChain(chain: string) {
-  if (!EVM_CHAIN_IDS[chain.toLowerCase()]) {
+  if (!EVM_CHAIN_IDS[chain]) {
     throw new Error(`Unsupported EVM chain: ${chain}`);
   }
 }
@@ -38,4 +44,13 @@ export async function getTokenDecimals(chain: string, tokenAddress: string): Pro
     provider
   );
   return await tokenContract.decimals();
+}
+
+// ethers.parseUnits but also works for strings like '1e-18'
+export function parseUnits(amount: string|number, decimals: number) {
+  try {
+    return ethers.parseUnits(amount.toString(), decimals);
+  } catch (error) {
+    return ethers.parseUnits(Number(amount).toFixed(decimals), decimals);
+  }
 }

@@ -6,7 +6,12 @@
     "vercel-build": "prisma generate && prisma migrate deploy && tsc"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@kamino-finance/klend-sdk": "^5.10.29",
+=======
+    "@cetusprotocol/aggregator-sdk": "^0.3.22",
+    "@mysten/sui": "^1.21.2",
+>>>>>>> main
     "@prisma/client": "^6.3.0",
     "@project-serum/anchor": "^0.26.0",
     "@solana/spl-token": "^0.4.12",
@@ -30,6 +35,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.6",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.9",
     "prisma": "^6.3.0",

@@ -1,27 +1,66 @@
 import { z } from 'zod';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { wormhole, amount, signSendWait } from "@wormhole-foundation/sdk";
-import algorand from "@wormhole-foundation/sdk/algorand";
-import aptos from "@wormhole-foundation/sdk/aptos";
-import cosmwasm from "@wormhole-foundation/sdk/cosmwasm";
-import evm from "@wormhole-foundation/sdk/evm";
+import { wormhole } from "@wormhole-foundation/sdk";
+import { validateAddress } from '../../utils/validators';
+import { handleTokenAmount } from "./amountHandler";
 import solana from "@wormhole-foundation/sdk/solana";
+import evm from "@wormhole-foundation/sdk/evm";
 import sui from "@wormhole-foundation/sdk/sui";
-
-
 import {
   isTokenId,
   toNative,
 } from "@wormhole-foundation/sdk-definitions";
+import { Transaction } from '@solana/web3.js';
 
+
+const PayloadSchema = z.object({
+  token: z.object({
+    chain: z.string().nonempty("Missing required field: chain"),
+    address: z.string().nonempty("Missing required field: address"),
+  }).required(),
+  amount: z.union([
+    z.string().nonempty("Amount must not be empty"),
+    z.number().positive("Amount must be a positive number")
+  ]),
+  from: z.object({
+    chain: z.string().nonempty("Missing required field: chain"),
+    address: z.string().nonempty("Missing required field: address"),
+  }).required(),
+  to: z.object({
+    chain: z.string().nonempty("Missing required field: chain"),
+    address: z.string().nonempty("Missing required field: address"),
+  }).required(),
+  nativeGas: z.union([
+    z.string().nonempty("NativeGas must not be empty"),
+    z.number().nonnegative("NativeGas must be a non-negative number")
+  ]).optional().default("0.001"),
+});
+
+type Payload = z.infer<typeof PayloadSchema>;
 
 export class WormholeHandler implements TransactionHandler {
   private transferData: any | null = null;
+  
   async create(payload: any): Promise<CreateTransactionResponse> {
-    this.transferData = payload;
+    const validation = PayloadSchema.safeParse(payload);
+
+    if (!validation.success) {
+      throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
+    }
+
+    const validatedPayload = validation.data;
+    validateAddress(validatedPayload.from.chain, validatedPayload.from.address);
+    validateAddress(validatedPayload.token.chain, validatedPayload.token.address);
+    validateAddress(validatedPayload.to.chain, validatedPayload.to.address);
+    const normalizedPayload = {
+      ...validatedPayload,
+      amount: validatedPayload.amount.toString(),
+      nativeGas: validatedPayload.nativeGas.toString(),
+    };
+
     return {
-      chain: payload.from.chain,
-      data: payload,
+      chain: normalizedPayload.from.chain,
+      data: normalizedPayload,
     };
   }
 
@@ -29,31 +68,42 @@ export class WormholeHandler implements TransactionHandler {
     if (!data) {
       throw new Error('No transfer data found. Please call create() first.');
     }
+    const amount = await handleTokenAmount(data.token.chain, data.amount, data.token.address);
+    console.log('Debug: from.chain =', data.from.chain);
     const transactions = [];
-    const { transfer } = data;
-    const wh = await wormhole("Mainnet", [evm, solana, sui]);
-    const fromChain = await wh.getChain(transfer.from.chain);
-    const token = isTokenId(transfer.token) ? transfer.token.address : transfer.token;
+    const wh = await wormhole("Mainnet", [
+      evm,
+      solana,
+      sui
+    ]);
+    const fromChain = await wh.getChain(data.from.chain);
+    const recipient = {
+      chain: data.to.chain,
+      address: toNative(data.to.chain, data.to.address)
+    };
+    const token = isTokenId(data.token) ? data.token.address : data.token;
     const tb = await fromChain.getAutomaticTokenBridge();
-    const xfer = tb.transfer(senderAddress, transfer.to, token, transfer.amount, transfer.nativeGas);
-
+    const xfer = tb.transfer(senderAddress, recipient, token, amount, data.nativeGas);
     for await (const tx of xfer) {
-      console.log('Transaction object:', tx);
-      console.log('Transaction type:', typeof tx);
-      console.log('Transaction properties:', Object.keys(tx));
-      console.log('Transaction stringified:', JSON.stringify(tx, null, 2));
-      
-
-      if (transfer.from.chain === 'solana') {
+      console.log('tx', JSON.stringify(tx, null, 2));
+      if (data.from.chain === 'solana') {
+        if ('version' in tx) {
+          transactions.push({
+            type: 'versioned',
+            base64: tx.toString(),
+          });
+        } else {
+          transactions.push({
+            type: 'legacy',
+            base64: tx.toString(),
+          });
+        }
+      } else if (data.from.chain === 'evm') {
         transactions.push({
-          type: "versioned",
-          base64: tx.toString()
+          hex: tx.toString(),
+          chain: "ethereum" 
         });
-      } else if (transfer.from.chain === 'evm') {
-        transactions.push({
-          hex: tx.toString()
-        });
-      } else if (transfer.from.chain === 'sui') {
+      } else if (data.from.chain === 'sui') {
         transactions.push({
           base64: tx.toString()
         });
@@ -67,45 +117,3 @@ export class WormholeHandler implements TransactionHandler {
     };
   }
 }
-
-    // const senderAddress = toNative(signer.chain(), signer.address());//signer
-    // const tx = await signSendWait(fromChain, xfer, signer);
-
-// const transferDetails: TokenTransferDetails = {
-//   token: { chain: "Ethereum", address: "0xTokenAddress" },
-//   amount: 1000,
-//   from: { chain: "Ethereum", address: "0xFromAddress" },
-//   to: { chain: "BinanceSmartChain", address: "0xToAddress" },
-//   nativeGas: 0.001,
-// };
-// const Token = Wormhole.tokenId(transfer.token.chain,transfer.token.address);
-
-
-// async function testTransfer() {
-//   const handler = new WormholeHandler();
-//   const payload = {
-//     from: { 
-//       chain: 'solana',
-//       address: 'E1jA5rhhJupk9dceS8i9j8TP8qNScb1XjAZ6KvQrEBv1'
-//     },
-//     token: { 
-//       chain: 'solana',
-//       address: 'So11111111111111111111111111111111111111112'
-//     },
-//     to: { 
-//       chain: 'bnb',
-//       address: '0xbddf02772a5f7f75be2db4e9bd180f59f8ebde91'
-//     }, 
-//     amount: 0.1,
-//     nativeGas: 0.000005 
-//   };
-
-//   await handler.create(payload);
-//   const senderAddress = 'E1jA5rhhJupk9dceS8i9j8TP8qNScb1XjAZ6KvQrEBv1'; 
-//   const response = await handler.build(payload, senderAddress);
-//   console.log('Build response:', JSON.stringify(response, null, 2));
-// }
-
-
-// testTransfer();
-

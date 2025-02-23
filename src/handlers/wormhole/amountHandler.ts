@@ -23,9 +23,9 @@ export async function handleTokenAmount(chain: string, amount: number, tokenAddr
       const inputMint = await getMint(connection, new PublicKey(tokenAddress));
       return BigInt(Math.floor(amount * (10 ** inputMint.decimals)));
 
-    case 'evm':
+    case Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === chain.toLowerCase()):
       validateEvmAddress(tokenAddress);
-      const decimals = tokenAddress ? await getTokenDecimals(chain, tokenAddress) : 18;
+      const decimals = await getTokenDecimals(chain, tokenAddress);
       return parseUnits(amount.toString(), decimals);
       
     case 'sui':

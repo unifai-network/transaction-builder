@@ -10,7 +10,7 @@ import {
   isTokenId,
   toNative,
 } from "@wormhole-foundation/sdk-definitions";
-import { Transaction } from '@solana/web3.js';
+import { EVM_CHAIN_IDS } from '../../utils/evm';
 
 
 const PayloadSchema = z.object({
@@ -47,6 +47,10 @@ export class WormholeHandler implements TransactionHandler {
     if (!validation.success) {
       throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
     }
+
+    payload.from.chain = payload.from.chain.toLowerCase();
+    payload.token.chain = payload.token.chain.toLowerCase();
+    payload.to.chain = payload.to.chain.toLowerCase();
 
     const validatedPayload = validation.data;
     validateAddress(validatedPayload.from.chain, validatedPayload.from.address);
@@ -87,18 +91,10 @@ export class WormholeHandler implements TransactionHandler {
     for await (const tx of xfer) {
       console.log('tx', JSON.stringify(tx, null, 2));
       if (data.from.chain === 'solana') {
-        if ('version' in tx) {
-          transactions.push({
-            type: 'versioned',
-            base64: tx.toString(),
-          });
-        } else {
-          transactions.push({
-            type: 'legacy',
-            base64: tx.toString(),
-          });
-        }
-      } else if (data.from.chain === 'evm') {
+        transactions.push({
+          base64: tx.toString(),
+        });
+      } else if (Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === data.from.chain.toLowerCase())) {
         transactions.push({
           hex: tx.toString(),
           chain: "ethereum" 

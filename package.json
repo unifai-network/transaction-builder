@@ -6,8 +6,8 @@
     "vercel-build": "prisma generate && prisma migrate deploy && tsc"
   },
   "dependencies": {
-    "@kamino-finance/klend-sdk": "^5.10.29",
     "@cetusprotocol/aggregator-sdk": "^0.3.22",
+    "@kamino-finance/klend-sdk": "^3.0.1",
     "@mysten/sui": "^1.21.2",
     "@prisma/client": "^6.3.0",
     "@project-serum/anchor": "^0.26.0",

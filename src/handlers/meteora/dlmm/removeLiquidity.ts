@@ -5,7 +5,6 @@ import { BN } from "bn.js";
 import { PublicKey } from "@solana/web3.js";
 import DLMM from "@meteora-ag/dlmm";
 import Decimal from "decimal.js";
-import { getMint } from "@solana/spl-token";
 import { prepareTransactions } from "../utils";
 
 const PayloadSchema = z.object({
@@ -67,15 +66,11 @@ async function createTransactions(data: Payload, publicKey: PublicKey) {
   let minBinId = dlmm.getBinIdFromPrice(minPrice.toNumber(), true);
   let maxBinId = dlmm.getBinIdFromPrice(maxPrice.toNumber(), false);
 
-  console.log(position.positionData);
-
   minBinId = Math.max(minBinId, position.positionData.lowerBinId);
   maxBinId = Math.min(maxBinId, position.positionData.upperBinId);
 
   const { bins } = await dlmm.getBinsBetweenLowerAndUpperBound(minBinId, maxBinId);
   const binIds = bins.map(bin => bin.binId);
-
-  console.log(binIds);
 
   const txs = await dlmm.removeLiquidity({
     position: new PublicKey(data.position),

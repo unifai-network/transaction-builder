@@ -6,7 +6,7 @@ import * as pumpfun from "./pumpfun";
 import * as solana from "./solana";
 import * as cetus from "./cetus";
 import * as compound from "./compound";
-
+import * as wormhole from "./wormhole";
 export const handlerRegistry = new Map<string, TransactionHandler>();
 
 handlerRegistry.set("evm/transfer", new evm.TransferHandler());
@@ -16,3 +16,5 @@ handlerRegistry.set("pumpfun/launch", new pumpfun.PumpFunLaunchHandler());
 handlerRegistry.set("solana/spl-create", new solana.SplCreateHandler());
 handlerRegistry.set("cetus/swap", new cetus.SwapHandler());
 handlerRegistry.set("compound/v2", new compound.CompoundV2Handler());
+handlerRegistry.set("wormhole/bridge", new wormhole.WormholeHandler());
+

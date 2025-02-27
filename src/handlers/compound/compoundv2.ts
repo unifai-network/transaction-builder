@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { z } from "zod";
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS, getEvmProvider, getTokenDecimals } from "../../utils/evm";
+import { validateEvmAddress, validateEvmChain, EVM_CHAIN_IDS, getEvmProvider, getTokenDecimals, parseUnits } from "../../utils/evm";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"), 
@@ -69,7 +69,7 @@ export class CompoundV2Handler implements TransactionHandler {
     const feeData = await provider.getFeeData();
 
     const decimals = await getTokenDecimals(data.chain, data.asset ? data.asset : '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-    const amountInWei = ethers.parseUnits(data.amount.toString(), decimals);
+    const amountInWei = parseUnits(data.amount, decimals);
     if (data.action === "supply") {
       if(data.asset) {
         const allowance = await this.checkAllowance(data.asset, address, cTokenAddress, provider);

@@ -45,3 +45,12 @@ export async function getTokenDecimals(chain: string, tokenAddress: string): Pro
   );
   return await tokenContract.decimals();
 }
+
+// ethers.parseUnits but also works for strings like '1e-18'
+export function parseUnits(amount: string|number, decimals: number) {
+  try {
+    return ethers.parseUnits(amount.toString(), decimals);
+  } catch (error) {
+    return ethers.parseUnits(Number(amount).toFixed(decimals), decimals);
+  }
+}

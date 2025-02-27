@@ -17,6 +17,7 @@ import { ethers } from 'ethers';
 import { EVM_CHAIN_IDS, validateEvmAddress, validateEvmChain, getEvmProvider, getTokenDecimals, parseUnits } from '../../utils/evm';
 
 export async function handleTokenAmount(chain: string, amount: number, tokenAddress: string): Promise<bigint> {
+  console.log('获取代币精度', chain, amount, tokenAddress);
   switch (chain.toLowerCase()) {
     case 'solana':
       validateSolanaAddress(tokenAddress);

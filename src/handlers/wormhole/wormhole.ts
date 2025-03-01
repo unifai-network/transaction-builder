@@ -144,15 +144,15 @@ export class WormholeHandler implements TransactionHandler {
       );
       console.log('xfer_______',xfer);
 
-      const quote = await TokenTransfer.quoteTransfer(
-        wh,
-        source.chain,
-        destination.chain,
-        xfer.transfer
-      );
+      // const quote = await TokenTransfer.quoteTransfer(
+      //   wh,
+      //   source.chain,
+      //   destination.chain,
+      //   xfer.transfer
+      // );
 
-      if (xfer.transfer.automatic && quote.destinationToken.amount < 0)
-        throw 'The amount requested is too low to cover the fee and any native gas requested.';
+      // if (xfer.transfer.automatic && quote.destinationToken.amount < 0)
+      //   throw 'The amount requested is too low to cover the fee and any native gas requested.';
 
       // 1）提交交易到源链，传递签名者以签署任何交易
       // const senderAddress = toNative(source.chain, source.address); //源码逻辑
@@ -164,11 +164,14 @@ export class WormholeHandler implements TransactionHandler {
       // payload?: Uint8Array;
       // nativeGas?: bigint;
       const tb = await sendChain.getTokenBridge();
-      const xferlist = tb.transfer(toNativeSenderAddress, destination.address, token, amt);
-      console.log('xferlist__________', xferlist);
+      console.log('tb.transfer____',toNativeSenderAddress, destination.address, token, amt);
+      
+      const xferlist = tb.transfer(toNativeSenderAddress, destination.address, token.address, amt);
+ 
 
       const transactions = [];
       for await (const tx of xferlist) {
+        console.log('xferlist__________', JSON.stringify(xferlist));
         console.log('tx__________', tx);
         const rawTx = tx.transaction.transaction;
         if (params.from.chain.toLowerCase() === 'solana') {

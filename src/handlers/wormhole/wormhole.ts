@@ -1,4 +1,5 @@
 
+
 import {
   Chain,
   Network,
@@ -94,18 +95,20 @@ export class WormholeHandler implements TransactionHandler {
       // const rcvChain = wh.getChain('Monad');
       // 从本地密钥获取签名者，但任何实现
       // 签名者接口的东西（例如，围绕网络钱包的包装）都应该有效
-      const source = {
-        "chain": params.from.chain,
-        "address": params.from.address
-      };
-      const destination = {
-        "chain": params.to.chain,
-        "address": params.to.address
-      };
+
+      const source = { 
+        chain: params.from.chain,
+        address: Wormhole.chainAddress(params.from.chain, params.from.address),
+      }
+      const destination = { 
+        chain: params.to.chain,
+        address: Wormhole.chainAddress(params.to.chain, params.to.address),
+      }
 
       // 允许转移本地gas代币的快捷方式
-      const token = Wormhole.tokenId(sendChain.chain, 'native');   //demo 实现 源码 isTokenId(route.token) ? route.token.address : route.token;
-
+      // const token = Wormhole.tokenId(sendChain.chain, 'native');  
+      const token = Wormhole.tokenId(sendChain.chain, params.token.address);  
+   
       // 将自动转移设置为false以进行手动转移
       const automatic = false;
 
@@ -120,14 +123,14 @@ export class WormholeHandler implements TransactionHandler {
       // 定义要转移的代币数量
       const amt = amount.units(amount.parse(params.amount, decimals));
 
-  console.log('__________',   token,
-    amt,
-    source.address,
-    destination.address,
-    automatic,	
-    params.payload,
-    nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,);
-
+      console.log('__________',  
+        token,
+        amt,
+        source.address,
+        destination.address,
+        automatic,	
+        params.payload,
+        nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,);
 
       // 创建一个TokenTransfer对象 跟踪转移的状态
       const xfer = await wh.tokenTransfer(
@@ -139,6 +142,7 @@ export class WormholeHandler implements TransactionHandler {
         params.payload,
         nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,
       );
+      console.log('xfer_______',xfer);
 
       const quote = await TokenTransfer.quoteTransfer(
         wh,
@@ -152,9 +156,15 @@ export class WormholeHandler implements TransactionHandler {
 
       // 1）提交交易到源链，传递签名者以签署任何交易
       // const senderAddress = toNative(source.chain, source.address); //源码逻辑
-
+      // token: TokenId;
+      // amount: bigint;
+      // from: ChainAddress;
+      // to: ChainAddress;
+      // automatic?: boolean;
+      // payload?: Uint8Array;
+      // nativeGas?: bigint;
       const tb = await sendChain.getTokenBridge();
-      const xferlist = tb.transfer(toNativeSenderAddress, destination, token, amt, params.payload);
+      const xferlist = tb.transfer(toNativeSenderAddress, destination.address, token, amt);
       console.log('xferlist__________', xferlist);
 
       const transactions = [];

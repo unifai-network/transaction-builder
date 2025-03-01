@@ -27,6 +27,7 @@ import {
 } from "@wormhole-foundation/sdk-definitions";
 import { EVM_CHAIN_IDS } from '../../utils/evm';
 import { capitalizeFirstLetter } from '../../utils/stringUtils';
+import { log } from 'console';
 
 
 const PayloadSchema = z.object({
@@ -83,9 +84,9 @@ export class WormholeHandler implements TransactionHandler {
       params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
       params.token.chain = capitalizeFirstLetter(params.token.chain.toLowerCase());
       params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
-      console.log('Wormhole______________________________', params, senderAddress);
+      // console.log('Wormhole______________________________', params, senderAddress);
 
-
+      const toNativeSenderAddress = toNative(params.from.chain, senderAddress);
       const wh = await wormhole('Mainnet', [evm, solana, sui, aptos]);
 
       // 获取链上下文
@@ -103,10 +104,7 @@ export class WormholeHandler implements TransactionHandler {
       };
 
       // 允许转移本地gas代币的快捷方式
-      const token = Wormhole.tokenId(sendChain.chain, 'native');
-
-      // 定义要转移的代币数量
-      const amt = '0.01';
+      const token = Wormhole.tokenId(sendChain.chain, 'native');   //demo 实现 源码 isTokenId(route.token) ? route.token.address : route.token;
 
       // 将自动转移设置为false以进行手动转移
       const automatic = false;
@@ -119,25 +117,48 @@ export class WormholeHandler implements TransactionHandler {
       // 用于规范化金额以考虑代币的小数
       const decimals = await getTokenDecimals(wh, token, sendChain);
 
+      // 定义要转移的代币数量
+      const amt = amount.units(amount.parse(params.amount, decimals));
 
-      let route = {
+  console.log('__________',   token,
+    amt,
+    source.address,
+    destination.address,
+    automatic,	
+    params.payload,
+    nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,);
+
+
+      // 创建一个TokenTransfer对象 跟踪转移的状态
+      const xfer = await wh.tokenTransfer(
         token,
-        amount: amount.units(amount.parse(amt, decimals)),
-        source,
-        destination,
-        delivery: {
-          automatic,
-          nativeGas: nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,
-        },
-        sendChain,
-      }
-      console.log('route__________', route);
+        amt,
+        source.address,
+        destination.address,
+        automatic,	
+        params.payload,
+        nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,
+      );
 
-      // 如果未提供恢复交易ID，则执行代币转移
-      const xfer = await this.tokenTransfer(wh, route);
+      const quote = await TokenTransfer.quoteTransfer(
+        wh,
+        source.chain,
+        destination.chain,
+        xfer.transfer
+      );
+
+      if (xfer.transfer.automatic && quote.destinationToken.amount < 0)
+        throw 'The amount requested is too low to cover the fee and any native gas requested.';
+
+      // 1）提交交易到源链，传递签名者以签署任何交易
+      // const senderAddress = toNative(source.chain, source.address); //源码逻辑
+
+      const tb = await sendChain.getTokenBridge();
+      const xferlist = tb.transfer(toNativeSenderAddress, destination, token, amt, params.payload);
+      console.log('xferlist__________', xferlist);
 
       const transactions = [];
-      for await (const tx of xfer) {
+      for await (const tx of xferlist) {
         console.log('tx__________', tx);
         const rawTx = tx.transaction.transaction;
         if (params.from.chain.toLowerCase() === 'solana') {
@@ -180,47 +201,5 @@ export class WormholeHandler implements TransactionHandler {
     }
   }
 
-  async tokenTransfer<N extends Network>(
-    wh: Wormhole<N>,
-    route: {
-      token: TokenId;
-      amount: bigint;
-      source: any;
-      destination: any;
-      delivery?: {
-        automatic: boolean;
-        nativeGas?: bigint;
-      };
-      payload?: Uint8Array;
-      sendChain: any;
-    }
-  ) {
-    // 创建一个TokenTransfer对象以跟踪转移的状态
-    const xfer = await wh.tokenTransfer(
-      route.token,
-      route.amount,
-      route.source.address,
-      route.destination.address,
-      false,	// route.delivery?.automatic ?? false,
-      route.payload,
-      route.delivery?.nativeGas
-    );
 
-    const quote = await TokenTransfer.quoteTransfer(
-      wh,
-      route.source.chain,
-      route.destination.chain,
-      xfer.transfer
-    );
-
-    if (xfer.transfer.automatic && quote.destinationToken.amount < 0)
-      throw 'The amount requested is too low to cover the fee and any native gas requested.';
-
-    // 1）提交交易到源链，传递签名者以签署任何交易
-    const senderAddress = toNative(route.source.chain, route.source.address);
-    const token = isTokenId(route.token) ? route.token.address : route.token;
-    const tb = await route.sendChain.getTokenBridge();
-    const xferlist = tb.transfer(senderAddress, route.destination, token, route.amount, route.payload);
-    return xferlist;
-  }
 }

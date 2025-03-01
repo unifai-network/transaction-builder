@@ -1,12 +1,24 @@
+
+import {
+  Chain,
+  Network,
+  Wormhole,
+  amount,
+  wormhole,
+  TokenId,
+  TokenTransfer,
+} from '@wormhole-foundation/sdk';
+import evm from '@wormhole-foundation/sdk/evm';
+import solana from '@wormhole-foundation/sdk/solana';
+import sui from '@wormhole-foundation/sdk/sui';
+import aptos from '@wormhole-foundation/sdk/aptos';
+import { getTokenDecimals } from './helpers/helpers';
 import { z } from 'zod';
+import dotenv from 'dotenv';
+dotenv.config();
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { wormhole } from "@wormhole-foundation/sdk";
 import { validateAddress } from '../../utils/validators';
 import { handleTokenAmount } from "./amountHandler";
-import solana from "@wormhole-foundation/sdk/solana";
-import evm from "@wormhole-foundation/sdk/evm";
-import sui from "@wormhole-foundation/sdk/sui";
-import { Wormhole } from "@wormhole-foundation/sdk-connect";
 import { connection } from "../../utils/solana";
 import {
   isTokenId,
@@ -15,11 +27,7 @@ import {
 } from "@wormhole-foundation/sdk-definitions";
 import { EVM_CHAIN_IDS } from '../../utils/evm';
 import { capitalizeFirstLetter } from '../../utils/stringUtils';
-import { TokenTransfer } from "@wormhole-foundation/sdk-connect";
-import { amount } from "@wormhole-foundation/sdk";
-import dotenv from 'dotenv';
-import { log } from 'console';
-dotenv.config();
+
 
 const PayloadSchema = z.object({
   token: z.object({
@@ -58,14 +66,12 @@ export class WormholeHandler implements TransactionHandler {
     validateAddress(validatedPayload.from.chain, validatedPayload.from.address);
     validateAddress(validatedPayload.token.chain, validatedPayload.token.address);
     validateAddress(validatedPayload.to.chain, validatedPayload.to.address);
-
     console.log(validatedPayload);
     const normalizedPayload = {
       ...validatedPayload,
       amount: validatedPayload.amount.toString(),
       nativeGas: validatedPayload.nativeGas.toString(),
     };
-
     return {
       chain: normalizedPayload.from.chain,
       data: normalizedPayload,
@@ -77,95 +83,65 @@ export class WormholeHandler implements TransactionHandler {
       params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
       params.token.chain = capitalizeFirstLetter(params.token.chain.toLowerCase());
       params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
-      console.log('____ Wormhole params _____', params, senderAddress);
-      const wh = await wormhole("Mainnet", [evm, solana, sui], {
-        chains: {
-          Solana: {
-            rpc: process.env.SOLANA_RPC_URL,
-          },
-          Bsc: {
-            rpc: process.env.BNB_RPC_URL,
-          },
-          Sui: {
-            rpc: process.env.SUI_RPC_URL,
-          }
-        }
-      });
-      const fromChain = await wh.getChain(params.from.chain);
-      console.log('源链实例获取成功:', fromChain);
-      const automaticBridge = await fromChain.getAutomaticTokenBridge();
-      console.log('自动转账桥获取成功:', automaticBridge);
-      const senderAddress1 = toNative(params.from.chain, senderAddress);
-      const recipient = Wormhole.chainAddress(params.to.chain, params.to.address);
-      const tokenAddress = toNative(params.token.chain, params.token.address);
-      const transferAmount = await handleTokenAmount(params.from.chain, params.amount, params.token.address);
-      console.log('根据链和代币地址获取代币精度', transferAmount);
-      const tokenAccount = await fromChain.getTokenAccount(senderAddress1, tokenAddress);
-      console.log('代币账户信息:', tokenAccount);
-      if (!tokenAccount) {
-        console.log(`代币账户不存在，需要先${params.token.chain}创建相应的代币账户`);
-        console.log("代币地址:", params.token.address);
-        return { transactions: [] };
+      console.log('Wormhole______________________________', params, senderAddress);
+
+
+      const wh = await wormhole('Mainnet', [evm, solana, sui, aptos]);
+
+      // 获取链上下文
+      const sendChain = wh.getChain(params.from.chain);
+      // const rcvChain = wh.getChain('Monad');
+      // 从本地密钥获取签名者，但任何实现
+      // 签名者接口的东西（例如，围绕网络钱包的包装）都应该有效
+      const source = {
+        "chain": params.from.chain,
+        "address": params.from.address
+      };
+      const destination = {
+        "chain": params.to.chain,
+        "address": params.to.address
+      };
+
+      // 允许转移本地gas代币的快捷方式
+      const token = Wormhole.tokenId(sendChain.chain, 'native');
+
+      // 定义要转移的代币数量
+      const amt = '0.01';
+
+      // 将自动转移设置为false以进行手动转移
+      const automatic = false;
+
+      // 自动中继器能够将一些本地gas资金交付到目标账户
+      // 指定的本地gas金额将根据合同提供的交换率
+      // 以本地gas代币计价进行交换
+      const nativeGas = automatic ? '0.1' : undefined;
+
+      // 用于规范化金额以考虑代币的小数
+      const decimals = await getTokenDecimals(wh, token, sendChain);
+
+
+      let route = {
+        token,
+        amount: amount.units(amount.parse(amt, decimals)),
+        source,
+        destination,
+        delivery: {
+          automatic,
+          nativeGas: nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,
+        },
+        sendChain,
       }
-      console.log(`获取${params.to.chain}目标链代币信息...`);
-      const destChain = await wh.getChain(params.to.chain);
-      console.log(`${params.to.chain}目标链实例获取成功:`);
-      const destTokenAddress = await TokenTransfer.lookupDestinationToken(
-        fromChain,
-        destChain,
-        {
-          chain: params.to.chain, //  目标链
-          address: tokenAddress,  //  源链的 Token 地址
-        }
-      );
-     
-      console.log('获取最大可兑换的 gas 数量...');
-      const dtb = await destChain.getAutomaticTokenBridge();
-      const relayerFee = await dtb.getRelayerFee(params.to.chain, destTokenAddress.address);
-      console.log('当前 relayer 费用:', relayerFee.toString());
+      console.log('route__________', route);
 
-  
-      const nativeGas = relayerFee > BigInt(1000) ? relayerFee / BigInt(10) : BigInt(1);
-      console.log('计算后的 nativeGas:', nativeGas);
-
-
-      console.log('获取转账报价...');
-      const quote = await TokenTransfer.quoteTransfer(
-        wh,
-        fromChain,
-        destChain,
-        {
-          token: {
-            chain: params.from.chain,
-            address: tokenAddress
-          },
-          amount: transferAmount,
-          automatic: true,
-          nativeGas: nativeGas
-        }
-      );
-      console.log('转账报价获取成功:', quote);
-
-      if (quote.destinationToken.amount < BigInt(0)) {
-        console.log("错误: 转账金额不足以支付费用和目标链 gas");
-        return { transactions: [] };
-      }
-
-  
-      console.log('准备生成交易...');
-      const xfer = automaticBridge.transfer(
-        senderAddress1,
-        recipient,
-        tokenAddress,
-        transferAmount,
-        nativeGas
-      );
+      // 如果未提供恢复交易ID，则执行代币转移
+      const xfer = await this.tokenTransfer(wh, route);
 
       const transactions = [];
       for await (const tx of xfer) {
+        console.log('tx__________', tx);
         const rawTx = tx.transaction.transaction;
         if (params.from.chain.toLowerCase() === 'solana') {
-          console.log('===solana===',params.from.chain.toLowerCase());
+          console.log('===solana===', params.from.chain.toLowerCase());
           const isVersionedTransaction = rawTx.instructions && rawTx.version !== undefined;
           console.log('交易类型:', isVersionedTransaction ? 'versioned' : 'legacy');
           const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
@@ -179,14 +155,14 @@ export class WormholeHandler implements TransactionHandler {
             }).toString('base64'),
           });
         } else if (Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === params.from.chain.toLowerCase())) {
-          console.log('===evm===',params.from.chain.toLowerCase());
+          console.log('===evm===', params.from.chain.toLowerCase());
           transactions.push({
             hex: rawTx.serialize({
               requireAllSignatures: false,
             }).toString('base64'),
           });
         } else if (params.from.chain.toLowerCase() === 'sui') {
-          console.log('===sui===',params.from.chain.toLowerCase());
+          console.log('===sui===', params.from.chain.toLowerCase());
           const txBytes = tx.transaction;
           transactions.push({
             base64: rawTx.serialize({
@@ -202,5 +178,49 @@ export class WormholeHandler implements TransactionHandler {
       console.error('Wormhole transfer error:', error);
       throw error;
     }
+  }
+
+  async tokenTransfer<N extends Network>(
+    wh: Wormhole<N>,
+    route: {
+      token: TokenId;
+      amount: bigint;
+      source: any;
+      destination: any;
+      delivery?: {
+        automatic: boolean;
+        nativeGas?: bigint;
+      };
+      payload?: Uint8Array;
+      sendChain: any;
+    }
+  ) {
+    // 创建一个TokenTransfer对象以跟踪转移的状态
+    const xfer = await wh.tokenTransfer(
+      route.token,
+      route.amount,
+      route.source.address,
+      route.destination.address,
+      false,	// route.delivery?.automatic ?? false,
+      route.payload,
+      route.delivery?.nativeGas
+    );
+
+    const quote = await TokenTransfer.quoteTransfer(
+      wh,
+      route.source.chain,
+      route.destination.chain,
+      xfer.transfer
+    );
+
+    if (xfer.transfer.automatic && quote.destinationToken.amount < 0)
+      throw 'The amount requested is too low to cover the fee and any native gas requested.';
+
+    // 1）提交交易到源链，传递签名者以签署任何交易
+    const senderAddress = toNative(route.source.chain, route.source.address);
+    const token = isTokenId(route.token) ? route.token.address : route.token;
+    const tb = await route.sendChain.getTokenBridge();
+    const xferlist = tb.transfer(senderAddress, route.destination, token, route.amount, route.payload);
+    return xferlist;
   }
 }

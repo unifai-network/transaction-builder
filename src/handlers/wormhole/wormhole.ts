@@ -88,7 +88,19 @@ export class WormholeHandler implements TransactionHandler {
       // console.log('Wormhole______________________________', params, senderAddress);
 
       const toNativeSenderAddress = toNative(params.from.chain, senderAddress);
-      const wh = await wormhole('Mainnet', [evm, solana, sui, aptos]);
+      const wh = await wormhole('Mainnet', [evm, solana, sui, aptos],{
+        chains: {
+          Solana: {
+            rpc: process.env.SOLANA_RPC_URL,
+          },
+          Bsc: {
+            rpc: process.env.BNB_RPC_URL,
+          },
+          Sui: {
+            rpc: process.env.SUI_RPC_URL,
+          }
+        }
+      });
 
       // 获取链上下文
       const sendChain = wh.getChain(params.from.chain);

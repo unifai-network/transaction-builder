@@ -117,9 +117,10 @@ export class WormholeHandler implements TransactionHandler {
         address: Wormhole.chainAddress(params.to.chain, params.to.address),
       }
 
-      // 允许转移本地gas代币的快捷方式
-      // const token = Wormhole.tokenId(sendChain.chain, 'native');  
-      const token = Wormhole.tokenId(sendChain.chain, params.token.address);
+      // 判断是否为原生代币还是其他代币
+      const token = params.token.address.toLowerCase() === 'native' 
+        ? Wormhole.tokenId(sendChain.chain, 'native')
+        : Wormhole.tokenId(sendChain.chain, params.token.address);
 
       // 将自动转移设置为false以进行手动转移
       const automatic = false;

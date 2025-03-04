@@ -34,10 +34,10 @@ import { EVM_CHAIN_IDS,getEvmProvider } from '../../utils/evm';
 
 
 const PayloadSchema = z.object({
-  token: z.object({
-    chain: z.string().nonempty("Missing required field: chain"),
-    address: z.string().nonempty("Missing required field: address"),
-  }).required(),
+  // token: z.object({
+  //   chain: z.string().nonempty("Missing required field: chain"),
+  //   address: z.string().nonempty("Missing required field: address"),
+  // }).required(),
   amount: z.union([
     z.string().nonempty("Amount must not be empty"),
     z.number().positive("Amount must be a positive number")
@@ -68,7 +68,7 @@ export class WormholeHandler implements TransactionHandler {
     }
     const validatedPayload = validation.data;
     validateAddress(validatedPayload.from.chain, validatedPayload.from.address);
-    validateAddress(validatedPayload.token.chain, validatedPayload.token.address);
+    // validateAddress(validatedPayload.token.chain, validatedPayload.token.address);
     validateAddress(validatedPayload.to.chain, validatedPayload.to.address);
     console.log(validatedPayload);
     const normalizedPayload = {
@@ -85,7 +85,7 @@ export class WormholeHandler implements TransactionHandler {
   async build(params: any, senderAddress: string): Promise<BuildTransactionResponse> {
     try {
       params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
-      params.token.chain = capitalizeFirstLetter(params.token.chain.toLowerCase());
+      // params.token.chain = capitalizeFirstLetter(params.token.chain.toLowerCase());
       params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
 
       const toNativeSenderAddress = toNative(params.from.chain, senderAddress);
@@ -103,7 +103,7 @@ export class WormholeHandler implements TransactionHandler {
         }
       });
       console.log('senderAddress', senderAddress);
-      // 获取链上下文
+
       const sendChain = wh.getChain(params.from.chain);
       // const rcvChain = wh.getChain('Monad');
       // 从本地密钥获取签名者，但任何实现签名者接口的东西（例如，围绕网络钱包的包装）都应该有效
@@ -117,73 +117,41 @@ export class WormholeHandler implements TransactionHandler {
         address: Wormhole.chainAddress(params.to.chain, params.to.address),
       }
 
-      // 判断是否为原生代币还是其他代币
-      const token = params.token.address.toLowerCase() === 'native' 
-        ? Wormhole.tokenId(sendChain.chain, 'native')
-        : Wormhole.tokenId(sendChain.chain, params.token.address);
+      const automatic =  true
 
-      // 将自动转移设置为false以进行手动转移
-      const automatic = false;
+      const amt = amount.units(amount.parse(params.amount, 6));
+      // console.log('wh.tokenTransfer',
+      //   amt,
+      //   source.address,
+      //   destination.address,
+      //   automatic)
+ 
 
-      // 自动中继器能够将一些本地gas资金交付到目标账户
-      // 指定的本地gas金额将根据合同提供的交换率
-      // 以本地gas代币计价进行交换
-      const nativeGas = automatic ? '0.1' : undefined;
-
-      // 用于规范化金额以考虑代币的小数
-      const decimals = await getTokenDecimals(wh, token, sendChain);
-
-      // 定义要转移的代币数量
-      const amt = amount.units(amount.parse(params.amount, decimals));
-
-      console.log('wh.tokenTransfer',
-        token,
+      const xfer = await wh.circleTransfer(
         amt,
         source.address,
         destination.address,
         automatic,
-        params.payload,
-        nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,);
-
-      // 创建一个TokenTransfer对象 跟踪转移的状态
-      const xfer = await wh.tokenTransfer(
-        token,
-        amt,
-        source.address,
-        destination.address,
-        automatic,
-        params.payload,
-        nativeGas ? amount.units(amount.parse(nativeGas, decimals)) : undefined,
       );
+
+      const ethAddr = toNative(params.from.chain, params.from.address);
+      const emitterAddr = ethAddr.toUniversalAddress().toString()
       console.log('xfer', xfer);
+      const nativeGas = amount.units(amount.parse(0.00001, 6));
 
-      // const quote = await TokenTransfer.quoteTransfer(
-      //   wh,
-      //   source.chain,
-      //   destination.chain,
-      //   xfer.transfer
-      // );
+        const cr = await sendChain.getAutomaticCircleBridge();
+        const xferlist = cr.transfer(source.address, { chain: destination.chain, address: emitterAddr }, amt, nativeGas);
+    
+console.log('xferlist', xferlist);
 
-      // if (xfer.transfer.automatic && quote.destinationToken.amount < 0)
-      //   throw 'The amount requested is too low to cover the fee and any native gas requested.';
 
-      // 1）提交交易到源链，传递签名者以签署任何交易
-      // const senderAddress = toNative(source.chain, source.address); //源码逻辑
-      // token: TokenId;
-      // amount: bigint;
-      // from: ChainAddress;
-      // to: ChainAddress;
-      // automatic?: boolean;
-      // payload?: Uint8Array;
-      // nativeGas?: bigint;
-      const tb = await sendChain.getTokenBridge();
-      console.log('tb.transfer____', toNativeSenderAddress, destination.address, token, amt);
-      const xferlist = tb.transfer(toNativeSenderAddress, destination.address, token.address, amt);
       const transactions = [];
       for await (const tx of xferlist) {
-        console.log('tx', JSON.stringify(tx, null, 2));
-        const rawTx = tx.transaction.transaction;
+        console.log('tx', tx);
+        // console.log('tx', JSON.stringify(tx, null, 2));
+  
         if (params.from.chain.toLowerCase() === 'solana') {
+          const rawTx = tx.transaction.transaction;
           const isVersionedTransaction = rawTx.instructions && rawTx.version !== undefined;
           const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
           rawTx.recentBlockhash = blockhash;
@@ -204,27 +172,55 @@ export class WormholeHandler implements TransactionHandler {
             }).toString('base64'),
           });
 
-        } else if (Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === params.from.chain.toLowerCase())) {
-          console.log('===evm===', params.from.chain.toLowerCase());
+        } else if (this.isEvmChain(params.from.chain)) {
+          console.log('===evm===', tx);
           
-          const rawTx = tx.transaction.transaction;
+          // 获取原始交易数据
+          const rawTx = tx.transaction;
+          console.log('rawTx', JSON.stringify(rawTx, null, 2));
+          
           const provider = getEvmProvider(params.from.chain);
           const feeData = await provider.getFeeData();
+          const nonce = await provider.getTransactionCount(rawTx.from);
           
-          // 只需要添加 chainId 和 gas 参数
+          // 估算 gas limit
+          const gasLimit = await provider.estimateGas({
+            from: rawTx.from,
+            to: rawTx.to,
+            data: rawTx.data,
+          });
+
+          // 构建完整的交易对象
           const transaction = {
-            ...rawTx,  // 使用原始交易的所有信息
-            chainId: EVM_CHAIN_IDS[params.from.chain.toLowerCase()],
-            maxFeePerGas: feeData.maxFeePerGas?.toString(),
-            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString(),
+            to: rawTx.to,
+            data: rawTx.data,
+            from: rawTx.from,
+            chainId: Number(rawTx.chainId),
+            nonce: nonce,
+            value: 0,  // 对于 approve 交易，value 为 0
+            gasLimit: gasLimit,
+            maxFeePerGas: feeData.maxFeePerGas,
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+            type: 2, // EIP-1559
           };
+
+          console.log('构建的交易:', transaction);
         
-          const serializedTx = ethers.Transaction.from(transaction).unsignedSerialized;
+          // 创建未签名交易
+          const unsignedTx = ethers.Transaction.from({
+            ...transaction,
+            // 确保 BigNumber 转换
+            maxFeePerGas: transaction.maxFeePerGas?.toString(),
+            maxPriorityFeePerGas: transaction.maxPriorityFeePerGas?.toString(),
+            gasLimit: transaction.gasLimit.toString(),
+          });
         
           transactions.push({
-            hex: serializedTx,
+            type: 'evm',
+            hex: unsignedTx.unsignedSerialized,
           });
         } else if (params.from.chain.toLowerCase() === 'sui') {
+          const rawTx = tx.transaction;
           console.log('===sui===', params.from.chain.toLowerCase());
           const txBytes = tx.transaction;
           transactions.push({
@@ -243,5 +239,7 @@ export class WormholeHandler implements TransactionHandler {
     }
   }
 
-
+  isEvmChain(chain: string) {
+    return Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === chain.toLowerCase());
+  }
 }

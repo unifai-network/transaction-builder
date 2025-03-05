@@ -8,7 +8,7 @@ import AmmImpl from "@mercurial-finance/dynamic-amm-sdk";
 
 const PayloadSchema = z.object({
   poolAddress: z.string().nonempty(),
-  lpAmount: z.number().positive(),
+  lpAmount: z.number(),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;

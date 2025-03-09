@@ -2,11 +2,12 @@ import {
   Wormhole,
   amount,
   wormhole,
-  toUniversal
+  toUniversal,
+  circle
 } from '@wormhole-foundation/sdk';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
-import { bigint, z } from 'zod';
+import { z } from 'zod';
 import dotenv from 'dotenv';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { validateAddress } from '../../utils/validators';
@@ -63,50 +64,68 @@ export class WormholeHandler implements TransactionHandler {
       };
     }
   
-    // Only support evm though
-    async build(params: any, senderAddress: string): Promise<BuildTransactionResponse> {
-      try {
-        params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
-        params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
-  
-        const wh = await wormhole('Mainnet', [evm, solana]);
+ 
+async build(params: any, senderAddress: string): Promise<BuildTransactionResponse> {
+  try {
+    // 规范化链名称
+    params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
+    params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
 
-        const source = {
-          chain: params.from.chain,
-          address: Wormhole.chainAddress(params.from.chain, params.from.address),
-        }
-  
-        let UnsignedTxs: AsyncGenerator<UnsignedTransaction<'Mainnet'>>;
-        const amt = amount.units(amount.parse(params.amount, 6));    
-        const fromChain = wh.getChain(params.from.chain);
-        const cr = await fromChain.getAutomaticCircleBridge();
-      
-        UnsignedTxs = cr.transfer(
-          params.from.address,
-          { 
-            chain: params.to.chain, 
-            address: toUniversal(params.to.chain, params.to.address)
-          },
-          amt,
-          BigInt(params.nativeGas)
-        );
-        const transactions: { base64?: string; hex?: string; [key: string]: any }[] = [];
-        
-        for await (const tx of UnsignedTxs) {
-          const txWithoutFrom = tx.transaction;
-          console.log('tx',tx);
-          if ('from' in txWithoutFrom) {
-            delete txWithoutFrom.from;
-          }
-          transactions.push({ hex: ethers.Transaction.from(txWithoutFrom).unsignedSerialized });
-        }
-        console.log('transactions__',transactions);
-        return { transactions };
-      } catch (error) {
-        console.error('Wormhole transfer error:', error);
-        throw error;
-      }
+    const wh = await wormhole('Mainnet', [evm, solana]);
+
+    // 验证链是否支持 Circle
+    if (
+      !circle.isCircleChain('Mainnet', params.from.chain as Chain) ||
+      !circle.isCircleChain('Mainnet', params.to.chain as Chain)
+    ) {
+      throw new Error(`Chain not supported: ${params.from.chain} or ${params.to.chain}`);
     }
+
+    const source = {
+      chain: params.from.chain,
+      address: Wormhole.chainAddress(params.from.chain, params.from.address),
+    }
+
+    // 转换金额（6位小数）
+    const amt = amount.units(amount.parse(params.amount, 6));    
+    const fromChain = wh.getChain(params.from.chain);
+    const cr = await fromChain.getAutomaticCircleBridge();
+
+    // 获取中继费用
+    const relayerFee = await cr.getRelayerFee(params.to.chain as Chain);
+
+    // 验证金额是否足够支付中继费用
+    if (amt <= relayerFee) {
+      // throw new Error(`Amount must be greater than relayer fee: ${amount.format(relayerFee, 6)}`);
+    }
+
+    // 生成未签名交易
+    let UnsignedTxs = cr.transfer(
+      senderAddress, // 使用传入的 senderAddress 作为发送方地址
+      { 
+        chain: params.to.chain, 
+        address: toUniversal(params.to.chain, params.to.address)
+      },
+      amt,
+      0n // 不使用 native gas
+    );
+
+    const transactions: { base64?: string; hex?: string; [key: string]: any }[] = [];
+    
+    for await (const tx of UnsignedTxs) {
+      const txWithoutFrom = tx.transaction;
+      if ('from' in txWithoutFrom) {
+        delete txWithoutFrom.from;
+      }
+      transactions.push({ hex: ethers.Transaction.from(txWithoutFrom).unsignedSerialized });
+    }
+
+    return { transactions };
+  } catch (error) {
+    console.error('Wormhole transfer error:', error);
+    throw error;
+  }
+}
   
     isEvmChain(chain: string) {
       return Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === chain.toLowerCase());

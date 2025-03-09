@@ -66,11 +66,12 @@ export class WormholeHandler implements TransactionHandler {
   
  
     async build(params: any, senderAddress: string): Promise<BuildTransactionResponse> {
-      // 规范化链名称
+  
       params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
       params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
     
-      const wh = await wormhole('Mainnet', [evm, solana]);
+  
+      const wh = await wormhole('Mainnet', [evm, solana], {});
     
       // 验证链是否支持 Circle
       if (
@@ -114,18 +115,26 @@ export class WormholeHandler implements TransactionHandler {
           delete txWithoutFrom.from;
         }
     
-        // 使用 SDK 的默认 gas 设置
-        const serializedTx = ethers.Transaction.from({
-          ...txWithoutFrom,
-          type: 2, // 使用 EIP-1559
-        }).unsignedSerialized;
+        // 根据源链类型处理交易
+        if (params.from.chain.toLowerCase() === 'solana') {
+          // 如果是 Solana 交易，保持原样
+          transactions.push(tx);
+        } else {
+          // EVM 交易
+          const serializedTx = ethers.Transaction.from({
+            ...txWithoutFrom,
+            type: 2, // EIP-1559
+          }).unsignedSerialized;
     
-        transactions.push({ hex: serializedTx });
+          transactions.push({ hex: serializedTx });
+        }
       }
     
       return { 
         transactions,
         metadata: {
+          fromChain: params.from.chain,
+          toChain: params.to.chain,
           estimatedRelayerFee: relayerFee.toString(),
           amount: amt.toString(),
           redeemableAmount: redeemableAmount.toString()

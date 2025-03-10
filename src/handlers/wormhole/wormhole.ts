@@ -45,11 +45,7 @@ const PayloadSchema = z.object({
         "To chain must be Solana"
       ),
     address: z.string().nonempty("Missing required field: address"),
-  }).required(),
-  nativeGas: z.union([
-    z.string().nonempty("NativeGas must not be empty"),
-    z.number().nonnegative("NativeGas must be a non-negative number")
-  ]).optional().default("0.001"),
+  }).required()
 });
   
 type Payload = z.infer<typeof PayloadSchema>;
@@ -67,7 +63,6 @@ export class WormholeHandler implements TransactionHandler {
       const normalizedPayload = {
         ...validatedPayload,
         amount: validatedPayload.amount.toString(),
-        nativeGas: validatedPayload.nativeGas.toString(),
       };
       return {
         chain: normalizedPayload.from.chain,

@@ -3,12 +3,28 @@ import {
   amount,
   wormhole,
   toUniversal,
-  circle
+  circle,
+  CircleTransfer,
+  TransferState
 } from '@wormhole-foundation/sdk';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
 import { z } from 'zod';
 import dotenv from 'dotenv';
+
+
+
+// import {
+//   Wormhole,
+//   amount,
+//   wormhole,
+//   toUniversal,
+//   circle
+// } from '@wormhole-foundation/sdk';
+// import evm from '@wormhole-foundation/sdk/evm';
+// import solana from '@wormhole-foundation/sdk/solana';
+// import { z } from 'zod';
+// import dotenv from 'dotenv';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { validateAddress } from '../../utils/validators';
 import { capitalizeFirstLetter } from '../../utils/stringUtils';
@@ -64,14 +80,21 @@ export class WormholeHandler implements TransactionHandler {
       };
     }
   
- 
     async build(params: any, senderAddress: string): Promise<BuildTransactionResponse> {
-  
+      // 规范化链名称
       params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
       params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
     
-  
-      const wh = await wormhole('Mainnet', [evm, solana], {});
+      const wh = await wormhole('Mainnet', [evm, solana], {
+        // chains: {
+        //   Solana: {
+        //     rpc: process.env.SOL_RPC || "https://api.mainnet-beta.solana.com",
+        //   },
+        //   Ethereum: {
+        //     rpc: process.env.ETH_RPC || "https://rpc.ankr.com/eth",
+        //   }
+        // }
+      });
     
       // 验证链是否支持 Circle
       if (
@@ -82,48 +105,79 @@ export class WormholeHandler implements TransactionHandler {
       }
     
       // 转换金额（6位小数）
-      const amt = amount.units(amount.parse(params.amount, 6));    
-      const fromChain = wh.getChain(params.from.chain);
-      const cr = await fromChain.getAutomaticCircleBridge();
-    
-      // 获取中继费用
-      const relayerFee = await cr.getRelayerFee(params.to.chain as Chain);
-    
-      // 验证金额
-      const minAmount = (relayerFee * 105n) / 100n; // 添加 5% 缓冲
-      if (amt < minAmount) {
-        throw new Error(`转账金额 (${amt}) 必须大于最小要求金额 (${minAmount})`);
-      }
-    
-      // 计算可赎回金额
-      const redeemableAmount = amt - relayerFee;
+      const amt = amount.units(amount.parse(params.amount, 6));
     
       // 生成未签名交易
       const transactions: { base64?: string; hex?: string; [key: string]: any }[] = [];
-      
-      for await (const tx of cr.transfer(
-        senderAddress,
-        { 
-          chain: params.to.chain, 
-          address: toUniversal(params.to.chain, params.to.address)
-        },
-        amt,
-        0n // 不使用 native gas
-      )) {
-        const txWithoutFrom = tx.transaction;
-        if ('from' in txWithoutFrom) {
-          delete txWithoutFrom.from;
+      let relayerFee: bigint;
+      let redeemableAmount: bigint;
+    
+      // 根据源链类型使用不同的方法
+      if (params.from.chain.toLowerCase() === 'solana') {
+        // 获取 Circle Bridge
+        const fromChain = wh.getChain(params.from.chain);
+        const cb = await fromChain.getCircleBridge();
+        
+        // 获取中继费用
+        const acb = await fromChain.getAutomaticCircleBridge();
+        relayerFee = await acb.getRelayerFee(params.to.chain);
+    
+        // 验证金额
+        const minAmount = relayerFee;
+        if (amt < minAmount) {
+          throw new Error(`转账金额 (${amt}) 必须大于最小要求金额 (${minAmount})`);
         }
     
-        // 根据源链类型处理交易
-        if (params.from.chain.toLowerCase() === 'solana') {
-          // 如果是 Solana 交易，保持原样
-          transactions.push(tx);
-        } else {
-          // EVM 交易
+        redeemableAmount = amt - relayerFee;
+    
+        // 生成未签名交易
+        for await (const tx of cb.transfer(
+          senderAddress,
+          { 
+            chain: params.to.chain, 
+            address: toUniversal(params.to.chain, params.to.address)
+          },
+          amt
+        )) {
+          transactions.push({
+            base64: Buffer.from(tx.transaction).toString('base64')
+          });
+        }
+      } else {
+        // EVM 链使用 getAutomaticCircleBridge
+        const fromChain = wh.getChain(params.from.chain);
+        const cr = await fromChain.getAutomaticCircleBridge();
+    
+        // 获取中继费用
+        relayerFee = await cr.getRelayerFee(params.to.chain as Chain);
+    
+        // 验证金额
+        const minAmount = (relayerFee * 105n) / 100n; // 添加 5% 缓冲
+        if (amt < minAmount) {
+          throw new Error(`转账金额 (${amt}) 必须大于最小要求金额 (${minAmount})`);
+        }
+    
+        // 计算可赎回金额
+        redeemableAmount = amt - relayerFee;
+    
+        // 生成交易
+        for await (const tx of cr.transfer(
+          senderAddress,
+          { 
+            chain: params.to.chain, 
+            address: toUniversal(params.to.chain, params.to.address)
+          },
+          amt,
+          0n // 不使用 native gas
+        )) {
+          const txWithoutFrom = tx.transaction;
+          if ('from' in txWithoutFrom) {
+            delete txWithoutFrom.from;
+          }
+    
           const serializedTx = ethers.Transaction.from({
             ...txWithoutFrom,
-            type: 2, // EIP-1559
+            type: 2, // 使用 EIP-1559
           }).unsignedSerialized;
     
           transactions.push({ hex: serializedTx });

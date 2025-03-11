@@ -12,10 +12,10 @@ const PayloadSchema = z.object({
   position: z.string().optional(),
   baseAmount: z.number(),
   quoteAmount: z.number(),
-  slippage: z.number().optional(),
   strategyType: z.nativeEnum(StrategyType),
-  minPrice: z.number(),
-  maxPrice: z.number(),
+  slippage: z.number().optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -73,10 +73,22 @@ async function createSignedTransactionAndPositionPubkey(data: Payload, publicKey
   const priceMultiplier = new Decimal(
     10 ** (quoteDecimals - baseDecimals)
   );
-  const minPrice = new Decimal(data.minPrice).mul(priceMultiplier);
-  const maxPrice = new Decimal(data.maxPrice).mul(priceMultiplier);
-  const minBinId = dlmm.getBinIdFromPrice(minPrice.toNumber(), true);
-  const maxBinId = dlmm.getBinIdFromPrice(maxPrice.toNumber(), false);
+
+  let minBinId: number, maxBinId: number;
+
+  if (data.minPrice && data.maxPrice) {
+    const minPrice = new Decimal(data.minPrice).mul(priceMultiplier);
+    minBinId = dlmm.getBinIdFromPrice(minPrice.toNumber(), false);
+    const maxPrice = new Decimal(data.maxPrice).mul(priceMultiplier);
+    maxBinId = dlmm.getBinIdFromPrice(maxPrice.toNumber(), true);
+  } else {
+    minBinId = dlmm.lbPair.activeId - 34;
+    maxBinId = dlmm.lbPair.activeId + 34;
+  }
+
+  if (maxBinId - minBinId > 69) {
+    throw new Error('Price range exceeds 69 bins, please reduce the range');
+  }
 
   const singleSidedX = quoteAmount.isZero();
 

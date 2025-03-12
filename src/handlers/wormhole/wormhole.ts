@@ -1,11 +1,8 @@
 import {
-  Wormhole,
   amount,
   wormhole,
   toUniversal,
   circle,
-  CircleTransfer,
-  TransferState
 } from '@wormhole-foundation/sdk';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
@@ -14,14 +11,9 @@ import dotenv from 'dotenv';
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { validateAddress } from '../../utils/validators';
 import { capitalizeFirstLetter } from '../../utils/stringUtils';
-import type {
-  UnsignedTransaction,
-} from "@wormhole-foundation/sdk-definitions";
 import type { Chain, Network } from "@wormhole-foundation/sdk-base";
 import { ethers } from "ethers";
-
 dotenv.config();
-
 const PayloadSchema = z.object({
   amount: z.union([
     z.string().nonempty("Amount must not be empty"),

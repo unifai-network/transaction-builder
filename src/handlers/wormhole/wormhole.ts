@@ -95,8 +95,6 @@ export class WormholeHandler implements TransactionHandler {
     const transactions: { base64?: string; hex?: string;[key: string]: any }[] = [];
     let relayerFee: bigint;
     let redeemableAmount: bigint;
-
-
     // Use getAutomaticCircleBridge for EVM chains
     const fromChain = wh.getChain(params.from.chain);
     const cr = await fromChain.getAutomaticCircleBridge();

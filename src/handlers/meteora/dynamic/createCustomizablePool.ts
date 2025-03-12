@@ -12,8 +12,8 @@ import { deriveCustomizablePermissionlessConstantProductPoolAddress } from "@mer
 const PayloadSchema = z.object({
   baseMint: z.string().nonempty(),
   quoteMint: z.string().nonempty(),
-  baseAmount: z.number().positive(),
-  quoteAmount: z.number().positive(),
+  baseAmount: z.number(),
+  quoteAmount: z.number(),
   feeBps: z.number(),
   activationType: z.nativeEnum(ActivationType).optional(),
   activationPoint: z.number().optional(),

@@ -9,6 +9,7 @@ export const EVM_CHAIN_IDS: Record<string, number> = {
 };
 
 export function getEvmProvider(chain: string) {
+  chain = chain.toLowerCase();
   if (chain === 'ethereum' || chain === 'eth') {
     return new ethers.JsonRpcProvider(process.env.ETHEREUM_RPC_URL);
   }

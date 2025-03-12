@@ -6,6 +6,7 @@ import * as pumpfun from "./pumpfun";
 import * as solana from "./solana";
 import * as cetus from "./cetus";
 import * as compound from "./compound";
+import * as wormhole from "./wormhole";
 import * as meteora from "./meteora";
 import * as okx from './okx';
 
@@ -18,6 +19,8 @@ handlerRegistry.set("pumpfun/launch", new pumpfun.PumpFunLaunchHandler());
 handlerRegistry.set("solana/spl-create", new solana.SplCreateHandler());
 handlerRegistry.set("cetus/swap", new cetus.SwapHandler());
 handlerRegistry.set("compound/v2", new compound.CompoundV2Handler());
+handlerRegistry.set("wormhole/bridge", new wormhole.WormholeHandler());
+
 handlerRegistry.set("meteora/dlmm/add-liquidity", new meteora.MeteoraDlmmAddLiquidityHandler());
 handlerRegistry.set("meteora/dlmm/create-customizable-pool", new meteora.MeteoraDlmmCreateCustomizablePoolHandler());
 handlerRegistry.set("meteora/dlmm/create-pool", new meteora.MeteoraDlmmCreatePoolHandler());

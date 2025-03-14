@@ -78,7 +78,7 @@ export class WormholeHandler implements TransactionHandler {
       console.log('Build method - Input params:', JSON.stringify(params, null, 2));
       console.log('Sender address:', senderAddress);
 
-      // 规范化链名称
+      // Normalize chain names
       params.from.chain = capitalizeFirstLetter(params.from.chain.toLowerCase());
       params.token.chain = capitalizeFirstLetter(params.token.chain.toLowerCase());
       params.to.chain = capitalizeFirstLetter(params.to.chain.toLowerCase());
@@ -89,26 +89,26 @@ export class WormholeHandler implements TransactionHandler {
         toChain: params.to.chain
       });
 
-      // 转换发送方地址
+      // Convert sender address
       const toNativeSenderAddress = toNative(params.from.chain, senderAddress);
       console.log('Native sender address:', toNativeSenderAddress);
 
       const wh = await wormhole('Mainnet', [evm, solana]);
       console.log('Wormhole instance created');
 
-      // 获取源链上下文
+      // Get source chain context
       const sendChain = wh.getChain(params.from.chain);
       console.log('Send chain context obtained:', params.from.chain);
 
-      // 构建token信息
+      // Build token information
       const token = Wormhole.tokenId(sendChain.chain, params.token.address);
       console.log('Token ID:', token);
 
-      // 获取token精度
+      // Get token decimals
       const decimals = await getTokenDecimals(wh, token, sendChain);
       console.log('Token decimals:', decimals);
 
-      // 处理转账金额
+      // Process transfer amount
       const parsedAmount = amount.parse(params.amount, decimals);
       console.log('Parsed amount:', {
         display: amount.display(parsedAmount),
@@ -119,20 +119,22 @@ export class WormholeHandler implements TransactionHandler {
       const amt = amount.units(parsedAmount);
       console.log('Amount in base units:', amt.toString());
 
-      // 获取自动转账桥接器
+      // Get automatic token bridge
       console.log('Getting automatic token bridge...');
       const atb = await sendChain.getAutomaticTokenBridge();
       console.log('Automatic token bridge obtained');
 
-      // 获取中继费用
+      // Get relayer fee
       console.log('Getting relayer fee...');
       const relayerFee = await atb.getRelayerFee(params.to.chain, token.address);
+
+      
       console.log('Relayer fee:', {
         baseUnits: relayerFee.toString(),
         display: amount.display(amount.fromBaseUnits(relayerFee, decimals))
       });
 
-      // 检查最小金额要求
+      // Check minimum amount requirement
       const minAmount = (relayerFee * 105n) / 100n;
       console.log('Minimum amount check:', {
         provided: amt.toString(),
@@ -148,7 +150,7 @@ export class WormholeHandler implements TransactionHandler {
 
       const transactions = [];
 
-      // 使用 SDK 的 transfer 方法生成交易（包括授权和转账）
+      // Use SDK's transfer method to generate transactions (including approval and transfer)
       const xferGenerator = atb.transfer(
         toNativeSenderAddress,
         Wormhole.chainAddress(params.to.chain, params.to.address),
@@ -157,7 +159,7 @@ export class WormholeHandler implements TransactionHandler {
       );
 
 
-      // 处理所有生成的交易
+      // Process all generated transactions
       for await (const tx of xferGenerator) {
         const rawTx = tx.transaction;
 
@@ -165,11 +167,11 @@ export class WormholeHandler implements TransactionHandler {
           const provider = getEvmProvider(params.from.chain);
           const feeData = await provider.getFeeData();
 
-          // 获取当前 nonce
+          // Get current nonce
           const nonce = await provider.getTransactionCount(senderAddress, 'latest');
           console.log('Current nonce:', nonce);
 
-          // 构建交易对象
+          // Build transaction object
           const transaction = {
             to: rawTx.to,
             data: rawTx.data,
@@ -177,8 +179,8 @@ export class WormholeHandler implements TransactionHandler {
             nonce: nonce,
             maxFeePerGas: feeData.maxFeePerGas?.toString(),
             maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString(),
-            gasLimit: 300000n, // 使用较大的 gasLimit 以确保足够
-            type: 2,//EIP-1559
+            gasLimit: 300000n, // Use a larger gasLimit to ensure sufficiency
+            type: 2, // EIP-1559
             chainId: EVM_CHAIN_IDS[params.from.chain.toLowerCase()]
           };
 
@@ -189,7 +191,7 @@ export class WormholeHandler implements TransactionHandler {
 
           transactions.push({
             hex: ethers.Transaction.from(transaction).unsignedSerialized,
-            type: 'transfer' // 所有交易都是 transfer 类型
+            type: 'transfer'
           });
         }
       }

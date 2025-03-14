@@ -3,8 +3,6 @@ import { validateEvmAddress } from './evm';
 import { validateSuiAddress } from './sui';
 import { EVM_CHAIN_IDS } from './evm';
 export function validateAddress(chain: string, address: string) {
-    console.log('validateAddress',chain);
-    
     if (chain === 'solana') {
         validateSolanaAddress(address);
     } else if (Object.keys(EVM_CHAIN_IDS).find(key => key.toLowerCase() === chain.toLowerCase()) ) {

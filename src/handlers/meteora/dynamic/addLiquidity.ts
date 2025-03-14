@@ -8,8 +8,8 @@ import BN from "bn.js";
 
 const PayloadSchema = z.object({
   poolAddress: z.string().nonempty(),
-  baseAmount: z.number().positive(),
-  quoteAmount: z.number().positive(),
+  baseAmount: z.number(),
+  quoteAmount: z.number(),
   fixSide: z.enum(["base", "quote"]),
   slippage: z.number()
 });

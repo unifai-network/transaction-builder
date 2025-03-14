@@ -8,7 +8,7 @@ import { getMint } from "@solana/spl-token";
 
 const PayloadSchema = z.object({
   poolAddress: z.string().nonempty(),
-  lpAmount: z.number().positive(),
+  lpAmount: z.number(),
   slippage: z.number()
 });
 

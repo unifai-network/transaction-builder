@@ -2,7 +2,7 @@ import { any } from "zod";
 import { OkxDefiAPI } from "./api";
 export const api = new OkxDefiAPI('13b29a05-9c28-4f25-916a-0ec4f9288ef2', '16D54B707F7360528DB4DCF98758A06C', 'Jhunifai18!');
 import Web3 from 'web3';
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 export const OKXBridge = async (params: any, senderAddress: string) => {
   let userWalletAddress = senderAddress
   let toChain = 'Solana'
@@ -107,21 +107,11 @@ export const OKXBridge = async (params: any, senderAddress: string) => {
   };
   console.log("swapParams",swapParams);
   const swapData = await api.getSwapData(swapParams);
-  const swapDataTxInfo = swapData[0].tx;
-  console.log('swapDataTxInfo', swapDataTxInfo);
-  const transaction = {
-    chainId: Number(fromChainId),
-    to: swapDataTxInfo.to,
-    data: swapDataTxInfo.data,
-    value: swapDataTxInfo.value?.toString(),
-    maxFeePerGas: swapDataTxInfo.gasPrice?.toString(),
-    maxPriorityFeePerGas: swapDataTxInfo.maxPriorityFeePerGas?.toString(),
-  };
-  const serializedTx = ethers.Transaction.from(transaction).unsignedSerialized;
-  console.log("未签名交易 Hex:", serializedTx);
+  const TxInfo = swapData[0].tx;
+  const hex = ethers.Transaction.from({ to: TxInfo.to, value: TxInfo.value, data: TxInfo.serializedData }).unsignedSerialized
   return {
     transactions: [{
-      hex: serializedTx
+       hex: hex
     }]
   };
 };

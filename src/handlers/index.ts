@@ -7,6 +7,7 @@ import * as solana from "./solana";
 import * as cetus from "./cetus";
 import * as compound from "./compound";
 import * as wormhole from "./wormhole";
+import * as bridge from "./bridge";
 import * as meteora from "./meteora";
 import * as okx from './okx';
 
@@ -20,6 +21,7 @@ handlerRegistry.set("solana/spl-create", new solana.SplCreateHandler());
 handlerRegistry.set("cetus/swap", new cetus.SwapHandler());
 handlerRegistry.set("compound/v2", new compound.CompoundV2Handler());
 handlerRegistry.set("wormhole/bridge", new wormhole.WormholeHandler());
+handlerRegistry.set("okx/bridge", new bridge.OkxBridgeHandler());
 
 handlerRegistry.set("meteora/dlmm/add-liquidity", new meteora.MeteoraDlmmAddLiquidityHandler());
 handlerRegistry.set("meteora/dlmm/create-customizable-pool", new meteora.MeteoraDlmmCreateCustomizablePoolHandler());

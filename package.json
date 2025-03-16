@@ -28,6 +28,7 @@
     "typeorm": "^0.3.20",
     "unifai-sdk": "^0.2.7",
     "uuid": "^11.0.5",
+    "web3": "^4.16.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {

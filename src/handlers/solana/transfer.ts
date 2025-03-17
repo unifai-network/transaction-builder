@@ -31,7 +31,6 @@ export class TransferHandler implements TransactionHandler {
     return {
       chain: "solana",
       data: payload,
-      message: "Token address will be known after transaction is completed",
     };
   }
 

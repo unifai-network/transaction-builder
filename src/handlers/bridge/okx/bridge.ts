@@ -1,9 +1,12 @@
 import { OkxDefiAPI, Chain } from "./api";
 export const api = new OkxDefiAPI('13b29a05-9c28-4f25-916a-0ec4f9288ef2', '16D54B707F7360528DB4DCF98758A06C', 'Jhunifai18!');
 import { Transaction, VersionedMessage, VersionedTransaction } from "@solana/web3.js";
+import {parseUnits } from '../../../utils/evm';
 import { ethers } from "ethers";
 import bs58 from 'bs58';
 
+// amount 格式化
+// 生成授权交易
 
 export const OKXBridge = async (params: any, senderAddress: string) => {
   const userWalletAddress = senderAddress
@@ -11,10 +14,10 @@ export const OKXBridge = async (params: any, senderAddress: string) => {
   const receiveAddress = params.to.address; 
   const toChain = params.to.chain; 
   const fromTokenAddress = params.token.address;  //源链 USDC 合约地址  
-  const fromTokenAmount = params.amount;
+  const fromTokenAmount = parseUnits(params.amount, 18).toString();//evm
   const slippage = params.slippage;//滑点限制 最小值：0.002，最大值：0.5。
   const sort = params.sort; //跨链路径选择
-
+  const txList: any[] = [];
   // const ownerAddress = params.from.address;// 发起用户地址
   // 连接到以太坊节点
   // const web3 = new Web3('https://mainnet.infura.io/v3/c31486db34414fd0bcc3f0f907233fc7');
@@ -47,6 +50,7 @@ export const OKXBridge = async (params: any, senderAddress: string) => {
   };
   const approveTransaction = await api.approveTransaction(getApproveTransactionParams)  // 先授权(parseFloat(allowanceAmount) < parseFloat(fromTokenAmount)) 发起授权 在执行兑换交易前用户需要授权欧易 DEX router 对其钱包进行资产操作，此接口提供发起授权交易前所需要的交易信息
   console.log(`approveTransaction`, approveTransaction[0].data );
+  txList.push(approveTransaction[0].data);
   const toChainId = await getChainId(toChain)
   //5. 通过 toChainId 拿到该链的币种列表，并且选择其中一个代币作为目标链币种
   const toChainTokenList = await api.getToChainTokenList({
@@ -57,7 +61,7 @@ export const OKXBridge = async (params: any, senderAddress: string) => {
   });
   // 目标链币种合约地址
   const toTokenAddress = selectToChainToken?.tokenContractAddress;
-
+  // const decimals = selectToChainToken?.decimals;
   const quoteParams = {
     fromChainId,
     toChainId,
@@ -66,10 +70,8 @@ export const OKXBridge = async (params: any, senderAddress: string) => {
     amount: fromTokenAmount,
     slippage
   };
-
   // 6. 获取跨链桥 ID
   const quoteData = await api.getCrossChainBaseUrl(quoteParams);
-
   // 6.3 获取询价信息，并选择一条路径作为交易路径
   const bridgeId = quoteData[0]?.routerList[0]?.router?.bridgeId;
 
@@ -89,16 +91,12 @@ export const OKXBridge = async (params: any, senderAddress: string) => {
   console.log("swapParams", swapParams);
   const swapData = await api.getSwapData(swapParams);
   const TxInfo = swapData[0].tx;
-  const dataList: any[] = [];
-  dataList.push(TxInfo);
-
-  const transactions = dataList.map(data => formatTransaction(data, Number(fromChainId) as Chain));
+  txList.push(TxInfo);
+  const transactions = txList.map(data => formatTransaction(data, Number(fromChainId) as Chain));
   return {
     transactions
   };
 };
-
-
 
 
 
@@ -142,7 +140,6 @@ function formatTransaction(data: {
     }
   }
 }
-
 async function getChainId(Chain: string): Promise<string | undefined> {
   try {
     const supportedChainList = await api.getSupportedChain({});

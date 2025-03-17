@@ -3,7 +3,7 @@ import { BuildTransactionResponse, CreateTransactionResponse, TransactionHandler
 import { sonicConnection } from "../../utils/sonic";
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync, getMint, transfer } from "@solana/spl-token";
-import { prepareTransactions, toRawAmount, validateSolanaAddress } from "../../utils/solana";
+import { toRawAmount, validateSolanaAddress } from "../../utils/solana";
 
 const PayloadSchema = z.object({
   toWalletAddress: z.string().nonempty(),
@@ -85,7 +85,11 @@ export class TransferHandler implements TransactionHandler {
       );
     }
 
-    await prepareTransactions([tx], owner);
+    const { blockhash, lastValidBlockHeight } = await sonicConnection.getLatestBlockhash();
+
+    tx.feePayer = owner;
+    tx.recentBlockhash = blockhash;
+    tx.lastValidBlockHeight = lastValidBlockHeight;
 
     const serializedTransaction = tx.serialize({
       requireAllSignatures: false,

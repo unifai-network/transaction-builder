@@ -9,6 +9,7 @@ import * as compound from "./compound";
 import * as wormhole from "./wormhole";
 import * as meteora from "./meteora";
 import * as okx from './okx';
+import * as sonic from './sonic';
 
 export const handlerRegistry = new Map<string, TransactionHandler>();
 
@@ -16,7 +17,13 @@ handlerRegistry.set("evm/transfer", new evm.TransferHandler());
 handlerRegistry.set("1inch/swap", new oneinch.SwapHandler());
 handlerRegistry.set("jupiter/swap", new jupiter.SwapHandler());
 handlerRegistry.set("pumpfun/launch", new pumpfun.PumpFunLaunchHandler());
+
+handlerRegistry.set("solana/transfer", new solana.TransferHandler());
 handlerRegistry.set("solana/spl-create", new solana.SplCreateHandler());
+
+handlerRegistry.set("sonic/transfer", new sonic.TransferHandler());
+handlerRegistry.set("sonic/spl-create", new sonic.SplCreateHandler());
+
 handlerRegistry.set("cetus/swap", new cetus.SwapHandler());
 handlerRegistry.set("compound/v2", new compound.CompoundV2Handler());
 handlerRegistry.set("wormhole/bridge", new wormhole.WormholeHandler());

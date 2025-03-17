@@ -43,19 +43,7 @@ export class OkxAPIBase extends API {
   }
 
   public async request(method: string, path: string, options: any) {
-    const { signature, timestamp } = this.createSignature(method, path, options.params, options.json, this.okxSecretKey);
-    // console.log(method, path, {
-    //   headers: {
-    //     'OK-ACCESS-PROJECT': '66dbabf45a596aaa733f749570972c8d', 
-    //     'OK-ACCESS-KEY': this.okxApiKey,
-    //     'OK-ACCESS-SIGN': signature,
-    //     'OK-ACCESS-TIMESTAMP': timestamp,
-    //     'OK-ACCESS-PASSPHRASE': this.okxPassphrase,
-    //     ...options.headers
-    //   },
-    //   ...options
-    // });
-    
+    const { signature, timestamp } = this.createSignature(method, path, options.params, options.json, this.okxSecretKey);    
     const response = await super.request(method, path, {
       headers: {
         'OK-ACCESS-PROJECT': '66dbabf45a596aaa733f749570972c8d', 
@@ -73,10 +61,22 @@ export class OkxAPIBase extends API {
       return response.data;
     } else {
       console.log(`err ${JSON.stringify(response)}`);
-      
-      // throw new Error(`OKX API Error: ${JSON.stringify(response)} ${response.detailMsg || response.error_message || response.msg || response}`)
     }
   }
+}
+
+
+export enum Chain {
+  BTC = 0,
+  Ethereum = 1,
+  Optimism = 10,
+  BNB = 56,
+  Polygon = 137,
+  TRON = 195,
+  Solana = 501,
+  SUI = 784,
+  Base = 8453,
+  Avalanche_C = 43114,
 }
 
 

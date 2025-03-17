@@ -33,7 +33,7 @@ export class SwapHandler implements TransactionHandler {
 
   async build(data: Payload, publicKey: string): Promise<BuildTransactionResponse> {
     const inputMint = await getMint(connection, new PublicKey(data.inputToken));
-    const amount = data.amount * (10 ** inputMint.decimals);
+    const amount = Math.floor(data.amount * (10 ** inputMint.decimals));
 
     // Get quote
     const quoteResponse = await (

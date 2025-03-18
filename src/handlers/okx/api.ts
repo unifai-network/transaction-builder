@@ -64,14 +64,11 @@ export class OkxAPIBase extends API {
 }
 
 export enum Chain {
-  BTC = 0,
   Ethereum = 1,
   Optimism = 10,
   BNB = 56,
   Polygon = 137,
-  TRON = 195,
   Solana = 501,
-  SUI = 784,
   Base = 8453,
   Avalanche_C = 43114,
 }
@@ -137,7 +134,7 @@ export type GenerateAuthorizationTransactionParams = {
   userInputList: {
     chainId?: string;
     coinAmount: string;
-    tokenAddress: string;
+    tokenAddress?: string;
   }[];
   expectOutputList?: {
     chainId?: string;

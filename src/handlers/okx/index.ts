@@ -3,20 +3,21 @@ import { BuildTransactionResponse, CreateTransactionResponse, TransactionHandler
 import { z } from "zod";
 import bs58 from 'bs58';
 import { ethers } from "ethers";
-import { Transaction, VersionedMessage, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import { connection } from "../../utils/solana";
 
 export const api = new OkxDefiAPI(process.env.OKX_API_KEY!, process.env.OKX_SECRET_KEY!, process.env.OKX_PASSPHRASE!);
 
 const userInputSchema = z.object({
   chainId: z.string().optional(),
   coinAmount: z.string(),
-  tokenAddress: z.string(),
+  tokenAddress: z.string().optional(),
 });
 
 const expectOutputSchema = z.object({
   chainId: z.string().optional(),
   coinAmount: z.string(),
-  tokenAddress: z.string(),
+  tokenAddress: z.string().optional(),
 });
 
 const PayloadSchema = z.object({
@@ -61,7 +62,7 @@ export class OkxDefiSubscribeHandler implements TransactionHandler {
 
     const dataList: any[] = [];
 
-    if (chain !== Chain.SUI && chain !== Chain.Solana) {
+    if (chain !== Chain.Solana) {
       for (const userInput of data.userInputList) {
         await api.generateAuthorizationTransaction({
           type: AuthorizationType.Subscription,
@@ -80,10 +81,8 @@ export class OkxDefiSubscribeHandler implements TransactionHandler {
       dataList.push(...res.dataList);
     });
 
-    const transactions = dataList.map(data => formatTransaction(data, chain));
-
     return {
-      transactions
+      transactions: await getTransactions(dataList, chain, publicKey)
     };
   }
 }
@@ -120,7 +119,7 @@ export class OkxDefiRedeemHandler implements TransactionHandler {
 
     const dataList: any[] = [];
 
-    if (chain !== Chain.SUI && chain !== Chain.Solana) {
+    if (chain !== Chain.Solana) {
       for (const userInput of data.userInputList) {
         await api.generateAuthorizationTransaction({
           type: AuthorizationType.Redemption,
@@ -139,10 +138,8 @@ export class OkxDefiRedeemHandler implements TransactionHandler {
       dataList.push(...res.dataList);
     });
 
-    const transactions = dataList.map(data => formatTransaction(data, chain));
-
     return {
-      transactions
+      transactions: await getTransactions(dataList, chain, publicKey)
     };
   }
 }
@@ -179,7 +176,7 @@ export class OkxDefiClaimBonusHandler implements TransactionHandler {
 
     const dataList: any[] = [];
 
-    if (chain !== Chain.SUI && chain !== Chain.Solana) {
+    if (chain !== Chain.Solana) {
       for (const userInput of data.userInputList) {
         await api.generateAuthorizationTransaction({
           type: AuthorizationType.Claim,
@@ -198,15 +195,13 @@ export class OkxDefiClaimBonusHandler implements TransactionHandler {
       dataList.push(...res.dataList);
     });
 
-    const transactions = dataList.map(data => formatTransaction(data, chain));
-
     return {
-      transactions
+      transactions: await getTransactions(dataList, chain, publicKey)
     };
   }
 }
 
-function formatTransaction(data: {
+async function getTransactions(dataList: {
   from: string;
   to: string;
   value: string;
@@ -214,35 +209,48 @@ function formatTransaction(data: {
   originalData: string;
   callDataType: string;
   signatureData: string;
-}, chain: Chain) {
+}[], chain: Chain, publicKey: string) {
   if (chain == Chain.Solana) {
-    const serializedData = bs58.decode(data.serializedData);
-    const version = VersionedMessage.deserializeMessageVersion(serializedData);
-    if (version === 'legacy') {
-      const tx = Transaction.from(serializedData);
-      tx.signatures = [];
-      return {
-        type: 'legacy',
-        base64: tx.serialize({
-          requireAllSignatures: false,
-          verifySignatures: false,
-        }).toString('base64')
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+    return dataList.map(data => {
+      const serializedData = bs58.decode(data.serializedData);
+
+      try {
+        const tx = Transaction.from(serializedData);
+        if (tx.signatures.filter(sig => sig.publicKey.toString() !== publicKey).length === 0) {
+          tx.recentBlockhash = blockhash;
+          tx.lastValidBlockHeight = lastValidBlockHeight;
+          tx.feePayer = new PublicKey(publicKey);
+        }
+        tx.signatures.forEach(sig => {
+          if (sig.publicKey.toString() === publicKey) {
+            sig.signature = null;
+          }
+        });
+        return {
+          type: 'legacy',
+          base64: tx.serialize({
+            requireAllSignatures: false,
+            verifySignatures: false,
+          }).toString('base64')
+        }
+      } catch {
+        const tx = VersionedTransaction.deserialize(serializedData);
+        tx.message.recentBlockhash = blockhash;
+        return {
+          type: 'versioned',
+          base64: Buffer.from(tx.serialize()).toString('base64')
+        }
       }
-    } else {
-      const tx = VersionedTransaction.deserialize(serializedData);
-      tx.signatures = [];
-      return {
-        type: 'versioned',
-        base64: Buffer.from(tx.serialize()).toString('base64')
-      }
-    }
-  } else if (chain == Chain.SUI) {
-    return {
-      base64: Buffer.from(bs58.decode(data.serializedData)).toString('base64')
-    }
+    });
   } else {
-    return {
-      hex: ethers.Transaction.from({ to: data.to, value: data.value, data: data.serializedData }).unsignedSerialized
-    }
+    return dataList.map(data => ({
+      hex: ethers.Transaction.from({
+        to: data.to,
+        value: data.value,
+        data: data.serializedData
+      }).unsignedSerialized
+    }))
   }
 }

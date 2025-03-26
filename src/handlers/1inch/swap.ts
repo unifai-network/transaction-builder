@@ -101,15 +101,20 @@ export class SwapHandler implements TransactionHandler {
   }
 
   private async buildSwapTx(data: Payload, address: string, chainId: number, decimals: number): Promise<any> {
-    const swapData = await this.apiCall(`/${chainId}/swap`, {
+    const swapPayload: Record<string, any> = {
       src: data.inputToken,
       dst: data.outputToken,
       amount: parseUnits(data.amount, decimals).toString(),
       from: address,
       slippage: data.slippage,
       disableEstimate: 'true',
-      allowPartialFill: 'false'
-    });
+      allowPartialFill: 'false',
+    }
+    if (process.env.ONEINCH_REFERRER && process.env.ONEINCH_FEE) {
+      swapPayload.referrer = process.env.ONEINCH_REFERRER;
+      swapPayload.fee = process.env.ONEINCH_FEE;
+    }
+    const swapData = await this.apiCall(`/${chainId}/swap`, swapPayload);
     return swapData.tx;
   }
 }

@@ -71,7 +71,7 @@ export class OrbiterHandler implements TransactionHandler {
     const { sendAmount } = router.simulationAmount(data.amount);
 
     const transaction = await router.createTransaction(address, address, sendAmount);
-
+    
     const rawData = transaction.raw as {
       to: string;
       data: string;
@@ -82,7 +82,7 @@ export class OrbiterHandler implements TransactionHandler {
     const [feeData, nonce, gasLimit] = await Promise.all([
       provider.getFeeData(),
       provider.getTransactionCount(address),
-      provider.estimateGas(rawData),
+      provider.estimateGas({ ...rawData, from: address }),
     ]);
 
     const { maxFeePerGas, maxPriorityFeePerGas } = feeData;

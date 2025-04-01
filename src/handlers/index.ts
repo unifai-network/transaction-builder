@@ -40,4 +40,5 @@ handlerRegistry.set("meteora/dynamic/remove-liquidity", new meteora.MeteoraDynam
 handlerRegistry.set("okx/defi/subscribe", new okx.OkxDefiSubscribeHandler());
 handlerRegistry.set("okx/defi/redeem", new okx.OkxDefiRedeemHandler());
 handlerRegistry.set("okx/defi/claim-bonus", new okx.OkxDefiClaimBonusHandler());
+
 handlerRegistry.set("orbiter/swap", new orbiter.OrbiterHandler());

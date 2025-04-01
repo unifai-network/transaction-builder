@@ -8,6 +8,13 @@ export const EVM_CHAIN_IDS: Record<string, number> = {
   'bsc': 56,
 };
 
+export const CHAIN_ID_TO_NAME: Record<number, string> = {
+  1: 'eth',
+  56: 'bnb',
+  8453: 'base',
+  137: 'polygon',
+};
+
 export function getEvmProvider(chain: string) {
   chain = chain.toLowerCase();
   if (chain === 'ethereum' || chain === 'eth') {
@@ -31,6 +38,12 @@ export function validateEvmAddress(address: string) {
 export function validateEvmChain(chain: string) {
   if (!EVM_CHAIN_IDS[chain]) {
     throw new Error(`Unsupported EVM chain: ${chain}`);
+  }
+}
+
+export function valiadateChainId(chainId: number) {
+  if (!CHAIN_ID_TO_NAME[chainId]) {
+    throw new Error(`Unsupported EVM chain id: ${chainId}`);
   }
 }
 

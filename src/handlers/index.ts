@@ -10,6 +10,7 @@ import * as wormhole from "./wormhole";
 import * as meteora from "./meteora";
 import * as okx from './okx';
 import * as sonic from './sonic';
+import * as venus from './venus';
 
 export const handlerRegistry = new Map<string, TransactionHandler>();
 
@@ -40,3 +41,4 @@ handlerRegistry.set("meteora/dynamic/remove-liquidity", new meteora.MeteoraDynam
 handlerRegistry.set("okx/defi/subscribe", new okx.OkxDefiSubscribeHandler());
 handlerRegistry.set("okx/defi/redeem", new okx.OkxDefiRedeemHandler());
 handlerRegistry.set("okx/defi/claim-bonus", new okx.OkxDefiClaimBonusHandler());
+handlerRegistry.set("venus/v5", new venus.VenusV5Handler());

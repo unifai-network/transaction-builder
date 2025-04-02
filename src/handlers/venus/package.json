@@ -1,0 +1,33 @@
+{
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@0xsequence/multicall": "^1.2.9",
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@ethersproject/web": "^5.7.1",
+    "@pancakeswap/sdk": "^3.1.0",
+    "@venusprotocol/isolated-pools": "^2.4.0",
+    "@venusprotocol/oracle": "^1.9.0",
+    "@venusprotocol/venus-protocol": "^7.1.0",
+    "bignumber.js": "^9.1.1",
+    "buffer": "^6.0.3",
+    "dotenv": "^16.4.7",
+    "ethers": "^5.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2",
+    "rimraf": "^5.0.0"
+  },
+  "peerDependencies": {
+    "ethers": "^5.7.2"
+  }
+} 

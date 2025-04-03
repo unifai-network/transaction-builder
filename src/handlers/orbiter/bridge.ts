@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { BuildTransactionResponse, CreateTransactionResponse, TransactionHandler } from "../TransactionHandler";
 import { OrbiterClient, ENDPOINT, RouterType, ConfigOptions, TradePair } from "@orbiter-finance/bridge-sdk";
-import { CHAIN_ID_TO_NAME, getEvmProvider, valiadateChainId, validateEvmAddress } from "../../utils/evm";
+import { EVM_CHAIN_IDS, getEvmProvider, validateEvmAddress, validateEvmChain } from "../../utils/evm";
 import { ethers } from "ethers";
 
 const config: ConfigOptions = {
@@ -10,8 +10,8 @@ const config: ConfigOptions = {
 };
 
 const PayloadSchema = z.object({
-  srcChainId: z.number().positive(),
-  dstChainId: z.number().positive(),
+  srcChain: z.string().nonempty("Missing required field: srcChain"),
+  dstChain: z.string().nonempty("Missing required field: dstChain"),
   srcTokenSymbol: z.string().toUpperCase().nonempty("Missing required field: srcTokenSymbol"),
   dstTokenSymbol: z.string().toUpperCase().nonempty("Missing required field: dstTokenSymbol"),
   amount: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a valid number string"),
@@ -29,10 +29,11 @@ export class OrbiterHandler implements TransactionHandler {
     }
 
     payload = validation.data;
-    valiadateChainId(payload.srcChainId);
+    validateEvmChain(payload.srcChain);
+    validateEvmChain(payload.dstChain);
 
     return {
-      chain: CHAIN_ID_TO_NAME[payload.srcChainId],
+      chain: payload.srcChain,
       data: payload,
     };
   }
@@ -40,23 +41,23 @@ export class OrbiterHandler implements TransactionHandler {
   async build(data: Payload, address: string): Promise<BuildTransactionResponse> {
     validateEvmAddress(address);
 
-    const provider = getEvmProvider(CHAIN_ID_TO_NAME[data.srcChainId]);
+    const provider = getEvmProvider(data.srcChain);
 
     const orbiter = await OrbiterClient.create(config);
 
-    const tradePairs: TradePair[] = orbiter.getAvailableTradePairs(data.srcChainId.toString(), data.srcTokenSymbol);
+    const tradePairs: TradePair[] = orbiter.getAvailableTradePairs(EVM_CHAIN_IDS[data.srcChain].toString(), data.srcTokenSymbol);
 
     if (tradePairs.length === 0) {
-      throw new Error(`No trade pairs found for ${data.srcChainId} ${data.srcTokenSymbol}`);
+      throw new Error(`No trade pairs found for ${data.srcChain} ${data.srcTokenSymbol}`);
     }
 
     const tradePair = tradePairs.find(
-      (pair) => pair.dstChainId === data.dstChainId.toString() && pair.dstTokenSymbol === data.dstTokenSymbol
+      (pair) => pair.dstChainId === EVM_CHAIN_IDS[data.dstChain].toString() && pair.dstTokenSymbol === data.dstTokenSymbol
     );
 
     if (!tradePair) {
       throw new Error(
-        `No trade pair found for ${data.srcChainId} ${data.srcTokenSymbol} to ${data.dstChainId} ${data.dstTokenSymbol}`
+        `No trade pair found for ${data.srcChain} ${data.srcTokenSymbol} to ${data.dstChain} ${data.dstTokenSymbol}`
       );
     }
     const router = orbiter.createRouter(tradePair);
@@ -78,7 +79,6 @@ export class OrbiterHandler implements TransactionHandler {
       value: string;
     };
 
-    // promise all
     const [feeData, nonce, gasLimit] = await Promise.all([
       provider.getFeeData(),
       provider.getTransactionCount(address),
@@ -92,7 +92,7 @@ export class OrbiterHandler implements TransactionHandler {
     }
 
     const unsignedTx: ethers.TransactionLike = {
-      chainId: data.srcChainId,
+      chainId: EVM_CHAIN_IDS[data.srcChain],
       type: 2,
       ...rawData,
       nonce,

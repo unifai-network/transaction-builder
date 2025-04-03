@@ -12,19 +12,10 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-} from "./common";
+} from 'ethers';
+import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi';
+import type { Listener, Provider } from '@ethersproject/providers';
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from './common';
 
 export declare namespace VTokenInterface {
   export type RiskManagementInitStruct = {
@@ -40,241 +31,181 @@ export declare namespace VTokenInterface {
 
 export interface VBep20Interface extends utils.Interface {
   functions: {
-    "NO_ERROR()": FunctionFragment;
-    "acceptOwnership()": FunctionFragment;
-    "accessControlManager()": FunctionFragment;
-    "accrualBlockNumber()": FunctionFragment;
-    "accrueInterest()": FunctionFragment;
-    "addReserves(uint256)": FunctionFragment;
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "badDebt()": FunctionFragment;
-    "badDebtRecovered(uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "balanceOfUnderlying(address)": FunctionFragment;
-    "borrow(uint256)": FunctionFragment;
-    "borrowBalanceCurrent(address)": FunctionFragment;
-    "borrowBalanceStored(address)": FunctionFragment;
-    "borrowIndex()": FunctionFragment;
-    "borrowRatePerBlock()": FunctionFragment;
-    "comptroller()": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "decreaseAllowance(address,uint256)": FunctionFragment;
-    "exchangeRateCurrent()": FunctionFragment;
-    "exchangeRateStored()": FunctionFragment;
-    "forceLiquidateBorrow(address,address,uint256,address,bool)": FunctionFragment;
-    "getAccountSnapshot(address)": FunctionFragment;
-    "getCash()": FunctionFragment;
-    "healBorrow(address,address,uint256)": FunctionFragment;
-    "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize(address,address,address,uint256,string,string,uint8,address,address,(address,address),uint256)": FunctionFragment;
-    "interestRateModel()": FunctionFragment;
-    "isVToken()": FunctionFragment;
-    "liquidateBorrow(address,uint256,address)": FunctionFragment;
-    "mint(uint256)": FunctionFragment;
-    "mintBehalf(address,uint256)": FunctionFragment;
-    "name()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingOwner()": FunctionFragment;
-    "protocolSeizeShareMantissa()": FunctionFragment;
-    "protocolShareReserve()": FunctionFragment;
-    "redeem(uint256)": FunctionFragment;
-    "redeemUnderlying(uint256)": FunctionFragment;
-    "reduceReserves(uint256)": FunctionFragment;
-    "reduceReservesBlockDelta()": FunctionFragment;
-    "reduceReservesBlockNumber()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "repayBorrow(uint256)": FunctionFragment;
-    "repayBorrowBehalf(address,uint256)": FunctionFragment;
-    "reserveFactorMantissa()": FunctionFragment;
-    "seize(address,address,uint256)": FunctionFragment;
-    "setAccessControlManager(address)": FunctionFragment;
-    "setInterestRateModel(address)": FunctionFragment;
-    "setProtocolSeizeShare(uint256)": FunctionFragment;
-    "setProtocolShareReserve(address)": FunctionFragment;
-    "setReduceReservesBlockDelta(uint256)": FunctionFragment;
-    "setReserveFactor(uint256)": FunctionFragment;
-    "setShortfallContract(address)": FunctionFragment;
-    "shortfall()": FunctionFragment;
-    "supplyRatePerBlock()": FunctionFragment;
-    "sweepToken(address)": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "totalBorrows()": FunctionFragment;
-    "totalBorrowsCurrent()": FunctionFragment;
-    "totalReserves()": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "underlying()": FunctionFragment;
+    'NO_ERROR()': FunctionFragment;
+    'acceptOwnership()': FunctionFragment;
+    'accessControlManager()': FunctionFragment;
+    'accrualBlockNumber()': FunctionFragment;
+    'accrueInterest()': FunctionFragment;
+    'addReserves(uint256)': FunctionFragment;
+    'allowance(address,address)': FunctionFragment;
+    'approve(address,uint256)': FunctionFragment;
+    'badDebt()': FunctionFragment;
+    'badDebtRecovered(uint256)': FunctionFragment;
+    'balanceOf(address)': FunctionFragment;
+    'balanceOfUnderlying(address)': FunctionFragment;
+    'borrow(uint256)': FunctionFragment;
+    'borrowBalanceCurrent(address)': FunctionFragment;
+    'borrowBalanceStored(address)': FunctionFragment;
+    'borrowIndex()': FunctionFragment;
+    'borrowRatePerBlock()': FunctionFragment;
+    'comptroller()': FunctionFragment;
+    'decimals()': FunctionFragment;
+    'decreaseAllowance(address,uint256)': FunctionFragment;
+    'exchangeRateCurrent()': FunctionFragment;
+    'exchangeRateStored()': FunctionFragment;
+    'forceLiquidateBorrow(address,address,uint256,address,bool)': FunctionFragment;
+    'getAccountSnapshot(address)': FunctionFragment;
+    'getCash()': FunctionFragment;
+    'healBorrow(address,address,uint256)': FunctionFragment;
+    'increaseAllowance(address,uint256)': FunctionFragment;
+    'initialize(address,address,address,uint256,string,string,uint8,address,address,(address,address),uint256)': FunctionFragment;
+    'interestRateModel()': FunctionFragment;
+    'isVToken()': FunctionFragment;
+    'liquidateBorrow(address,uint256,address)': FunctionFragment;
+    'mint(uint256)': FunctionFragment;
+    'mintBehalf(address,uint256)': FunctionFragment;
+    'name()': FunctionFragment;
+    'owner()': FunctionFragment;
+    'pendingOwner()': FunctionFragment;
+    'protocolSeizeShareMantissa()': FunctionFragment;
+    'protocolShareReserve()': FunctionFragment;
+    'redeem(uint256)': FunctionFragment;
+    'redeemUnderlying(uint256)': FunctionFragment;
+    'reduceReserves(uint256)': FunctionFragment;
+    'reduceReservesBlockDelta()': FunctionFragment;
+    'reduceReservesBlockNumber()': FunctionFragment;
+    'renounceOwnership()': FunctionFragment;
+    'repayBorrow(uint256)': FunctionFragment;
+    'repayBorrowBehalf(address,uint256)': FunctionFragment;
+    'reserveFactorMantissa()': FunctionFragment;
+    'seize(address,address,uint256)': FunctionFragment;
+    'setAccessControlManager(address)': FunctionFragment;
+    'setInterestRateModel(address)': FunctionFragment;
+    'setProtocolSeizeShare(uint256)': FunctionFragment;
+    'setProtocolShareReserve(address)': FunctionFragment;
+    'setReduceReservesBlockDelta(uint256)': FunctionFragment;
+    'setReserveFactor(uint256)': FunctionFragment;
+    'setShortfallContract(address)': FunctionFragment;
+    'shortfall()': FunctionFragment;
+    'supplyRatePerBlock()': FunctionFragment;
+    'sweepToken(address)': FunctionFragment;
+    'symbol()': FunctionFragment;
+    'totalBorrows()': FunctionFragment;
+    'totalBorrowsCurrent()': FunctionFragment;
+    'totalReserves()': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transfer(address,uint256)': FunctionFragment;
+    'transferFrom(address,address,uint256)': FunctionFragment;
+    'transferOwnership(address)': FunctionFragment;
+    'underlying()': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "NO_ERROR"
-      | "acceptOwnership"
-      | "accessControlManager"
-      | "accrualBlockNumber"
-      | "accrueInterest"
-      | "addReserves"
-      | "allowance"
-      | "approve"
-      | "badDebt"
-      | "badDebtRecovered"
-      | "balanceOf"
-      | "balanceOfUnderlying"
-      | "borrow"
-      | "borrowBalanceCurrent"
-      | "borrowBalanceStored"
-      | "borrowIndex"
-      | "borrowRatePerBlock"
-      | "comptroller"
-      | "decimals"
-      | "decreaseAllowance"
-      | "exchangeRateCurrent"
-      | "exchangeRateStored"
-      | "forceLiquidateBorrow"
-      | "getAccountSnapshot"
-      | "getCash"
-      | "healBorrow"
-      | "increaseAllowance"
-      | "initialize"
-      | "interestRateModel"
-      | "isVToken"
-      | "liquidateBorrow"
-      | "mint"
-      | "mintBehalf"
-      | "name"
-      | "owner"
-      | "pendingOwner"
-      | "protocolSeizeShareMantissa"
-      | "protocolShareReserve"
-      | "redeem"
-      | "redeemUnderlying"
-      | "reduceReserves"
-      | "reduceReservesBlockDelta"
-      | "reduceReservesBlockNumber"
-      | "renounceOwnership"
-      | "repayBorrow"
-      | "repayBorrowBehalf"
-      | "reserveFactorMantissa"
-      | "seize"
-      | "setAccessControlManager"
-      | "setInterestRateModel"
-      | "setProtocolSeizeShare"
-      | "setProtocolShareReserve"
-      | "setReduceReservesBlockDelta"
-      | "setReserveFactor"
-      | "setShortfallContract"
-      | "shortfall"
-      | "supplyRatePerBlock"
-      | "sweepToken"
-      | "symbol"
-      | "totalBorrows"
-      | "totalBorrowsCurrent"
-      | "totalReserves"
-      | "totalSupply"
-      | "transfer"
-      | "transferFrom"
-      | "transferOwnership"
-      | "underlying"
+      | 'NO_ERROR'
+      | 'acceptOwnership'
+      | 'accessControlManager'
+      | 'accrualBlockNumber'
+      | 'accrueInterest'
+      | 'addReserves'
+      | 'allowance'
+      | 'approve'
+      | 'badDebt'
+      | 'badDebtRecovered'
+      | 'balanceOf'
+      | 'balanceOfUnderlying'
+      | 'borrow'
+      | 'borrowBalanceCurrent'
+      | 'borrowBalanceStored'
+      | 'borrowIndex'
+      | 'borrowRatePerBlock'
+      | 'comptroller'
+      | 'decimals'
+      | 'decreaseAllowance'
+      | 'exchangeRateCurrent'
+      | 'exchangeRateStored'
+      | 'forceLiquidateBorrow'
+      | 'getAccountSnapshot'
+      | 'getCash'
+      | 'healBorrow'
+      | 'increaseAllowance'
+      | 'initialize'
+      | 'interestRateModel'
+      | 'isVToken'
+      | 'liquidateBorrow'
+      | 'mint'
+      | 'mintBehalf'
+      | 'name'
+      | 'owner'
+      | 'pendingOwner'
+      | 'protocolSeizeShareMantissa'
+      | 'protocolShareReserve'
+      | 'redeem'
+      | 'redeemUnderlying'
+      | 'reduceReserves'
+      | 'reduceReservesBlockDelta'
+      | 'reduceReservesBlockNumber'
+      | 'renounceOwnership'
+      | 'repayBorrow'
+      | 'repayBorrowBehalf'
+      | 'reserveFactorMantissa'
+      | 'seize'
+      | 'setAccessControlManager'
+      | 'setInterestRateModel'
+      | 'setProtocolSeizeShare'
+      | 'setProtocolShareReserve'
+      | 'setReduceReservesBlockDelta'
+      | 'setReserveFactor'
+      | 'setShortfallContract'
+      | 'shortfall'
+      | 'supplyRatePerBlock'
+      | 'sweepToken'
+      | 'symbol'
+      | 'totalBorrows'
+      | 'totalBorrowsCurrent'
+      | 'totalReserves'
+      | 'totalSupply'
+      | 'transfer'
+      | 'transferFrom'
+      | 'transferOwnership'
+      | 'underlying'
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "NO_ERROR", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'NO_ERROR', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'acceptOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'accessControlManager', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'accrualBlockNumber', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'accrueInterest', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'addReserves', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'allowance', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'badDebt', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'badDebtRecovered', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [string]): string;
+  encodeFunctionData(functionFragment: 'balanceOfUnderlying', values: [string]): string;
+  encodeFunctionData(functionFragment: 'borrow', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'borrowBalanceCurrent', values: [string]): string;
+  encodeFunctionData(functionFragment: 'borrowBalanceStored', values: [string]): string;
+  encodeFunctionData(functionFragment: 'borrowIndex', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'borrowRatePerBlock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'comptroller', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'decreaseAllowance', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'exchangeRateCurrent', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'exchangeRateStored', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "acceptOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "accessControlManager",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "accrualBlockNumber",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "accrueInterest",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addReserves",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allowance",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "badDebt", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "badDebtRecovered",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "balanceOfUnderlying",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrow",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowBalanceCurrent",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowBalanceStored",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowIndex",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowRatePerBlock",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "comptroller",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "decreaseAllowance",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "exchangeRateCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "exchangeRateStored",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "forceLiquidateBorrow",
+    functionFragment: 'forceLiquidateBorrow',
     values: [string, string, BigNumberish, string, boolean]
   ): string;
+  encodeFunctionData(functionFragment: 'getAccountSnapshot', values: [string]): string;
+  encodeFunctionData(functionFragment: 'getCash', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "getAccountSnapshot",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "getCash", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "healBorrow",
+    functionFragment: 'healBorrow',
     values: [string, string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: 'increaseAllowance', values: [string, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "increaseAllowance",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
+    functionFragment: 'initialize',
     values: [
       string,
       string,
@@ -286,405 +217,181 @@ export interface VBep20Interface extends utils.Interface {
       string,
       string,
       VTokenInterface.RiskManagementInitStruct,
-      BigNumberish
+      BigNumberish,
     ]
   ): string;
+  encodeFunctionData(functionFragment: 'interestRateModel', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'isVToken', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "interestRateModel",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "isVToken", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "liquidateBorrow",
+    functionFragment: 'liquidateBorrow',
     values: [string, BigNumberish, string]
   ): string;
-  encodeFunctionData(functionFragment: "mint", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'mint', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'mintBehalf', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'pendingOwner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'protocolSeizeShareMantissa', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'protocolShareReserve', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'redeem', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'redeemUnderlying', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'reduceReserves', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'reduceReservesBlockDelta', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'reduceReservesBlockNumber', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'repayBorrow', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'repayBorrowBehalf', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'reserveFactorMantissa', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'seize', values: [string, string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setAccessControlManager', values: [string]): string;
+  encodeFunctionData(functionFragment: 'setInterestRateModel', values: [string]): string;
+  encodeFunctionData(functionFragment: 'setProtocolSeizeShare', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setProtocolShareReserve', values: [string]): string;
   encodeFunctionData(
-    functionFragment: "mintBehalf",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "pendingOwner",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "protocolSeizeShareMantissa",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "protocolShareReserve",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeem",
+    functionFragment: 'setReduceReservesBlockDelta',
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: 'setReserveFactor', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setShortfallContract', values: [string]): string;
+  encodeFunctionData(functionFragment: 'shortfall', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'supplyRatePerBlock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'sweepToken', values: [string]): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalBorrows', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalBorrowsCurrent', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalReserves', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [string, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "redeemUnderlying",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reduceReserves",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reduceReservesBlockDelta",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reduceReservesBlockNumber",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "repayBorrow",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "repayBorrowBehalf",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reserveFactorMantissa",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "seize",
+    functionFragment: 'transferFrom',
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setAccessControlManager",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setInterestRateModel",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setProtocolSeizeShare",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setProtocolShareReserve",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setReduceReservesBlockDelta",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setReserveFactor",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setShortfallContract",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "shortfall", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "supplyRatePerBlock",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "sweepToken", values: [string]): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalBorrows",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalBorrowsCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalReserves",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "underlying",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [string]): string;
+  encodeFunctionData(functionFragment: 'underlying', values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "NO_ERROR", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "acceptOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "accessControlManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "accrualBlockNumber",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "accrueInterest",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "addReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "badDebt", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "badDebtRecovered",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "balanceOfUnderlying",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowBalanceCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowBalanceStored",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowIndex",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowRatePerBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "comptroller",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "decreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "exchangeRateCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "exchangeRateStored",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "forceLiquidateBorrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAccountSnapshot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getCash", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "healBorrow", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "increaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "interestRateModel",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "isVToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "liquidateBorrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mintBehalf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "protocolSeizeShareMantissa",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "protocolShareReserve",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "redeemUnderlying",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reduceReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reduceReservesBlockDelta",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reduceReservesBlockNumber",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "repayBorrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "repayBorrowBehalf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reserveFactorMantissa",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "seize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAccessControlManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setInterestRateModel",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setProtocolSeizeShare",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setProtocolShareReserve",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setReduceReservesBlockDelta",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setReserveFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setShortfallContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "shortfall", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supplyRatePerBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "sweepToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalBorrows",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalBorrowsCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "underlying", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'NO_ERROR', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'acceptOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accessControlManager', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrualBlockNumber', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrueInterest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addReserves', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'badDebt', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'badDebtRecovered', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOfUnderlying', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowBalanceCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowBalanceStored', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowIndex', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowRatePerBlock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'comptroller', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decreaseAllowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchangeRateCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchangeRateStored', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'forceLiquidateBorrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAccountSnapshot', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getCash', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'healBorrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'increaseAllowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'interestRateModel', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isVToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'liquidateBorrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mintBehalf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pendingOwner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'protocolSeizeShareMantissa', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'protocolShareReserve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeemUnderlying', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'reduceReserves', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'reduceReservesBlockDelta', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'reduceReservesBlockNumber', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'repayBorrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'repayBorrowBehalf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'reserveFactorMantissa', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'seize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setAccessControlManager', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setInterestRateModel', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setProtocolSeizeShare', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setProtocolShareReserve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setReduceReservesBlockDelta', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setReserveFactor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setShortfallContract', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'shortfall', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'supplyRatePerBlock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sweepToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalBorrows', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalBorrowsCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalReserves', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'underlying', data: BytesLike): Result;
 
   events: {
-    "AccrueInterest(uint256,uint256,uint256,uint256)": EventFragment;
-    "Approval(address,address,uint256)": EventFragment;
-    "BadDebtIncreased(address,uint256,uint256,uint256)": EventFragment;
-    "BadDebtRecovered(uint256,uint256)": EventFragment;
-    "Borrow(address,uint256,uint256,uint256)": EventFragment;
-    "HealBorrow(address,address,uint256)": EventFragment;
-    "Initialized(uint8)": EventFragment;
-    "LiquidateBorrow(address,address,uint256,address,uint256)": EventFragment;
-    "Mint(address,uint256,uint256,uint256)": EventFragment;
-    "NewAccessControlManager(address,address)": EventFragment;
-    "NewComptroller(address,address)": EventFragment;
-    "NewMarketInterestRateModel(address,address)": EventFragment;
-    "NewProtocolSeizeShare(uint256,uint256)": EventFragment;
-    "NewProtocolShareReserve(address,address)": EventFragment;
-    "NewReduceReservesBlockDelta(uint256,uint256)": EventFragment;
-    "NewReserveFactor(uint256,uint256)": EventFragment;
-    "NewShortfallContract(address,address)": EventFragment;
-    "OwnershipTransferStarted(address,address)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "ProtocolSeize(address,address,uint256)": EventFragment;
-    "Redeem(address,uint256,uint256,uint256)": EventFragment;
-    "RepayBorrow(address,address,uint256,uint256,uint256)": EventFragment;
-    "ReservesAdded(address,uint256,uint256)": EventFragment;
-    "SpreadReservesReduced(address,uint256,uint256)": EventFragment;
-    "SweepToken(address)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
+    'AccrueInterest(uint256,uint256,uint256,uint256)': EventFragment;
+    'Approval(address,address,uint256)': EventFragment;
+    'BadDebtIncreased(address,uint256,uint256,uint256)': EventFragment;
+    'BadDebtRecovered(uint256,uint256)': EventFragment;
+    'Borrow(address,uint256,uint256,uint256)': EventFragment;
+    'HealBorrow(address,address,uint256)': EventFragment;
+    'Initialized(uint8)': EventFragment;
+    'LiquidateBorrow(address,address,uint256,address,uint256)': EventFragment;
+    'Mint(address,uint256,uint256,uint256)': EventFragment;
+    'NewAccessControlManager(address,address)': EventFragment;
+    'NewComptroller(address,address)': EventFragment;
+    'NewMarketInterestRateModel(address,address)': EventFragment;
+    'NewProtocolSeizeShare(uint256,uint256)': EventFragment;
+    'NewProtocolShareReserve(address,address)': EventFragment;
+    'NewReduceReservesBlockDelta(uint256,uint256)': EventFragment;
+    'NewReserveFactor(uint256,uint256)': EventFragment;
+    'NewShortfallContract(address,address)': EventFragment;
+    'OwnershipTransferStarted(address,address)': EventFragment;
+    'OwnershipTransferred(address,address)': EventFragment;
+    'ProtocolSeize(address,address,uint256)': EventFragment;
+    'Redeem(address,uint256,uint256,uint256)': EventFragment;
+    'RepayBorrow(address,address,uint256,uint256,uint256)': EventFragment;
+    'ReservesAdded(address,uint256,uint256)': EventFragment;
+    'SpreadReservesReduced(address,uint256,uint256)': EventFragment;
+    'SweepToken(address)': EventFragment;
+    'Transfer(address,address,uint256)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AccrueInterest"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BadDebtIncreased"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BadDebtRecovered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Borrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "HealBorrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LiquidateBorrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewAccessControlManager"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewComptroller"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewMarketInterestRateModel"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewProtocolSeizeShare"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewProtocolShareReserve"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "NewReduceReservesBlockDelta"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewReserveFactor"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewShortfallContract"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ProtocolSeize"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Redeem"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RepayBorrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReservesAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SpreadReservesReduced"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SweepToken"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AccrueInterest'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'BadDebtIncreased'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'BadDebtRecovered'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Borrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'HealBorrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'LiquidateBorrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Mint'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewAccessControlManager'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewComptroller'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewMarketInterestRateModel'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewProtocolSeizeShare'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewProtocolShareReserve'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewReduceReservesBlockDelta'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewReserveFactor'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewShortfallContract'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferStarted'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ProtocolSeize'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Redeem'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RepayBorrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ReservesAdded'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SpreadReservesReduced'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SweepToken'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment;
 }
 
 export interface AccrueInterestEventObject {
@@ -705,10 +412,7 @@ export interface ApprovalEventObject {
   spender: string;
   amount: BigNumber;
 }
-export type ApprovalEvent = TypedEvent<
-  [string, string, BigNumber],
-  ApprovalEventObject
->;
+export type ApprovalEvent = TypedEvent<[string, string, BigNumber], ApprovalEventObject>;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
@@ -723,20 +427,15 @@ export type BadDebtIncreasedEvent = TypedEvent<
   BadDebtIncreasedEventObject
 >;
 
-export type BadDebtIncreasedEventFilter =
-  TypedEventFilter<BadDebtIncreasedEvent>;
+export type BadDebtIncreasedEventFilter = TypedEventFilter<BadDebtIncreasedEvent>;
 
 export interface BadDebtRecoveredEventObject {
   badDebtOld: BigNumber;
   badDebtNew: BigNumber;
 }
-export type BadDebtRecoveredEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  BadDebtRecoveredEventObject
->;
+export type BadDebtRecoveredEvent = TypedEvent<[BigNumber, BigNumber], BadDebtRecoveredEventObject>;
 
-export type BadDebtRecoveredEventFilter =
-  TypedEventFilter<BadDebtRecoveredEvent>;
+export type BadDebtRecoveredEventFilter = TypedEventFilter<BadDebtRecoveredEvent>;
 
 export interface BorrowEventObject {
   borrower: string;
@@ -744,10 +443,7 @@ export interface BorrowEventObject {
   accountBorrows: BigNumber;
   totalBorrows: BigNumber;
 }
-export type BorrowEvent = TypedEvent<
-  [string, BigNumber, BigNumber, BigNumber],
-  BorrowEventObject
->;
+export type BorrowEvent = TypedEvent<[string, BigNumber, BigNumber, BigNumber], BorrowEventObject>;
 
 export type BorrowEventFilter = TypedEventFilter<BorrowEvent>;
 
@@ -756,10 +452,7 @@ export interface HealBorrowEventObject {
   borrower: string;
   repayAmount: BigNumber;
 }
-export type HealBorrowEvent = TypedEvent<
-  [string, string, BigNumber],
-  HealBorrowEventObject
->;
+export type HealBorrowEvent = TypedEvent<[string, string, BigNumber], HealBorrowEventObject>;
 
 export type HealBorrowEventFilter = TypedEventFilter<HealBorrowEvent>;
 
@@ -790,10 +483,7 @@ export interface MintEventObject {
   mintTokens: BigNumber;
   accountBalance: BigNumber;
 }
-export type MintEvent = TypedEvent<
-  [string, BigNumber, BigNumber, BigNumber],
-  MintEventObject
->;
+export type MintEvent = TypedEvent<[string, BigNumber, BigNumber, BigNumber], MintEventObject>;
 
 export type MintEventFilter = TypedEventFilter<MintEvent>;
 
@@ -806,17 +496,13 @@ export type NewAccessControlManagerEvent = TypedEvent<
   NewAccessControlManagerEventObject
 >;
 
-export type NewAccessControlManagerEventFilter =
-  TypedEventFilter<NewAccessControlManagerEvent>;
+export type NewAccessControlManagerEventFilter = TypedEventFilter<NewAccessControlManagerEvent>;
 
 export interface NewComptrollerEventObject {
   oldComptroller: string;
   newComptroller: string;
 }
-export type NewComptrollerEvent = TypedEvent<
-  [string, string],
-  NewComptrollerEventObject
->;
+export type NewComptrollerEvent = TypedEvent<[string, string], NewComptrollerEventObject>;
 
 export type NewComptrollerEventFilter = TypedEventFilter<NewComptrollerEvent>;
 
@@ -841,8 +527,7 @@ export type NewProtocolSeizeShareEvent = TypedEvent<
   NewProtocolSeizeShareEventObject
 >;
 
-export type NewProtocolSeizeShareEventFilter =
-  TypedEventFilter<NewProtocolSeizeShareEvent>;
+export type NewProtocolSeizeShareEventFilter = TypedEventFilter<NewProtocolSeizeShareEvent>;
 
 export interface NewProtocolShareReserveEventObject {
   oldProtocolShareReserve: string;
@@ -853,8 +538,7 @@ export type NewProtocolShareReserveEvent = TypedEvent<
   NewProtocolShareReserveEventObject
 >;
 
-export type NewProtocolShareReserveEventFilter =
-  TypedEventFilter<NewProtocolShareReserveEvent>;
+export type NewProtocolShareReserveEventFilter = TypedEventFilter<NewProtocolShareReserveEvent>;
 
 export interface NewReduceReservesBlockDeltaEventObject {
   oldReduceReservesBlockDelta: BigNumber;
@@ -872,13 +556,9 @@ export interface NewReserveFactorEventObject {
   oldReserveFactorMantissa: BigNumber;
   newReserveFactorMantissa: BigNumber;
 }
-export type NewReserveFactorEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  NewReserveFactorEventObject
->;
+export type NewReserveFactorEvent = TypedEvent<[BigNumber, BigNumber], NewReserveFactorEventObject>;
 
-export type NewReserveFactorEventFilter =
-  TypedEventFilter<NewReserveFactorEvent>;
+export type NewReserveFactorEventFilter = TypedEventFilter<NewReserveFactorEvent>;
 
 export interface NewShortfallContractEventObject {
   oldShortfall: string;
@@ -889,8 +569,7 @@ export type NewShortfallContractEvent = TypedEvent<
   NewShortfallContractEventObject
 >;
 
-export type NewShortfallContractEventFilter =
-  TypedEventFilter<NewShortfallContractEvent>;
+export type NewShortfallContractEventFilter = TypedEventFilter<NewShortfallContractEvent>;
 
 export interface OwnershipTransferStartedEventObject {
   previousOwner: string;
@@ -901,8 +580,7 @@ export type OwnershipTransferStartedEvent = TypedEvent<
   OwnershipTransferStartedEventObject
 >;
 
-export type OwnershipTransferStartedEventFilter =
-  TypedEventFilter<OwnershipTransferStartedEvent>;
+export type OwnershipTransferStartedEventFilter = TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -913,18 +591,14 @@ export type OwnershipTransferredEvent = TypedEvent<
   OwnershipTransferredEventObject
 >;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface ProtocolSeizeEventObject {
   from: string;
   to: string;
   amount: BigNumber;
 }
-export type ProtocolSeizeEvent = TypedEvent<
-  [string, string, BigNumber],
-  ProtocolSeizeEventObject
->;
+export type ProtocolSeizeEvent = TypedEvent<[string, string, BigNumber], ProtocolSeizeEventObject>;
 
 export type ProtocolSeizeEventFilter = TypedEventFilter<ProtocolSeizeEvent>;
 
@@ -934,10 +608,7 @@ export interface RedeemEventObject {
   redeemTokens: BigNumber;
   accountBalance: BigNumber;
 }
-export type RedeemEvent = TypedEvent<
-  [string, BigNumber, BigNumber, BigNumber],
-  RedeemEventObject
->;
+export type RedeemEvent = TypedEvent<[string, BigNumber, BigNumber, BigNumber], RedeemEventObject>;
 
 export type RedeemEventFilter = TypedEventFilter<RedeemEvent>;
 
@@ -977,8 +648,7 @@ export type SpreadReservesReducedEvent = TypedEvent<
   SpreadReservesReducedEventObject
 >;
 
-export type SpreadReservesReducedEventFilter =
-  TypedEventFilter<SpreadReservesReducedEvent>;
+export type SpreadReservesReducedEventFilter = TypedEventFilter<SpreadReservesReducedEvent>;
 
 export interface SweepTokenEventObject {
   token: string;
@@ -992,10 +662,7 @@ export interface TransferEventObject {
   to: string;
   amount: BigNumber;
 }
-export type TransferEvent = TypedEvent<
-  [string, string, BigNumber],
-  TransferEventObject
->;
+export type TransferEvent = TypedEvent<[string, string, BigNumber], TransferEventObject>;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
@@ -1016,9 +683,7 @@ export interface VBep20 extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -1028,28 +693,20 @@ export interface VBep20 extends BaseContract {
   functions: {
     NO_ERROR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    acceptOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     accessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
     accrualBlockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    accrueInterest(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    accrueInterest(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     addReserves(
       addAmount: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     approve(
       spender: string,
@@ -1081,10 +738,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     borrowIndex(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1100,9 +754,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1208,9 +860,7 @@ export interface VBep20 extends BaseContract {
 
     reduceReservesBlockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     repayBorrow(
       repayAmount: BigNumberish,
@@ -1280,9 +930,7 @@ export interface VBep20 extends BaseContract {
 
     totalBorrows(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    totalBorrowsCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     totalReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1311,28 +959,20 @@ export interface VBep20 extends BaseContract {
 
   NO_ERROR(overrides?: CallOverrides): Promise<BigNumber>;
 
-  acceptOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  acceptOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   accessControlManager(overrides?: CallOverrides): Promise<string>;
 
   accrualBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-  accrueInterest(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  accrueInterest(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   addReserves(
     addAmount: BigNumberish,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   approve(
     spender: string,
@@ -1364,10 +1004,7 @@ export interface VBep20 extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  borrowBalanceStored(
-    account: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1383,9 +1020,7 @@ export interface VBep20 extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  exchangeRateCurrent(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1491,9 +1126,7 @@ export interface VBep20 extends BaseContract {
 
   reduceReservesBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  renounceOwnership(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   repayBorrow(
     repayAmount: BigNumberish,
@@ -1563,9 +1196,7 @@ export interface VBep20 extends BaseContract {
 
   totalBorrows(overrides?: CallOverrides): Promise<BigNumber>;
 
-  totalBorrowsCurrent(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1602,51 +1233,25 @@ export interface VBep20 extends BaseContract {
 
     accrueInterest(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addReserves(
-      addAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addReserves(addAmount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    approve(spender: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     badDebt(overrides?: CallOverrides): Promise<BigNumber>;
 
-    badDebtRecovered(
-      recoveredAmount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    badDebtRecovered(recoveredAmount_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    balanceOfUnderlying(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    balanceOfUnderlying(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    borrow(
-      borrowAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrow(borrowAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    borrowBalanceCurrent(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrowBalanceCurrent(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1728,10 +1333,7 @@ export interface VBep20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    mint(
-      mintAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    mint(mintAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     mintBehalf(
       minter: string,
@@ -1749,20 +1351,11 @@ export interface VBep20 extends BaseContract {
 
     protocolShareReserve(overrides?: CallOverrides): Promise<string>;
 
-    redeem(
-      redeemTokens: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    redeem(redeemTokens: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    redeemUnderlying(
-      redeemAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    redeemUnderlying(redeemAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    reduceReserves(
-      reduceAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    reduceReserves(reduceAmount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     reduceReservesBlockDelta(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1770,10 +1363,7 @@ export interface VBep20 extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    repayBorrow(
-      repayAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    repayBorrow(repayAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     repayBorrowBehalf(
       borrower: string,
@@ -1795,10 +1385,7 @@ export interface VBep20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setInterestRateModel(
-      newInterestRateModel: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setInterestRateModel(newInterestRateModel: string, overrides?: CallOverrides): Promise<void>;
 
     setProtocolSeizeShare(
       newProtocolSeizeShareMantissa_: BigNumberish,
@@ -1820,10 +1407,7 @@ export interface VBep20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setShortfallContract(
-      shortfall_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setShortfallContract(shortfall_: string, overrides?: CallOverrides): Promise<void>;
 
     shortfall(overrides?: CallOverrides): Promise<string>;
 
@@ -1841,11 +1425,7 @@ export interface VBep20 extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transfer(
-      dst: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transfer(dst: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     transferFrom(
       src: string,
@@ -1854,16 +1434,13 @@ export interface VBep20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(newOwner: string, overrides?: CallOverrides): Promise<void>;
 
     underlying(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
-    "AccrueInterest(uint256,uint256,uint256,uint256)"(
+    'AccrueInterest(uint256,uint256,uint256,uint256)'(
       cashPrior?: null,
       interestAccumulated?: null,
       borrowIndex?: null,
@@ -1876,18 +1453,14 @@ export interface VBep20 extends BaseContract {
       totalBorrows?: null
     ): AccrueInterestEventFilter;
 
-    "Approval(address,address,uint256)"(
+    'Approval(address,address,uint256)'(
       owner?: string | null,
       spender?: string | null,
       amount?: null
     ): ApprovalEventFilter;
-    Approval(
-      owner?: string | null,
-      spender?: string | null,
-      amount?: null
-    ): ApprovalEventFilter;
+    Approval(owner?: string | null, spender?: string | null, amount?: null): ApprovalEventFilter;
 
-    "BadDebtIncreased(address,uint256,uint256,uint256)"(
+    'BadDebtIncreased(address,uint256,uint256,uint256)'(
       borrower?: string | null,
       badDebtDelta?: null,
       badDebtOld?: null,
@@ -1900,16 +1473,13 @@ export interface VBep20 extends BaseContract {
       badDebtNew?: null
     ): BadDebtIncreasedEventFilter;
 
-    "BadDebtRecovered(uint256,uint256)"(
+    'BadDebtRecovered(uint256,uint256)'(
       badDebtOld?: null,
       badDebtNew?: null
     ): BadDebtRecoveredEventFilter;
-    BadDebtRecovered(
-      badDebtOld?: null,
-      badDebtNew?: null
-    ): BadDebtRecoveredEventFilter;
+    BadDebtRecovered(badDebtOld?: null, badDebtNew?: null): BadDebtRecoveredEventFilter;
 
-    "Borrow(address,uint256,uint256,uint256)"(
+    'Borrow(address,uint256,uint256,uint256)'(
       borrower?: string | null,
       borrowAmount?: null,
       accountBorrows?: null,
@@ -1922,7 +1492,7 @@ export interface VBep20 extends BaseContract {
       totalBorrows?: null
     ): BorrowEventFilter;
 
-    "HealBorrow(address,address,uint256)"(
+    'HealBorrow(address,address,uint256)'(
       payer?: string | null,
       borrower?: string | null,
       repayAmount?: null
@@ -1933,10 +1503,10 @@ export interface VBep20 extends BaseContract {
       repayAmount?: null
     ): HealBorrowEventFilter;
 
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    'Initialized(uint8)'(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    "LiquidateBorrow(address,address,uint256,address,uint256)"(
+    'LiquidateBorrow(address,address,uint256,address,uint256)'(
       liquidator?: string | null,
       borrower?: string | null,
       repayAmount?: null,
@@ -1951,7 +1521,7 @@ export interface VBep20 extends BaseContract {
       seizeTokens?: null
     ): LiquidateBorrowEventFilter;
 
-    "Mint(address,uint256,uint256,uint256)"(
+    'Mint(address,uint256,uint256,uint256)'(
       minter?: string | null,
       mintAmount?: null,
       mintTokens?: null,
@@ -1964,7 +1534,7 @@ export interface VBep20 extends BaseContract {
       accountBalance?: null
     ): MintEventFilter;
 
-    "NewAccessControlManager(address,address)"(
+    'NewAccessControlManager(address,address)'(
       oldAccessControlManager?: null,
       newAccessControlManager?: null
     ): NewAccessControlManagerEventFilter;
@@ -1973,7 +1543,7 @@ export interface VBep20 extends BaseContract {
       newAccessControlManager?: null
     ): NewAccessControlManagerEventFilter;
 
-    "NewComptroller(address,address)"(
+    'NewComptroller(address,address)'(
       oldComptroller?: string | null,
       newComptroller?: string | null
     ): NewComptrollerEventFilter;
@@ -1982,7 +1552,7 @@ export interface VBep20 extends BaseContract {
       newComptroller?: string | null
     ): NewComptrollerEventFilter;
 
-    "NewMarketInterestRateModel(address,address)"(
+    'NewMarketInterestRateModel(address,address)'(
       oldInterestRateModel?: string | null,
       newInterestRateModel?: string | null
     ): NewMarketInterestRateModelEventFilter;
@@ -1991,7 +1561,7 @@ export interface VBep20 extends BaseContract {
       newInterestRateModel?: string | null
     ): NewMarketInterestRateModelEventFilter;
 
-    "NewProtocolSeizeShare(uint256,uint256)"(
+    'NewProtocolSeizeShare(uint256,uint256)'(
       oldProtocolSeizeShareMantissa?: null,
       newProtocolSeizeShareMantissa?: null
     ): NewProtocolSeizeShareEventFilter;
@@ -2000,7 +1570,7 @@ export interface VBep20 extends BaseContract {
       newProtocolSeizeShareMantissa?: null
     ): NewProtocolSeizeShareEventFilter;
 
-    "NewProtocolShareReserve(address,address)"(
+    'NewProtocolShareReserve(address,address)'(
       oldProtocolShareReserve?: string | null,
       newProtocolShareReserve?: string | null
     ): NewProtocolShareReserveEventFilter;
@@ -2009,7 +1579,7 @@ export interface VBep20 extends BaseContract {
       newProtocolShareReserve?: string | null
     ): NewProtocolShareReserveEventFilter;
 
-    "NewReduceReservesBlockDelta(uint256,uint256)"(
+    'NewReduceReservesBlockDelta(uint256,uint256)'(
       oldReduceReservesBlockDelta?: null,
       newReduceReservesBlockDelta?: null
     ): NewReduceReservesBlockDeltaEventFilter;
@@ -2018,7 +1588,7 @@ export interface VBep20 extends BaseContract {
       newReduceReservesBlockDelta?: null
     ): NewReduceReservesBlockDeltaEventFilter;
 
-    "NewReserveFactor(uint256,uint256)"(
+    'NewReserveFactor(uint256,uint256)'(
       oldReserveFactorMantissa?: null,
       newReserveFactorMantissa?: null
     ): NewReserveFactorEventFilter;
@@ -2027,7 +1597,7 @@ export interface VBep20 extends BaseContract {
       newReserveFactorMantissa?: null
     ): NewReserveFactorEventFilter;
 
-    "NewShortfallContract(address,address)"(
+    'NewShortfallContract(address,address)'(
       oldShortfall?: string | null,
       newShortfall?: string | null
     ): NewShortfallContractEventFilter;
@@ -2036,7 +1606,7 @@ export interface VBep20 extends BaseContract {
       newShortfall?: string | null
     ): NewShortfallContractEventFilter;
 
-    "OwnershipTransferStarted(address,address)"(
+    'OwnershipTransferStarted(address,address)'(
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferStartedEventFilter;
@@ -2045,7 +1615,7 @@ export interface VBep20 extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferStartedEventFilter;
 
-    "OwnershipTransferred(address,address)"(
+    'OwnershipTransferred(address,address)'(
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
@@ -2054,7 +1624,7 @@ export interface VBep20 extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "ProtocolSeize(address,address,uint256)"(
+    'ProtocolSeize(address,address,uint256)'(
       from?: string | null,
       to?: string | null,
       amount?: null
@@ -2065,7 +1635,7 @@ export interface VBep20 extends BaseContract {
       amount?: null
     ): ProtocolSeizeEventFilter;
 
-    "Redeem(address,uint256,uint256,uint256)"(
+    'Redeem(address,uint256,uint256,uint256)'(
       redeemer?: string | null,
       redeemAmount?: null,
       redeemTokens?: null,
@@ -2078,7 +1648,7 @@ export interface VBep20 extends BaseContract {
       accountBalance?: null
     ): RedeemEventFilter;
 
-    "RepayBorrow(address,address,uint256,uint256,uint256)"(
+    'RepayBorrow(address,address,uint256,uint256,uint256)'(
       payer?: string | null,
       borrower?: string | null,
       repayAmount?: null,
@@ -2093,7 +1663,7 @@ export interface VBep20 extends BaseContract {
       totalBorrows?: null
     ): RepayBorrowEventFilter;
 
-    "ReservesAdded(address,uint256,uint256)"(
+    'ReservesAdded(address,uint256,uint256)'(
       benefactor?: string | null,
       addAmount?: null,
       newTotalReserves?: null
@@ -2104,7 +1674,7 @@ export interface VBep20 extends BaseContract {
       newTotalReserves?: null
     ): ReservesAddedEventFilter;
 
-    "SpreadReservesReduced(address,uint256,uint256)"(
+    'SpreadReservesReduced(address,uint256,uint256)'(
       protocolShareReserve?: string | null,
       reduceAmount?: null,
       newTotalReserves?: null
@@ -2115,46 +1685,34 @@ export interface VBep20 extends BaseContract {
       newTotalReserves?: null
     ): SpreadReservesReducedEventFilter;
 
-    "SweepToken(address)"(token?: string | null): SweepTokenEventFilter;
+    'SweepToken(address)'(token?: string | null): SweepTokenEventFilter;
     SweepToken(token?: string | null): SweepTokenEventFilter;
 
-    "Transfer(address,address,uint256)"(
+    'Transfer(address,address,uint256)'(
       from?: string | null,
       to?: string | null,
       amount?: null
     ): TransferEventFilter;
-    Transfer(
-      from?: string | null,
-      to?: string | null,
-      amount?: null
-    ): TransferEventFilter;
+    Transfer(from?: string | null, to?: string | null, amount?: null): TransferEventFilter;
   };
 
   estimateGas: {
     NO_ERROR(overrides?: CallOverrides): Promise<BigNumber>;
 
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    acceptOwnership(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     accrualBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-    accrueInterest(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    accrueInterest(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     addReserves(
       addAmount: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     approve(
       spender: string,
@@ -2186,10 +1744,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2205,9 +1760,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2220,10 +1773,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    getAccountSnapshot(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getAccountSnapshot(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     getCash(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2266,10 +1816,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    mint(
-      mintAmount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    mint(mintAmount: BigNumberish, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     mintBehalf(
       minter: string,
@@ -2306,9 +1853,7 @@ export interface VBep20 extends BaseContract {
 
     reduceReservesBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     repayBorrow(
       repayAmount: BigNumberish,
@@ -2369,18 +1914,13 @@ export interface VBep20 extends BaseContract {
 
     supplyRatePerBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
-    sweepToken(
-      token: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    sweepToken(token: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalBorrows(overrides?: CallOverrides): Promise<BigNumber>;
 
-    totalBorrowsCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2410,21 +1950,13 @@ export interface VBep20 extends BaseContract {
   populateTransaction: {
     NO_ERROR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    acceptOwnership(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
-    accessControlManager(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    accessControlManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    accrualBlockNumber(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    accrualBlockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    accrueInterest(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    accrueInterest(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
     addReserves(
       addAmount: BigNumberish,
@@ -2450,10 +1982,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    balanceOf(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    balanceOf(owner: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     balanceOfUnderlying(
       owner: string,
@@ -2470,16 +1999,11 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     borrowIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    borrowRatePerBlock(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    borrowRatePerBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     comptroller(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -2491,13 +2015,9 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
-    exchangeRateStored(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    exchangeRateStored(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     forceLiquidateBorrow(
       liquidator: string,
@@ -2508,10 +2028,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    getAccountSnapshot(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getAccountSnapshot(account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getCash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -2571,13 +2088,9 @@ export interface VBep20 extends BaseContract {
 
     pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    protocolSeizeShareMantissa(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    protocolSeizeShareMantissa(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    protocolShareReserve(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    protocolShareReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     redeem(
       redeemTokens: BigNumberish,
@@ -2594,17 +2107,11 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    reduceReservesBlockDelta(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    reduceReservesBlockDelta(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    reduceReservesBlockNumber(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    reduceReservesBlockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
     repayBorrow(
       repayAmount: BigNumberish,
@@ -2617,9 +2124,7 @@ export interface VBep20 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    reserveFactorMantissa(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    reserveFactorMantissa(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     seize(
       liquidator: string,
@@ -2665,9 +2170,7 @@ export interface VBep20 extends BaseContract {
 
     shortfall(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    supplyRatePerBlock(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    supplyRatePerBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sweepToken(
       token: string,
@@ -2678,9 +2181,7 @@ export interface VBep20 extends BaseContract {
 
     totalBorrows(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    totalBorrowsCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
     totalReserves(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

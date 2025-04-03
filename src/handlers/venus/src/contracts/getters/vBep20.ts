@@ -12,5 +12,3 @@ interface GetVBep20ContractInput {
 
 export const getVBep20Contract = ({ signerOrProvider, address }: GetVBep20ContractInput) =>
   new Contract(address, abi, signerOrProvider) as VBep20;
-
-

@@ -8,32 +8,35 @@ import { ChainId } from '../../types';
 import { VToken } from '../../types';
 
 export interface GetVTokenContractInput {
-    vToken: VToken;
-    signerOrProvider: Signer | Provider;
+  vToken: VToken;
+  signerOrProvider: Signer | Provider;
 }
 
 export const getVTokenContract = ({ vToken, signerOrProvider }: GetVTokenContractInput) => {
-    const input = {
-      address: vToken.address,
-      signerOrProvider,
-    };
-  
-    if (vToken.symbol === 'vBNB') {
-      return getVBnbContract(input);
-    }
-  
-    return getVBep20Contract(input);
+  const input = {
+    address: vToken.address,
+    signerOrProvider,
   };
 
+  if (vToken.symbol === 'vBNB') {
+    return getVBnbContract(input);
+  }
+
+  return getVBep20Contract(input);
+};
+
 /**
- * 获取 LegacyPoolComptroller 合约实例
+ * Get LegacyPoolComptroller contract instance
  */
 
 export interface GetComptrollerContractInput {
-    chainId: ChainId;
-    signerOrProvider: Signer | Provider;
+  chainId: ChainId;
+  signerOrProvider: Signer | Provider;
 }
-export const getPoolComptrollerContract = ({ chainId, signerOrProvider }: GetComptrollerContractInput) => {
+export const getPoolComptrollerContract = ({
+  chainId,
+  signerOrProvider,
+}: GetComptrollerContractInput) => {
   return getLegacyPoolComptrollerContract({
     chainId: chainId,
     signerOrProvider,

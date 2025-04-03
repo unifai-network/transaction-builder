@@ -13,446 +13,242 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-} from "./common";
+} from 'ethers';
+import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi';
+import type { Listener, Provider } from '@ethersproject/providers';
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from './common';
 
 export interface VBnbInterface extends utils.Interface {
   functions: {
-    "_acceptAdmin()": FunctionFragment;
-    "_reduceReserves(uint256)": FunctionFragment;
-    "_setComptroller(address)": FunctionFragment;
-    "_setInterestRateModel(address)": FunctionFragment;
-    "_setPendingAdmin(address)": FunctionFragment;
-    "_setReserveFactor(uint256)": FunctionFragment;
-    "accrualBlockNumber()": FunctionFragment;
-    "accrueInterest()": FunctionFragment;
-    "admin()": FunctionFragment;
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "balanceOfUnderlying(address)": FunctionFragment;
-    "borrow(uint256)": FunctionFragment;
-    "borrowBalanceCurrent(address)": FunctionFragment;
-    "borrowBalanceStored(address)": FunctionFragment;
-    "borrowIndex()": FunctionFragment;
-    "borrowRatePerBlock()": FunctionFragment;
-    "comptroller()": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "exchangeRateCurrent()": FunctionFragment;
-    "exchangeRateStored()": FunctionFragment;
-    "getAccountSnapshot(address)": FunctionFragment;
-    "getCash()": FunctionFragment;
-    "initialize(address,address,uint256,string,string,uint8)": FunctionFragment;
-    "interestRateModel()": FunctionFragment;
-    "isVToken()": FunctionFragment;
-    "liquidateBorrow(address,address)": FunctionFragment;
-    "mint()": FunctionFragment;
-    "name()": FunctionFragment;
-    "pendingAdmin()": FunctionFragment;
-    "redeem(uint256)": FunctionFragment;
-    "redeemUnderlying(uint256)": FunctionFragment;
-    "repayBorrow()": FunctionFragment;
-    "repayBorrowBehalf(address)": FunctionFragment;
-    "reserveFactorMantissa()": FunctionFragment;
-    "seize(address,address,uint256)": FunctionFragment;
-    "supplyRatePerBlock()": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "totalBorrows()": FunctionFragment;
-    "totalBorrowsCurrent()": FunctionFragment;
-    "totalReserves()": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
+    '_acceptAdmin()': FunctionFragment;
+    '_reduceReserves(uint256)': FunctionFragment;
+    '_setComptroller(address)': FunctionFragment;
+    '_setInterestRateModel(address)': FunctionFragment;
+    '_setPendingAdmin(address)': FunctionFragment;
+    '_setReserveFactor(uint256)': FunctionFragment;
+    'accrualBlockNumber()': FunctionFragment;
+    'accrueInterest()': FunctionFragment;
+    'admin()': FunctionFragment;
+    'allowance(address,address)': FunctionFragment;
+    'approve(address,uint256)': FunctionFragment;
+    'balanceOf(address)': FunctionFragment;
+    'balanceOfUnderlying(address)': FunctionFragment;
+    'borrow(uint256)': FunctionFragment;
+    'borrowBalanceCurrent(address)': FunctionFragment;
+    'borrowBalanceStored(address)': FunctionFragment;
+    'borrowIndex()': FunctionFragment;
+    'borrowRatePerBlock()': FunctionFragment;
+    'comptroller()': FunctionFragment;
+    'decimals()': FunctionFragment;
+    'exchangeRateCurrent()': FunctionFragment;
+    'exchangeRateStored()': FunctionFragment;
+    'getAccountSnapshot(address)': FunctionFragment;
+    'getCash()': FunctionFragment;
+    'initialize(address,address,uint256,string,string,uint8)': FunctionFragment;
+    'interestRateModel()': FunctionFragment;
+    'isVToken()': FunctionFragment;
+    'liquidateBorrow(address,address)': FunctionFragment;
+    'mint()': FunctionFragment;
+    'name()': FunctionFragment;
+    'pendingAdmin()': FunctionFragment;
+    'redeem(uint256)': FunctionFragment;
+    'redeemUnderlying(uint256)': FunctionFragment;
+    'repayBorrow()': FunctionFragment;
+    'repayBorrowBehalf(address)': FunctionFragment;
+    'reserveFactorMantissa()': FunctionFragment;
+    'seize(address,address,uint256)': FunctionFragment;
+    'supplyRatePerBlock()': FunctionFragment;
+    'symbol()': FunctionFragment;
+    'totalBorrows()': FunctionFragment;
+    'totalBorrowsCurrent()': FunctionFragment;
+    'totalReserves()': FunctionFragment;
+    'totalSupply()': FunctionFragment;
+    'transfer(address,uint256)': FunctionFragment;
+    'transferFrom(address,address,uint256)': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "_acceptAdmin"
-      | "_reduceReserves"
-      | "_setComptroller"
-      | "_setInterestRateModel"
-      | "_setPendingAdmin"
-      | "_setReserveFactor"
-      | "accrualBlockNumber"
-      | "accrueInterest"
-      | "admin"
-      | "allowance"
-      | "approve"
-      | "balanceOf"
-      | "balanceOfUnderlying"
-      | "borrow"
-      | "borrowBalanceCurrent"
-      | "borrowBalanceStored"
-      | "borrowIndex"
-      | "borrowRatePerBlock"
-      | "comptroller"
-      | "decimals"
-      | "exchangeRateCurrent"
-      | "exchangeRateStored"
-      | "getAccountSnapshot"
-      | "getCash"
-      | "initialize"
-      | "interestRateModel"
-      | "isVToken"
-      | "liquidateBorrow"
-      | "mint"
-      | "name"
-      | "pendingAdmin"
-      | "redeem"
-      | "redeemUnderlying"
-      | "repayBorrow"
-      | "repayBorrowBehalf"
-      | "reserveFactorMantissa"
-      | "seize"
-      | "supplyRatePerBlock"
-      | "symbol"
-      | "totalBorrows"
-      | "totalBorrowsCurrent"
-      | "totalReserves"
-      | "totalSupply"
-      | "transfer"
-      | "transferFrom"
+      | '_acceptAdmin'
+      | '_reduceReserves'
+      | '_setComptroller'
+      | '_setInterestRateModel'
+      | '_setPendingAdmin'
+      | '_setReserveFactor'
+      | 'accrualBlockNumber'
+      | 'accrueInterest'
+      | 'admin'
+      | 'allowance'
+      | 'approve'
+      | 'balanceOf'
+      | 'balanceOfUnderlying'
+      | 'borrow'
+      | 'borrowBalanceCurrent'
+      | 'borrowBalanceStored'
+      | 'borrowIndex'
+      | 'borrowRatePerBlock'
+      | 'comptroller'
+      | 'decimals'
+      | 'exchangeRateCurrent'
+      | 'exchangeRateStored'
+      | 'getAccountSnapshot'
+      | 'getCash'
+      | 'initialize'
+      | 'interestRateModel'
+      | 'isVToken'
+      | 'liquidateBorrow'
+      | 'mint'
+      | 'name'
+      | 'pendingAdmin'
+      | 'redeem'
+      | 'redeemUnderlying'
+      | 'repayBorrow'
+      | 'repayBorrowBehalf'
+      | 'reserveFactorMantissa'
+      | 'seize'
+      | 'supplyRatePerBlock'
+      | 'symbol'
+      | 'totalBorrows'
+      | 'totalBorrowsCurrent'
+      | 'totalReserves'
+      | 'totalSupply'
+      | 'transfer'
+      | 'transferFrom'
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: '_acceptAdmin', values?: undefined): string;
+  encodeFunctionData(functionFragment: '_reduceReserves', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: '_setComptroller', values: [string]): string;
+  encodeFunctionData(functionFragment: '_setInterestRateModel', values: [string]): string;
+  encodeFunctionData(functionFragment: '_setPendingAdmin', values: [string]): string;
+  encodeFunctionData(functionFragment: '_setReserveFactor', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'accrualBlockNumber', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'accrueInterest', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'admin', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'allowance', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [string]): string;
+  encodeFunctionData(functionFragment: 'balanceOfUnderlying', values: [string]): string;
+  encodeFunctionData(functionFragment: 'borrow', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'borrowBalanceCurrent', values: [string]): string;
+  encodeFunctionData(functionFragment: 'borrowBalanceStored', values: [string]): string;
+  encodeFunctionData(functionFragment: 'borrowIndex', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'borrowRatePerBlock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'comptroller', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'exchangeRateCurrent', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'exchangeRateStored', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getAccountSnapshot', values: [string]): string;
+  encodeFunctionData(functionFragment: 'getCash', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "_acceptAdmin",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "_reduceReserves",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "_setComptroller",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "_setInterestRateModel",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "_setPendingAdmin",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "_setReserveFactor",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "accrualBlockNumber",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "accrueInterest",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "admin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "allowance",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "balanceOfUnderlying",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrow",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowBalanceCurrent",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowBalanceStored",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowIndex",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "borrowRatePerBlock",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "comptroller",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "exchangeRateCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "exchangeRateStored",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAccountSnapshot",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "getCash", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
+    functionFragment: 'initialize',
     values: [string, string, BigNumberish, string, string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: 'interestRateModel', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'isVToken', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'liquidateBorrow', values: [string, string]): string;
+  encodeFunctionData(functionFragment: 'mint', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'pendingAdmin', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'redeem', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'redeemUnderlying', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'repayBorrow', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'repayBorrowBehalf', values: [string]): string;
+  encodeFunctionData(functionFragment: 'reserveFactorMantissa', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'seize', values: [string, string, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'supplyRatePerBlock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalBorrows', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalBorrowsCurrent', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalReserves', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [string, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "interestRateModel",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "isVToken", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "liquidateBorrow",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(functionFragment: "mint", values?: undefined): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "pendingAdmin",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeem",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeemUnderlying",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "repayBorrow",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "repayBorrowBehalf",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reserveFactorMantissa",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "seize",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supplyRatePerBlock",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalBorrows",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalBorrowsCurrent",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalReserves",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
+    functionFragment: 'transferFrom',
     values: [string, string, BigNumberish]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "_acceptAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_reduceReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_setComptroller",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_setInterestRateModel",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_setPendingAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_setReserveFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "accrualBlockNumber",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "accrueInterest",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "balanceOfUnderlying",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowBalanceCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowBalanceStored",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowIndex",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowRatePerBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "comptroller",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "exchangeRateCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "exchangeRateStored",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAccountSnapshot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getCash", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "interestRateModel",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "isVToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "liquidateBorrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "redeemUnderlying",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "repayBorrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "repayBorrowBehalf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reserveFactorMantissa",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "seize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supplyRatePerBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalBorrows",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalBorrowsCurrent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: '_acceptAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_reduceReserves', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_setComptroller', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_setInterestRateModel', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_setPendingAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_setReserveFactor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrualBlockNumber', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrueInterest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'admin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOfUnderlying', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowBalanceCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowBalanceStored', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowIndex', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowRatePerBlock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'comptroller', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchangeRateCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchangeRateStored', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAccountSnapshot', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getCash', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'interestRateModel', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isVToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'liquidateBorrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pendingAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeemUnderlying', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'repayBorrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'repayBorrowBehalf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'reserveFactorMantissa', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'seize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'supplyRatePerBlock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalBorrows', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalBorrowsCurrent', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalReserves', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
 
   events: {
-    "AccrueInterest(uint256,uint256,uint256,uint256)": EventFragment;
-    "Approval(address,address,uint256)": EventFragment;
-    "Borrow(address,uint256,uint256,uint256)": EventFragment;
-    "Failure(uint256,uint256,uint256)": EventFragment;
-    "LiquidateBorrow(address,address,uint256,address,uint256)": EventFragment;
-    "Mint(address,uint256,uint256)": EventFragment;
-    "NewAdmin(address,address)": EventFragment;
-    "NewComptroller(address,address)": EventFragment;
-    "NewMarketInterestRateModel(address,address)": EventFragment;
-    "NewPendingAdmin(address,address)": EventFragment;
-    "NewReserveFactor(uint256,uint256)": EventFragment;
-    "Redeem(address,uint256,uint256)": EventFragment;
-    "RepayBorrow(address,address,uint256,uint256,uint256)": EventFragment;
-    "ReservesAdded(address,uint256,uint256)": EventFragment;
-    "ReservesReduced(address,uint256,uint256)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
+    'AccrueInterest(uint256,uint256,uint256,uint256)': EventFragment;
+    'Approval(address,address,uint256)': EventFragment;
+    'Borrow(address,uint256,uint256,uint256)': EventFragment;
+    'Failure(uint256,uint256,uint256)': EventFragment;
+    'LiquidateBorrow(address,address,uint256,address,uint256)': EventFragment;
+    'Mint(address,uint256,uint256)': EventFragment;
+    'NewAdmin(address,address)': EventFragment;
+    'NewComptroller(address,address)': EventFragment;
+    'NewMarketInterestRateModel(address,address)': EventFragment;
+    'NewPendingAdmin(address,address)': EventFragment;
+    'NewReserveFactor(uint256,uint256)': EventFragment;
+    'Redeem(address,uint256,uint256)': EventFragment;
+    'RepayBorrow(address,address,uint256,uint256,uint256)': EventFragment;
+    'ReservesAdded(address,uint256,uint256)': EventFragment;
+    'ReservesReduced(address,uint256,uint256)': EventFragment;
+    'Transfer(address,address,uint256)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AccrueInterest"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Borrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Failure"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LiquidateBorrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewAdmin"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewComptroller"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewMarketInterestRateModel"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewPendingAdmin"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewReserveFactor"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Redeem"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RepayBorrow"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReservesAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReservesReduced"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AccrueInterest'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Borrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Failure'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'LiquidateBorrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Mint'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewAdmin'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewComptroller'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewMarketInterestRateModel'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewPendingAdmin'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'NewReserveFactor'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Redeem'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RepayBorrow'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ReservesAdded'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ReservesReduced'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment;
 }
 
 export interface AccrueInterestEventObject {
@@ -473,10 +269,7 @@ export interface ApprovalEventObject {
   spender: string;
   amount: BigNumber;
 }
-export type ApprovalEvent = TypedEvent<
-  [string, string, BigNumber],
-  ApprovalEventObject
->;
+export type ApprovalEvent = TypedEvent<[string, string, BigNumber], ApprovalEventObject>;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
@@ -486,10 +279,7 @@ export interface BorrowEventObject {
   accountBorrows: BigNumber;
   totalBorrows: BigNumber;
 }
-export type BorrowEvent = TypedEvent<
-  [string, BigNumber, BigNumber, BigNumber],
-  BorrowEventObject
->;
+export type BorrowEvent = TypedEvent<[string, BigNumber, BigNumber, BigNumber], BorrowEventObject>;
 
 export type BorrowEventFilter = TypedEventFilter<BorrowEvent>;
 
@@ -498,10 +288,7 @@ export interface FailureEventObject {
   info: BigNumber;
   detail: BigNumber;
 }
-export type FailureEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber],
-  FailureEventObject
->;
+export type FailureEvent = TypedEvent<[BigNumber, BigNumber, BigNumber], FailureEventObject>;
 
 export type FailureEventFilter = TypedEventFilter<FailureEvent>;
 
@@ -524,10 +311,7 @@ export interface MintEventObject {
   mintAmount: BigNumber;
   mintTokens: BigNumber;
 }
-export type MintEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  MintEventObject
->;
+export type MintEvent = TypedEvent<[string, BigNumber, BigNumber], MintEventObject>;
 
 export type MintEventFilter = TypedEventFilter<MintEvent>;
 
@@ -543,10 +327,7 @@ export interface NewComptrollerEventObject {
   oldComptroller: string;
   newComptroller: string;
 }
-export type NewComptrollerEvent = TypedEvent<
-  [string, string],
-  NewComptrollerEventObject
->;
+export type NewComptrollerEvent = TypedEvent<[string, string], NewComptrollerEventObject>;
 
 export type NewComptrollerEventFilter = TypedEventFilter<NewComptrollerEvent>;
 
@@ -566,10 +347,7 @@ export interface NewPendingAdminEventObject {
   oldPendingAdmin: string;
   newPendingAdmin: string;
 }
-export type NewPendingAdminEvent = TypedEvent<
-  [string, string],
-  NewPendingAdminEventObject
->;
+export type NewPendingAdminEvent = TypedEvent<[string, string], NewPendingAdminEventObject>;
 
 export type NewPendingAdminEventFilter = TypedEventFilter<NewPendingAdminEvent>;
 
@@ -577,23 +355,16 @@ export interface NewReserveFactorEventObject {
   oldReserveFactorMantissa: BigNumber;
   newReserveFactorMantissa: BigNumber;
 }
-export type NewReserveFactorEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  NewReserveFactorEventObject
->;
+export type NewReserveFactorEvent = TypedEvent<[BigNumber, BigNumber], NewReserveFactorEventObject>;
 
-export type NewReserveFactorEventFilter =
-  TypedEventFilter<NewReserveFactorEvent>;
+export type NewReserveFactorEventFilter = TypedEventFilter<NewReserveFactorEvent>;
 
 export interface RedeemEventObject {
   redeemer: string;
   redeemAmount: BigNumber;
   redeemTokens: BigNumber;
 }
-export type RedeemEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  RedeemEventObject
->;
+export type RedeemEvent = TypedEvent<[string, BigNumber, BigNumber], RedeemEventObject>;
 
 export type RedeemEventFilter = TypedEventFilter<RedeemEvent>;
 
@@ -640,10 +411,7 @@ export interface TransferEventObject {
   to: string;
   amount: BigNumber;
 }
-export type TransferEvent = TypedEvent<
-  [string, string, BigNumber],
-  TransferEventObject
->;
+export type TransferEvent = TypedEvent<[string, string, BigNumber], TransferEventObject>;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
@@ -664,9 +432,7 @@ export interface VBnb extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -674,9 +440,7 @@ export interface VBnb extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    _acceptAdmin(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    _acceptAdmin(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     _reduceReserves(
       reduceAmount: BigNumberish,
@@ -705,17 +469,11 @@ export interface VBnb extends BaseContract {
 
     accrualBlockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    accrueInterest(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    accrueInterest(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     admin(overrides?: CallOverrides): Promise<[string]>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     approve(
       spender: string,
@@ -740,10 +498,7 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     borrowIndex(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -753,9 +508,7 @@ export interface VBnb extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -786,9 +539,7 @@ export interface VBnb extends BaseContract {
       overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    mint(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    mint(overrides?: PayableOverrides & { from?: string }): Promise<ContractTransaction>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
@@ -804,9 +555,7 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    repayBorrow(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    repayBorrow(overrides?: PayableOverrides & { from?: string }): Promise<ContractTransaction>;
 
     repayBorrowBehalf(
       borrower: string,
@@ -828,9 +577,7 @@ export interface VBnb extends BaseContract {
 
     totalBorrows(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    totalBorrowsCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
     totalReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -850,9 +597,7 @@ export interface VBnb extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  _acceptAdmin(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  _acceptAdmin(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   _reduceReserves(
     reduceAmount: BigNumberish,
@@ -881,17 +626,11 @@ export interface VBnb extends BaseContract {
 
   accrualBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-  accrueInterest(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  accrueInterest(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   admin(overrides?: CallOverrides): Promise<string>;
 
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   approve(
     spender: string,
@@ -916,10 +655,7 @@ export interface VBnb extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  borrowBalanceStored(
-    account: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -929,9 +665,7 @@ export interface VBnb extends BaseContract {
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
-  exchangeRateCurrent(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -962,9 +696,7 @@ export interface VBnb extends BaseContract {
     overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  mint(
-    overrides?: PayableOverrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  mint(overrides?: PayableOverrides & { from?: string }): Promise<ContractTransaction>;
 
   name(overrides?: CallOverrides): Promise<string>;
 
@@ -980,9 +712,7 @@ export interface VBnb extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  repayBorrow(
-    overrides?: PayableOverrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  repayBorrow(overrides?: PayableOverrides & { from?: string }): Promise<ContractTransaction>;
 
   repayBorrowBehalf(
     borrower: string,
@@ -1004,9 +734,7 @@ export interface VBnb extends BaseContract {
 
   totalBorrows(overrides?: CallOverrides): Promise<BigNumber>;
 
-  totalBorrowsCurrent(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<ContractTransaction>;
 
   totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1028,25 +756,16 @@ export interface VBnb extends BaseContract {
   callStatic: {
     _acceptAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
-    _reduceReserves(
-      reduceAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    _reduceReserves(reduceAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    _setComptroller(
-      newComptroller: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    _setComptroller(newComptroller: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     _setInterestRateModel(
       newInterestRateModel: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    _setPendingAdmin(
-      newPendingAdmin: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    _setPendingAdmin(newPendingAdmin: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     _setReserveFactor(
       newReserveFactorMantissa: BigNumberish,
@@ -1059,39 +778,19 @@ export interface VBnb extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<string>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    approve(spender: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    balanceOfUnderlying(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    balanceOfUnderlying(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    borrow(
-      borrowAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrow(borrowAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    borrowBalanceCurrent(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrowBalanceCurrent(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1138,22 +837,13 @@ export interface VBnb extends BaseContract {
 
     pendingAdmin(overrides?: CallOverrides): Promise<string>;
 
-    redeem(
-      redeemTokens: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    redeem(redeemTokens: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    redeemUnderlying(
-      redeemAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    redeemUnderlying(redeemAmount: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     repayBorrow(overrides?: CallOverrides): Promise<void>;
 
-    repayBorrowBehalf(
-      borrower: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    repayBorrowBehalf(borrower: string, overrides?: CallOverrides): Promise<void>;
 
     reserveFactorMantissa(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1176,11 +866,7 @@ export interface VBnb extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transfer(
-      dst: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    transfer(dst: string, amount: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     transferFrom(
       src: string,
@@ -1191,7 +877,7 @@ export interface VBnb extends BaseContract {
   };
 
   filters: {
-    "AccrueInterest(uint256,uint256,uint256,uint256)"(
+    'AccrueInterest(uint256,uint256,uint256,uint256)'(
       cashPrior?: null,
       interestAccumulated?: null,
       borrowIndex?: null,
@@ -1204,18 +890,14 @@ export interface VBnb extends BaseContract {
       totalBorrows?: null
     ): AccrueInterestEventFilter;
 
-    "Approval(address,address,uint256)"(
+    'Approval(address,address,uint256)'(
       owner?: string | null,
       spender?: string | null,
       amount?: null
     ): ApprovalEventFilter;
-    Approval(
-      owner?: string | null,
-      spender?: string | null,
-      amount?: null
-    ): ApprovalEventFilter;
+    Approval(owner?: string | null, spender?: string | null, amount?: null): ApprovalEventFilter;
 
-    "Borrow(address,uint256,uint256,uint256)"(
+    'Borrow(address,uint256,uint256,uint256)'(
       borrower?: null,
       borrowAmount?: null,
       accountBorrows?: null,
@@ -1228,14 +910,14 @@ export interface VBnb extends BaseContract {
       totalBorrows?: null
     ): BorrowEventFilter;
 
-    "Failure(uint256,uint256,uint256)"(
+    'Failure(uint256,uint256,uint256)'(
       error?: null,
       info?: null,
       detail?: null
     ): FailureEventFilter;
     Failure(error?: null, info?: null, detail?: null): FailureEventFilter;
 
-    "LiquidateBorrow(address,address,uint256,address,uint256)"(
+    'LiquidateBorrow(address,address,uint256,address,uint256)'(
       liquidator?: null,
       borrower?: null,
       repayAmount?: null,
@@ -1250,29 +932,23 @@ export interface VBnb extends BaseContract {
       seizeTokens?: null
     ): LiquidateBorrowEventFilter;
 
-    "Mint(address,uint256,uint256)"(
+    'Mint(address,uint256,uint256)'(
       minter?: null,
       mintAmount?: null,
       mintTokens?: null
     ): MintEventFilter;
     Mint(minter?: null, mintAmount?: null, mintTokens?: null): MintEventFilter;
 
-    "NewAdmin(address,address)"(
-      oldAdmin?: null,
-      newAdmin?: null
-    ): NewAdminEventFilter;
+    'NewAdmin(address,address)'(oldAdmin?: null, newAdmin?: null): NewAdminEventFilter;
     NewAdmin(oldAdmin?: null, newAdmin?: null): NewAdminEventFilter;
 
-    "NewComptroller(address,address)"(
+    'NewComptroller(address,address)'(
       oldComptroller?: null,
       newComptroller?: null
     ): NewComptrollerEventFilter;
-    NewComptroller(
-      oldComptroller?: null,
-      newComptroller?: null
-    ): NewComptrollerEventFilter;
+    NewComptroller(oldComptroller?: null, newComptroller?: null): NewComptrollerEventFilter;
 
-    "NewMarketInterestRateModel(address,address)"(
+    'NewMarketInterestRateModel(address,address)'(
       oldInterestRateModel?: null,
       newInterestRateModel?: null
     ): NewMarketInterestRateModelEventFilter;
@@ -1281,16 +957,13 @@ export interface VBnb extends BaseContract {
       newInterestRateModel?: null
     ): NewMarketInterestRateModelEventFilter;
 
-    "NewPendingAdmin(address,address)"(
+    'NewPendingAdmin(address,address)'(
       oldPendingAdmin?: null,
       newPendingAdmin?: null
     ): NewPendingAdminEventFilter;
-    NewPendingAdmin(
-      oldPendingAdmin?: null,
-      newPendingAdmin?: null
-    ): NewPendingAdminEventFilter;
+    NewPendingAdmin(oldPendingAdmin?: null, newPendingAdmin?: null): NewPendingAdminEventFilter;
 
-    "NewReserveFactor(uint256,uint256)"(
+    'NewReserveFactor(uint256,uint256)'(
       oldReserveFactorMantissa?: null,
       newReserveFactorMantissa?: null
     ): NewReserveFactorEventFilter;
@@ -1299,18 +972,14 @@ export interface VBnb extends BaseContract {
       newReserveFactorMantissa?: null
     ): NewReserveFactorEventFilter;
 
-    "Redeem(address,uint256,uint256)"(
+    'Redeem(address,uint256,uint256)'(
       redeemer?: null,
       redeemAmount?: null,
       redeemTokens?: null
     ): RedeemEventFilter;
-    Redeem(
-      redeemer?: null,
-      redeemAmount?: null,
-      redeemTokens?: null
-    ): RedeemEventFilter;
+    Redeem(redeemer?: null, redeemAmount?: null, redeemTokens?: null): RedeemEventFilter;
 
-    "RepayBorrow(address,address,uint256,uint256,uint256)"(
+    'RepayBorrow(address,address,uint256,uint256,uint256)'(
       payer?: null,
       borrower?: null,
       repayAmount?: null,
@@ -1325,7 +994,7 @@ export interface VBnb extends BaseContract {
       totalBorrows?: null
     ): RepayBorrowEventFilter;
 
-    "ReservesAdded(address,uint256,uint256)"(
+    'ReservesAdded(address,uint256,uint256)'(
       benefactor?: null,
       addAmount?: null,
       newTotalReserves?: null
@@ -1336,7 +1005,7 @@ export interface VBnb extends BaseContract {
       newTotalReserves?: null
     ): ReservesAddedEventFilter;
 
-    "ReservesReduced(address,uint256,uint256)"(
+    'ReservesReduced(address,uint256,uint256)'(
       admin?: null,
       reduceAmount?: null,
       newTotalReserves?: null
@@ -1347,16 +1016,12 @@ export interface VBnb extends BaseContract {
       newTotalReserves?: null
     ): ReservesReducedEventFilter;
 
-    "Transfer(address,address,uint256)"(
+    'Transfer(address,address,uint256)'(
       from?: string | null,
       to?: string | null,
       amount?: null
     ): TransferEventFilter;
-    Transfer(
-      from?: string | null,
-      to?: string | null,
-      amount?: null
-    ): TransferEventFilter;
+    Transfer(from?: string | null, to?: string | null, amount?: null): TransferEventFilter;
   };
 
   estimateGas: {
@@ -1389,17 +1054,11 @@ export interface VBnb extends BaseContract {
 
     accrualBlockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-    accrueInterest(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    accrueInterest(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    allowance(owner: string, spender: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     approve(
       spender: string,
@@ -1424,10 +1083,7 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     borrowIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1437,16 +1093,11 @@ export interface VBnb extends BaseContract {
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     exchangeRateStored(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAccountSnapshot(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getAccountSnapshot(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     getCash(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1486,9 +1137,7 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    repayBorrow(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<BigNumber>;
+    repayBorrow(overrides?: PayableOverrides & { from?: string }): Promise<BigNumber>;
 
     repayBorrowBehalf(
       borrower: string,
@@ -1510,9 +1159,7 @@ export interface VBnb extends BaseContract {
 
     totalBorrows(overrides?: CallOverrides): Promise<BigNumber>;
 
-    totalBorrowsCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1533,9 +1180,7 @@ export interface VBnb extends BaseContract {
   };
 
   populateTransaction: {
-    _acceptAdmin(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    _acceptAdmin(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
     _reduceReserves(
       reduceAmount: BigNumberish,
@@ -1562,13 +1207,9 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    accrualBlockNumber(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    accrualBlockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    accrueInterest(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    accrueInterest(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1584,10 +1225,7 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    balanceOf(
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    balanceOf(owner: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     balanceOfUnderlying(
       owner: string,
@@ -1604,33 +1242,21 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    borrowBalanceStored(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    borrowBalanceStored(account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     borrowIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    borrowRatePerBlock(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    borrowRatePerBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     comptroller(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    exchangeRateCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    exchangeRateCurrent(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
-    exchangeRateStored(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    exchangeRateStored(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getAccountSnapshot(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getAccountSnapshot(account: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getCash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1654,9 +1280,7 @@ export interface VBnb extends BaseContract {
       overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    mint(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    mint(overrides?: PayableOverrides & { from?: string }): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1672,18 +1296,14 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    repayBorrow(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    repayBorrow(overrides?: PayableOverrides & { from?: string }): Promise<PopulatedTransaction>;
 
     repayBorrowBehalf(
       borrower: string,
       overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    reserveFactorMantissa(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    reserveFactorMantissa(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     seize(
       liquidator: string,
@@ -1692,17 +1312,13 @@ export interface VBnb extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    supplyRatePerBlock(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    supplyRatePerBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalBorrows(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    totalBorrowsCurrent(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    totalBorrowsCurrent(overrides?: Overrides & { from?: string }): Promise<PopulatedTransaction>;
 
     totalReserves(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

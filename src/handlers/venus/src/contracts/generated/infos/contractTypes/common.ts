@@ -21,7 +21,7 @@ type __TypechainArgsArray<T> = T extends TypedEvent<infer U> ? U : never;
 export interface OnEvent<TRes> {
   <TEvent extends TypedEvent>(
     eventFilter: TypedEventFilter<TEvent>,
-    listener: TypedListener<TEvent>,
+    listener: TypedListener<TEvent>
   ): TRes;
   (eventName: string, listener: Listener): TRes;
 }

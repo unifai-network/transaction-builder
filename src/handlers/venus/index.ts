@@ -17,7 +17,6 @@ const PayloadSchema = z.object({
     z.string().nonempty("Missing required field: amount"),
     z.number().positive("Amount must be positive"), 
   ]),
-  wallet:z.string().nonempty("Missing required field: wallet address"),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -34,12 +33,8 @@ export class VenusV5Handler implements TransactionHandler {
 
     payload.chain = payload.chain.toUpperCase();
     payload.asset = payload.asset?.toUpperCase();
-    
+    validateEvmAddress(payload.asset);
     validateEvmChain(payload.chain.toLowerCase());
-    
-    if(payload.wallet) {
-      validateEvmAddress(payload.wallet);
-    }
 
     if (isNaN(Number(payload.amount))) {
       throw new Error("Amount must be a valid number");
@@ -56,7 +51,7 @@ export class VenusV5Handler implements TransactionHandler {
      validateEvmAddress(address);
      const transactions: Array<{ hex: string }> = [];
      const provider = new ethers.providers.JsonRpcProvider(process.env.BNB_RPC_URL);
-     const userAddress = data.wallet;
+     const userAddress = address;
      if (!userAddress) {
        throw new Error('未设置 USER_ADDRESS 环境变量');
      }

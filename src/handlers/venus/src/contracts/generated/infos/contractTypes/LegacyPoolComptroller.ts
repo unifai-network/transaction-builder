@@ -275,7 +275,7 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
       | 'venusSupplierIndex'
       | 'venusSupplySpeeds'
       | 'venusSupplyState'
-      | 'venusVAIVaultRate',
+      | 'venusVAIVaultRate'
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: '_become', values: [string]): string;
@@ -283,28 +283,28 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: '_setAccessControl', values: [string]): string;
   encodeFunctionData(
     functionFragment: '_setActionsPaused',
-    values: [string[], BigNumberish[], boolean],
+    values: [string[], BigNumberish[], boolean]
   ): string;
   encodeFunctionData(functionFragment: '_setCloseFactor', values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: '_setCollateralFactor',
-    values: [string, BigNumberish],
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: '_setComptrollerLens', values: [string]): string;
   encodeFunctionData(functionFragment: '_setForcedLiquidation', values: [string, boolean]): string;
   encodeFunctionData(
     functionFragment: '_setForcedLiquidationForUser',
-    values: [string, string, boolean],
+    values: [string, string, boolean]
   ): string;
   encodeFunctionData(functionFragment: '_setLiquidationIncentive', values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: '_setLiquidatorContract', values: [string]): string;
   encodeFunctionData(
     functionFragment: '_setMarketBorrowCaps',
-    values: [string[], BigNumberish[]],
+    values: [string[], BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: '_setMarketSupplyCaps',
-    values: [string[], BigNumberish[]],
+    values: [string[], BigNumberish[]]
   ): string;
   encodeFunctionData(functionFragment: '_setPauseGuardian', values: [string]): string;
   encodeFunctionData(functionFragment: '_setPriceOracle', values: [string]): string;
@@ -312,17 +312,17 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: '_setProtocolPaused', values: [boolean]): string;
   encodeFunctionData(
     functionFragment: '_setTreasuryData',
-    values: [string, string, BigNumberish],
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: '_setVAIController', values: [string]): string;
   encodeFunctionData(functionFragment: '_setVAIMintRate', values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: '_setVAIVaultInfo',
-    values: [string, BigNumberish, BigNumberish],
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: '_setVenusSpeeds',
-    values: [string[], BigNumberish[], BigNumberish[]],
+    values: [string[], BigNumberish[], BigNumberish[]]
   ): string;
   encodeFunctionData(functionFragment: '_setVenusVAIVaultRate', values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: '_supportMarket', values: [string]): string;
@@ -333,27 +333,27 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'approvedDelegates', values: [string, string]): string;
   encodeFunctionData(
     functionFragment: 'borrowAllowed',
-    values: [string, string, BigNumberish],
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'borrowCapGuardian', values?: undefined): string;
   encodeFunctionData(functionFragment: 'borrowCaps', values: [string]): string;
   encodeFunctionData(
     functionFragment: 'borrowVerify',
-    values: [string, string, BigNumberish],
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'checkMembership', values: [string, string]): string;
   encodeFunctionData(
     functionFragment: 'claimVenus(address[],address[],bool,bool,bool)',
-    values: [string[], string[], boolean, boolean, boolean],
+    values: [string[], string[], boolean, boolean, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: 'claimVenus(address,address[])',
-    values: [string, string[]],
+    values: [string, string[]]
   ): string;
   encodeFunctionData(functionFragment: 'claimVenus(address)', values: [string]): string;
   encodeFunctionData(
     functionFragment: 'claimVenus(address[],address[],bool,bool)',
-    values: [string[], string[], boolean, boolean],
+    values: [string[], string[], boolean, boolean]
   ): string;
   encodeFunctionData(functionFragment: 'claimVenusAsCollateral', values: [string]): string;
   encodeFunctionData(functionFragment: 'closeFactorMantissa', values?: undefined): string;
@@ -361,7 +361,7 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'comptrollerLens', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'diamondCut',
-    values: [IDiamondCut.FacetCutStruct[]],
+    values: [IDiamondCut.FacetCutStruct[]]
   ): string;
   encodeFunctionData(functionFragment: 'enterMarkets', values: [string[]]): string;
   encodeFunctionData(functionFragment: 'exitMarket', values: [string]): string;
@@ -375,7 +375,7 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'getAssetsIn', values: [string]): string;
   encodeFunctionData(
     functionFragment: 'getHypotheticalAccountLiquidity',
-    values: [string, string, BigNumberish, BigNumberish],
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'getXVSAddress', values?: undefined): string;
   encodeFunctionData(functionFragment: 'getXVSVTokenAddress', values?: undefined): string;
@@ -383,23 +383,23 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'isForcedLiquidationEnabled', values: [string]): string;
   encodeFunctionData(
     functionFragment: 'isForcedLiquidationEnabledForUser',
-    values: [string, string],
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: 'liquidateBorrowAllowed',
-    values: [string, string, string, string, BigNumberish],
+    values: [string, string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'liquidateBorrowVerify',
-    values: [string, string, string, string, BigNumberish, BigNumberish],
+    values: [string, string, string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'liquidateCalculateSeizeTokens',
-    values: [string, string, BigNumberish],
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'liquidateVAICalculateSeizeTokens',
-    values: [string, BigNumberish],
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'liquidationIncentiveMantissa', values?: undefined): string;
   encodeFunctionData(functionFragment: 'liquidatorContract', values?: undefined): string;
@@ -408,12 +408,12 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'minReleaseAmount', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'mintAllowed',
-    values: [string, string, BigNumberish],
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'mintVAIGuardianPaused', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'mintVerify',
-    values: [string, string, BigNumberish, BigNumberish],
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'mintedVAIs', values: [string]): string;
   encodeFunctionData(functionFragment: 'oracle', values?: undefined): string;
@@ -421,45 +421,45 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'pendingAdmin', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'pendingComptrollerImplementation',
-    values?: undefined,
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: 'prime', values?: undefined): string;
   encodeFunctionData(functionFragment: 'protocolPaused', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'redeemAllowed',
-    values: [string, string, BigNumberish],
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'redeemVerify',
-    values: [string, string, BigNumberish, BigNumberish],
+    values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'releaseStartBlock', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'repayBorrowAllowed',
-    values: [string, string, string, BigNumberish],
+    values: [string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'repayBorrowVerify',
-    values: [string, string, string, BigNumberish, BigNumberish],
+    values: [string, string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'repayVAIGuardianPaused', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'seizeAllowed',
-    values: [string, string, string, string, BigNumberish],
+    values: [string, string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'seizeVerify',
-    values: [string, string, string, string, BigNumberish],
+    values: [string, string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'setMintedVAIOf', values: [string, BigNumberish]): string;
   encodeFunctionData(functionFragment: 'supplyCaps', values: [string]): string;
   encodeFunctionData(
     functionFragment: 'transferAllowed',
-    values: [string, string, string, BigNumberish],
+    values: [string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: 'transferVerify',
-    values: [string, string, string, BigNumberish],
+    values: [string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: 'treasuryAddress', values?: undefined): string;
   encodeFunctionData(functionFragment: 'treasuryGuardian', values?: undefined): string;
@@ -514,13 +514,13 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'checkMembership', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'claimVenus(address[],address[],bool,bool,bool)',
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'claimVenus(address,address[])', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'claimVenus(address)', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'claimVenus(address[],address[],bool,bool)',
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'claimVenusAsCollateral', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'closeFactorMantissa', data: BytesLike): Result;
@@ -539,7 +539,7 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'getAssetsIn', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'getHypotheticalAccountLiquidity',
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'getXVSAddress', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'getXVSVTokenAddress', data: BytesLike): Result;
@@ -547,14 +547,14 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'isForcedLiquidationEnabled', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'isForcedLiquidationEnabledForUser',
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'liquidateBorrowAllowed', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'liquidateBorrowVerify', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'liquidateCalculateSeizeTokens', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'liquidateVAICalculateSeizeTokens',
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'liquidationIncentiveMantissa', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'liquidatorContract', data: BytesLike): Result;
@@ -570,7 +570,7 @@ export interface LegacyPoolComptrollerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'pendingAdmin', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'pendingComptrollerImplementation',
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'prime', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'protocolPaused', data: BytesLike): Result;
@@ -1014,11 +1014,11 @@ export interface LegacyPoolComptroller extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
+    eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
@@ -1031,137 +1031,137 @@ export interface LegacyPoolComptroller extends BaseContract {
   functions: {
     _become(
       unitroller: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _grantXVS(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setAccessControl(
       newAccessControlAddress: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setActionsPaused(
       markets_: string[],
       actions_: BigNumberish[],
       paused_: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setCloseFactor(
       newCloseFactorMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setCollateralFactor(
       vToken: string,
       newCollateralFactorMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setComptrollerLens(
       comptrollerLens_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setForcedLiquidation(
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setForcedLiquidationForUser(
       borrower: string,
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setLiquidationIncentive(
       newLiquidationIncentiveMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setLiquidatorContract(
       newLiquidatorContract_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setMarketBorrowCaps(
       vTokens: string[],
       newBorrowCaps: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setMarketSupplyCaps(
       vTokens: string[],
       newSupplyCaps: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setPauseGuardian(
       newPauseGuardian: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setPriceOracle(
       newOracle: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setPrimeToken(
       _prime: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setProtocolPaused(
       state: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setTreasuryData(
       newTreasuryGuardian: string,
       newTreasuryAddress: string,
       newTreasuryPercent: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setVAIController(
       vaiController_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setVAIMintRate(
       newVAIMintRate: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setVAIVaultInfo(
       vault_: string,
       releaseStartBlock_: BigNumberish,
       minReleaseAmount_: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setVenusSpeeds(
       vTokens: string[],
       supplySpeeds: BigNumberish[],
       borrowSpeeds: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _setVenusVAIVaultRate(
       venusVAIVaultRate_: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     _supportMarket(
       vToken: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     accountAssets(arg0: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
@@ -1169,7 +1169,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     actionPaused(
       market: string,
       action: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     admin(overrides?: CallOverrides): Promise<[string]>;
@@ -1182,7 +1182,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     borrowCapGuardian(overrides?: CallOverrides): Promise<[string]>;
@@ -1193,7 +1193,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     checkMembership(account: string, vToken: string, overrides?: CallOverrides): Promise<[boolean]>;
@@ -1204,18 +1204,18 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrowers: boolean,
       suppliers: boolean,
       collateral: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     'claimVenus(address,address[])'(
       holder: string,
       vTokens: string[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     'claimVenus(address)'(
       holder: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     'claimVenus(address[],address[],bool,bool)'(
@@ -1223,12 +1223,12 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokens: string[],
       borrowers: boolean,
       suppliers: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     claimVenusAsCollateral(
       holder: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     closeFactorMantissa(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1239,22 +1239,22 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     diamondCut(
       diamondCut_: IDiamondCut.FacetCutStruct[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     enterMarkets(
       vTokens: string[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     exitMarket(
       vTokenAddress: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     facetAddress(
       functionSelector: BytesLike,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[ComptrollerV13Storage.FacetAddressAndPositionStructOutput]>;
 
     facetAddresses(overrides?: CallOverrides): Promise<[string[]]>;
@@ -1267,7 +1267,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     getAccountLiquidity(
       account: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     getAllMarkets(overrides?: CallOverrides): Promise<[string[]]>;
@@ -1279,7 +1279,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokenModify: string,
       redeemTokens: BigNumberish,
       borrowAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     getXVSAddress(overrides?: CallOverrides): Promise<[string]>;
@@ -1293,7 +1293,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     isForcedLiquidationEnabledForUser(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     liquidateBorrowAllowed(
@@ -1302,7 +1302,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     liquidateBorrowVerify(
@@ -1312,20 +1312,20 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     liquidateCalculateSeizeTokens(
       vTokenBorrowed: string,
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
     liquidateVAICalculateSeizeTokens(
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
     liquidationIncentiveMantissa(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1334,7 +1334,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     markets(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<
       [boolean, BigNumber, boolean] & {
         isListed: boolean;
@@ -1351,7 +1351,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       minter: string,
       mintAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     mintVAIGuardianPaused(overrides?: CallOverrides): Promise<[boolean]>;
@@ -1361,7 +1361,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       minter: string,
       actualMintAmount: BigNumberish,
       mintTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     mintedVAIs(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1382,7 +1382,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       redeemer: string,
       redeemTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     redeemVerify(
@@ -1390,7 +1390,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       redeemer: string,
       redeemAmount: BigNumberish,
       redeemTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     releaseStartBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1400,7 +1400,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       payer: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     repayBorrowVerify(
@@ -1409,7 +1409,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       borrowerIndex: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     repayVAIGuardianPaused(overrides?: CallOverrides): Promise<[boolean]>;
@@ -1420,7 +1420,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     seizeVerify(
@@ -1429,13 +1429,13 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     setMintedVAIOf(
       owner: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     supplyCaps(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1445,7 +1445,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     transferVerify(
@@ -1453,7 +1453,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     treasuryAddress(overrides?: CallOverrides): Promise<[string]>;
@@ -1465,7 +1465,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     updateDelegate(
       delegate: string,
       allowBorrows: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     vaiController(overrides?: CallOverrides): Promise<[string]>;
@@ -1480,7 +1480,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     venusBorrowState(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, number] & { index: BigNumber; block: number }>;
 
     venusBorrowerIndex(arg0: string, arg1: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1493,7 +1493,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     venusSupplyState(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, number] & { index: BigNumber; block: number }>;
 
     venusVAIVaultRate(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1501,137 +1501,137 @@ export interface LegacyPoolComptroller extends BaseContract {
 
   _become(
     unitroller: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _grantXVS(
     recipient: string,
     amount: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setAccessControl(
     newAccessControlAddress: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setActionsPaused(
     markets_: string[],
     actions_: BigNumberish[],
     paused_: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setCloseFactor(
     newCloseFactorMantissa: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setCollateralFactor(
     vToken: string,
     newCollateralFactorMantissa: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setComptrollerLens(
     comptrollerLens_: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setForcedLiquidation(
     vTokenBorrowed: string,
     enable: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setForcedLiquidationForUser(
     borrower: string,
     vTokenBorrowed: string,
     enable: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setLiquidationIncentive(
     newLiquidationIncentiveMantissa: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setLiquidatorContract(
     newLiquidatorContract_: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setMarketBorrowCaps(
     vTokens: string[],
     newBorrowCaps: BigNumberish[],
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setMarketSupplyCaps(
     vTokens: string[],
     newSupplyCaps: BigNumberish[],
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setPauseGuardian(
     newPauseGuardian: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setPriceOracle(
     newOracle: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setPrimeToken(
     _prime: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setProtocolPaused(
     state: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setTreasuryData(
     newTreasuryGuardian: string,
     newTreasuryAddress: string,
     newTreasuryPercent: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setVAIController(
     vaiController_: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setVAIMintRate(
     newVAIMintRate: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setVAIVaultInfo(
     vault_: string,
     releaseStartBlock_: BigNumberish,
     minReleaseAmount_: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setVenusSpeeds(
     vTokens: string[],
     supplySpeeds: BigNumberish[],
     borrowSpeeds: BigNumberish[],
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _setVenusVAIVaultRate(
     venusVAIVaultRate_: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   _supportMarket(
     vToken: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   accountAssets(arg0: string, arg1: BigNumberish, overrides?: CallOverrides): Promise<string>;
@@ -1648,7 +1648,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     vToken: string,
     borrower: string,
     borrowAmount: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   borrowCapGuardian(overrides?: CallOverrides): Promise<string>;
@@ -1659,7 +1659,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     vToken: string,
     borrower: string,
     borrowAmount: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   checkMembership(account: string, vToken: string, overrides?: CallOverrides): Promise<boolean>;
@@ -1670,18 +1670,18 @@ export interface LegacyPoolComptroller extends BaseContract {
     borrowers: boolean,
     suppliers: boolean,
     collateral: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   'claimVenus(address,address[])'(
     holder: string,
     vTokens: string[],
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   'claimVenus(address)'(
     holder: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   'claimVenus(address[],address[],bool,bool)'(
@@ -1689,12 +1689,12 @@ export interface LegacyPoolComptroller extends BaseContract {
     vTokens: string[],
     borrowers: boolean,
     suppliers: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   claimVenusAsCollateral(
     holder: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   closeFactorMantissa(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1705,22 +1705,22 @@ export interface LegacyPoolComptroller extends BaseContract {
 
   diamondCut(
     diamondCut_: IDiamondCut.FacetCutStruct[],
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   enterMarkets(
     vTokens: string[],
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   exitMarket(
     vTokenAddress: string,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   facetAddress(
     functionSelector: BytesLike,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<ComptrollerV13Storage.FacetAddressAndPositionStructOutput>;
 
   facetAddresses(overrides?: CallOverrides): Promise<string[]>;
@@ -1733,7 +1733,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
   getAccountLiquidity(
     account: string,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
   getAllMarkets(overrides?: CallOverrides): Promise<string[]>;
@@ -1745,7 +1745,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     vTokenModify: string,
     redeemTokens: BigNumberish,
     borrowAmount: BigNumberish,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
   getXVSAddress(overrides?: CallOverrides): Promise<string>;
@@ -1759,7 +1759,7 @@ export interface LegacyPoolComptroller extends BaseContract {
   isForcedLiquidationEnabledForUser(
     arg0: string,
     arg1: string,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<boolean>;
 
   liquidateBorrowAllowed(
@@ -1768,7 +1768,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     liquidator: string,
     borrower: string,
     repayAmount: BigNumberish,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   liquidateBorrowVerify(
@@ -1778,20 +1778,20 @@ export interface LegacyPoolComptroller extends BaseContract {
     borrower: string,
     actualRepayAmount: BigNumberish,
     seizeTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   liquidateCalculateSeizeTokens(
     vTokenBorrowed: string,
     vTokenCollateral: string,
     actualRepayAmount: BigNumberish,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
 
   liquidateVAICalculateSeizeTokens(
     vTokenCollateral: string,
     actualRepayAmount: BigNumberish,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
 
   liquidationIncentiveMantissa(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1800,7 +1800,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
   markets(
     arg0: string,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<
     [boolean, BigNumber, boolean] & {
       isListed: boolean;
@@ -1817,7 +1817,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     vToken: string,
     minter: string,
     mintAmount: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   mintVAIGuardianPaused(overrides?: CallOverrides): Promise<boolean>;
@@ -1827,7 +1827,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     minter: string,
     actualMintAmount: BigNumberish,
     mintTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   mintedVAIs(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1848,7 +1848,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     vToken: string,
     redeemer: string,
     redeemTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   redeemVerify(
@@ -1856,7 +1856,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     redeemer: string,
     redeemAmount: BigNumberish,
     redeemTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   releaseStartBlock(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1866,7 +1866,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     payer: string,
     borrower: string,
     repayAmount: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   repayBorrowVerify(
@@ -1875,7 +1875,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     borrower: string,
     actualRepayAmount: BigNumberish,
     borrowerIndex: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   repayVAIGuardianPaused(overrides?: CallOverrides): Promise<boolean>;
@@ -1886,7 +1886,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     liquidator: string,
     borrower: string,
     seizeTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   seizeVerify(
@@ -1895,13 +1895,13 @@ export interface LegacyPoolComptroller extends BaseContract {
     liquidator: string,
     borrower: string,
     seizeTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   setMintedVAIOf(
     owner: string,
     amount: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   supplyCaps(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1911,7 +1911,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     src: string,
     dst: string,
     transferTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   transferVerify(
@@ -1919,7 +1919,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     src: string,
     dst: string,
     transferTokens: BigNumberish,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   treasuryAddress(overrides?: CallOverrides): Promise<string>;
@@ -1931,7 +1931,7 @@ export interface LegacyPoolComptroller extends BaseContract {
   updateDelegate(
     delegate: string,
     allowBorrows: boolean,
-    overrides?: Overrides & { from?: string },
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   vaiController(overrides?: CallOverrides): Promise<string>;
@@ -1946,7 +1946,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
   venusBorrowState(
     arg0: string,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<[BigNumber, number] & { index: BigNumber; block: number }>;
 
   venusBorrowerIndex(arg0: string, arg1: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1959,7 +1959,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
   venusSupplyState(
     arg0: string,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<[BigNumber, number] & { index: BigNumber; block: number }>;
 
   venusVAIVaultRate(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1971,25 +1971,25 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     _setAccessControl(
       newAccessControlAddress: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     _setActionsPaused(
       markets_: string[],
       actions_: BigNumberish[],
       paused_: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setCloseFactor(
       newCloseFactorMantissa: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     _setCollateralFactor(
       vToken: string,
       newCollateralFactorMantissa: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     _setComptrollerLens(comptrollerLens_: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1997,36 +1997,36 @@ export interface LegacyPoolComptroller extends BaseContract {
     _setForcedLiquidation(
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setForcedLiquidationForUser(
       borrower: string,
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setLiquidationIncentive(
       newLiquidationIncentiveMantissa: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     _setLiquidatorContract(
       newLiquidatorContract_: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setMarketBorrowCaps(
       vTokens: string[],
       newBorrowCaps: BigNumberish[],
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setMarketSupplyCaps(
       vTokens: string[],
       newSupplyCaps: BigNumberish[],
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setPauseGuardian(newPauseGuardian: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2041,7 +2041,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       newTreasuryGuardian: string,
       newTreasuryAddress: string,
       newTreasuryPercent: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     _setVAIController(vaiController_: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2052,19 +2052,19 @@ export interface LegacyPoolComptroller extends BaseContract {
       vault_: string,
       releaseStartBlock_: BigNumberish,
       minReleaseAmount_: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setVenusSpeeds(
       vTokens: string[],
       supplySpeeds: BigNumberish[],
       borrowSpeeds: BigNumberish[],
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _setVenusVAIVaultRate(
       venusVAIVaultRate_: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     _supportMarket(vToken: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2083,7 +2083,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     borrowCapGuardian(overrides?: CallOverrides): Promise<string>;
@@ -2094,7 +2094,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     checkMembership(account: string, vToken: string, overrides?: CallOverrides): Promise<boolean>;
@@ -2105,13 +2105,13 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrowers: boolean,
       suppliers: boolean,
       collateral: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     'claimVenus(address,address[])'(
       holder: string,
       vTokens: string[],
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     'claimVenus(address)'(holder: string, overrides?: CallOverrides): Promise<void>;
@@ -2121,7 +2121,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokens: string[],
       borrowers: boolean,
       suppliers: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     claimVenusAsCollateral(holder: string, overrides?: CallOverrides): Promise<void>;
@@ -2140,7 +2140,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     facetAddress(
       functionSelector: BytesLike,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<ComptrollerV13Storage.FacetAddressAndPositionStructOutput>;
 
     facetAddresses(overrides?: CallOverrides): Promise<string[]>;
@@ -2153,7 +2153,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     getAccountLiquidity(
       account: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     getAllMarkets(overrides?: CallOverrides): Promise<string[]>;
@@ -2165,7 +2165,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokenModify: string,
       redeemTokens: BigNumberish,
       borrowAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber, BigNumber]>;
 
     getXVSAddress(overrides?: CallOverrides): Promise<string>;
@@ -2179,7 +2179,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     isForcedLiquidationEnabledForUser(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<boolean>;
 
     liquidateBorrowAllowed(
@@ -2188,7 +2188,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidateBorrowVerify(
@@ -2198,20 +2198,20 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       seizeTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     liquidateCalculateSeizeTokens(
       vTokenBorrowed: string,
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
     liquidateVAICalculateSeizeTokens(
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
     liquidationIncentiveMantissa(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2220,7 +2220,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     markets(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<
       [boolean, BigNumber, boolean] & {
         isListed: boolean;
@@ -2237,7 +2237,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       minter: string,
       mintAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     mintVAIGuardianPaused(overrides?: CallOverrides): Promise<boolean>;
@@ -2247,7 +2247,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       minter: string,
       actualMintAmount: BigNumberish,
       mintTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     mintedVAIs(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2268,7 +2268,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       redeemer: string,
       redeemTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     redeemVerify(
@@ -2276,7 +2276,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       redeemer: string,
       redeemAmount: BigNumberish,
       redeemTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     releaseStartBlock(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2286,7 +2286,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       payer: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     repayBorrowVerify(
@@ -2295,7 +2295,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       borrowerIndex: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     repayVAIGuardianPaused(overrides?: CallOverrides): Promise<boolean>;
@@ -2306,7 +2306,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     seizeVerify(
@@ -2315,13 +2315,13 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     setMintedVAIOf(
       owner: string,
       amount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     supplyCaps(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2331,7 +2331,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     transferVerify(
@@ -2339,7 +2339,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     treasuryAddress(overrides?: CallOverrides): Promise<string>;
@@ -2351,7 +2351,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     updateDelegate(
       delegate: string,
       allowBorrows: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
     vaiController(overrides?: CallOverrides): Promise<string>;
@@ -2366,7 +2366,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     venusBorrowState(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, number] & { index: BigNumber; block: number }>;
 
     venusBorrowerIndex(arg0: string, arg1: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2379,7 +2379,7 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     venusSupplyState(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber, number] & { index: BigNumber; block: number }>;
 
     venusVAIVaultRate(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2389,12 +2389,12 @@ export interface LegacyPoolComptroller extends BaseContract {
     'ActionPausedMarket(address,uint8,bool)'(
       vToken?: string | null,
       action?: BigNumberish | null,
-      pauseState?: null,
+      pauseState?: null
     ): ActionPausedMarketEventFilter;
     ActionPausedMarket(
       vToken?: string | null,
       action?: BigNumberish | null,
-      pauseState?: null,
+      pauseState?: null
     ): ActionPausedMarketEventFilter;
 
     'ActionProtocolPaused(bool)'(state?: null): ActionProtocolPausedEventFilter;
@@ -2403,12 +2403,12 @@ export interface LegacyPoolComptroller extends BaseContract {
     'DelegateUpdated(address,address,bool)'(
       borrower?: string | null,
       delegate?: string | null,
-      allowDelegatedBorrows?: null,
+      allowDelegatedBorrows?: null
     ): DelegateUpdatedEventFilter;
     DelegateUpdated(
       borrower?: string | null,
       delegate?: string | null,
-      allowDelegatedBorrows?: null,
+      allowDelegatedBorrows?: null
     ): DelegateUpdatedEventFilter;
 
     'DiamondCut((address,uint8,bytes4[])[])'(_diamondCut?: null): DiamondCutEventFilter;
@@ -2418,26 +2418,26 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken?: string | null,
       borrower?: string | null,
       venusDelta?: null,
-      venusBorrowIndex?: null,
+      venusBorrowIndex?: null
     ): DistributedBorrowerVenusEventFilter;
     DistributedBorrowerVenus(
       vToken?: string | null,
       borrower?: string | null,
       venusDelta?: null,
-      venusBorrowIndex?: null,
+      venusBorrowIndex?: null
     ): DistributedBorrowerVenusEventFilter;
 
     'DistributedSupplierVenus(address,address,uint256,uint256)'(
       vToken?: string | null,
       supplier?: string | null,
       venusDelta?: null,
-      venusSupplyIndex?: null,
+      venusSupplyIndex?: null
     ): DistributedSupplierVenusEventFilter;
     DistributedSupplierVenus(
       vToken?: string | null,
       supplier?: string | null,
       venusDelta?: null,
-      venusSupplyIndex?: null,
+      venusSupplyIndex?: null
     ): DistributedSupplierVenusEventFilter;
 
     'DistributedVAIVaultVenus(uint256)'(amount?: null): DistributedVAIVaultVenusEventFilter;
@@ -2446,39 +2446,39 @@ export interface LegacyPoolComptroller extends BaseContract {
     'Failure(uint256,uint256,uint256)'(
       error?: null,
       info?: null,
-      detail?: null,
+      detail?: null
     ): FailureEventFilter;
     Failure(error?: null, info?: null, detail?: null): FailureEventFilter;
 
     'IsForcedLiquidationEnabledForUserUpdated(address,address,bool)'(
       borrower?: string | null,
       vToken?: string | null,
-      enable?: null,
+      enable?: null
     ): IsForcedLiquidationEnabledForUserUpdatedEventFilter;
     IsForcedLiquidationEnabledForUserUpdated(
       borrower?: string | null,
       vToken?: string | null,
-      enable?: null,
+      enable?: null
     ): IsForcedLiquidationEnabledForUserUpdatedEventFilter;
 
     'IsForcedLiquidationEnabledUpdated(address,bool)'(
       vToken?: string | null,
-      enable?: null,
+      enable?: null
     ): IsForcedLiquidationEnabledUpdatedEventFilter;
     IsForcedLiquidationEnabledUpdated(
       vToken?: string | null,
-      enable?: null,
+      enable?: null
     ): IsForcedLiquidationEnabledUpdatedEventFilter;
 
     'MarketEntered(address,address)'(
       vToken?: string | null,
-      account?: string | null,
+      account?: string | null
     ): MarketEnteredEventFilter;
     MarketEntered(vToken?: string | null, account?: string | null): MarketEnteredEventFilter;
 
     'MarketExited(address,address)'(
       vToken?: string | null,
-      account?: string | null,
+      account?: string | null
     ): MarketExitedEventFilter;
     MarketExited(vToken?: string | null, account?: string | null): MarketExitedEventFilter;
 
@@ -2487,171 +2487,171 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     'NewAccessControl(address,address)'(
       oldAccessControlAddress?: null,
-      newAccessControlAddress?: null,
+      newAccessControlAddress?: null
     ): NewAccessControlEventFilter;
     NewAccessControl(
       oldAccessControlAddress?: null,
-      newAccessControlAddress?: null,
+      newAccessControlAddress?: null
     ): NewAccessControlEventFilter;
 
     'NewBorrowCap(address,uint256)'(
       vToken?: string | null,
-      newBorrowCap?: null,
+      newBorrowCap?: null
     ): NewBorrowCapEventFilter;
     NewBorrowCap(vToken?: string | null, newBorrowCap?: null): NewBorrowCapEventFilter;
 
     'NewCloseFactor(uint256,uint256)'(
       oldCloseFactorMantissa?: null,
-      newCloseFactorMantissa?: null,
+      newCloseFactorMantissa?: null
     ): NewCloseFactorEventFilter;
     NewCloseFactor(
       oldCloseFactorMantissa?: null,
-      newCloseFactorMantissa?: null,
+      newCloseFactorMantissa?: null
     ): NewCloseFactorEventFilter;
 
     'NewCollateralFactor(address,uint256,uint256)'(
       vToken?: string | null,
       oldCollateralFactorMantissa?: null,
-      newCollateralFactorMantissa?: null,
+      newCollateralFactorMantissa?: null
     ): NewCollateralFactorEventFilter;
     NewCollateralFactor(
       vToken?: string | null,
       oldCollateralFactorMantissa?: null,
-      newCollateralFactorMantissa?: null,
+      newCollateralFactorMantissa?: null
     ): NewCollateralFactorEventFilter;
 
     'NewComptrollerLens(address,address)'(
       oldComptrollerLens?: null,
-      newComptrollerLens?: null,
+      newComptrollerLens?: null
     ): NewComptrollerLensEventFilter;
     NewComptrollerLens(
       oldComptrollerLens?: null,
-      newComptrollerLens?: null,
+      newComptrollerLens?: null
     ): NewComptrollerLensEventFilter;
 
     'NewLiquidationIncentive(uint256,uint256)'(
       oldLiquidationIncentiveMantissa?: null,
-      newLiquidationIncentiveMantissa?: null,
+      newLiquidationIncentiveMantissa?: null
     ): NewLiquidationIncentiveEventFilter;
     NewLiquidationIncentive(
       oldLiquidationIncentiveMantissa?: null,
-      newLiquidationIncentiveMantissa?: null,
+      newLiquidationIncentiveMantissa?: null
     ): NewLiquidationIncentiveEventFilter;
 
     'NewLiquidatorContract(address,address)'(
       oldLiquidatorContract?: null,
-      newLiquidatorContract?: null,
+      newLiquidatorContract?: null
     ): NewLiquidatorContractEventFilter;
     NewLiquidatorContract(
       oldLiquidatorContract?: null,
-      newLiquidatorContract?: null,
+      newLiquidatorContract?: null
     ): NewLiquidatorContractEventFilter;
 
     'NewPauseGuardian(address,address)'(
       oldPauseGuardian?: null,
-      newPauseGuardian?: null,
+      newPauseGuardian?: null
     ): NewPauseGuardianEventFilter;
     NewPauseGuardian(oldPauseGuardian?: null, newPauseGuardian?: null): NewPauseGuardianEventFilter;
 
     'NewPriceOracle(address,address)'(
       oldPriceOracle?: null,
-      newPriceOracle?: null,
+      newPriceOracle?: null
     ): NewPriceOracleEventFilter;
     NewPriceOracle(oldPriceOracle?: null, newPriceOracle?: null): NewPriceOracleEventFilter;
 
     'NewPrimeToken(address,address)'(
       oldPrimeToken?: null,
-      newPrimeToken?: null,
+      newPrimeToken?: null
     ): NewPrimeTokenEventFilter;
     NewPrimeToken(oldPrimeToken?: null, newPrimeToken?: null): NewPrimeTokenEventFilter;
 
     'NewSupplyCap(address,uint256)'(
       vToken?: string | null,
-      newSupplyCap?: null,
+      newSupplyCap?: null
     ): NewSupplyCapEventFilter;
     NewSupplyCap(vToken?: string | null, newSupplyCap?: null): NewSupplyCapEventFilter;
 
     'NewTreasuryAddress(address,address)'(
       oldTreasuryAddress?: null,
-      newTreasuryAddress?: null,
+      newTreasuryAddress?: null
     ): NewTreasuryAddressEventFilter;
     NewTreasuryAddress(
       oldTreasuryAddress?: null,
-      newTreasuryAddress?: null,
+      newTreasuryAddress?: null
     ): NewTreasuryAddressEventFilter;
 
     'NewTreasuryGuardian(address,address)'(
       oldTreasuryGuardian?: null,
-      newTreasuryGuardian?: null,
+      newTreasuryGuardian?: null
     ): NewTreasuryGuardianEventFilter;
     NewTreasuryGuardian(
       oldTreasuryGuardian?: null,
-      newTreasuryGuardian?: null,
+      newTreasuryGuardian?: null
     ): NewTreasuryGuardianEventFilter;
 
     'NewTreasuryPercent(uint256,uint256)'(
       oldTreasuryPercent?: null,
-      newTreasuryPercent?: null,
+      newTreasuryPercent?: null
     ): NewTreasuryPercentEventFilter;
     NewTreasuryPercent(
       oldTreasuryPercent?: null,
-      newTreasuryPercent?: null,
+      newTreasuryPercent?: null
     ): NewTreasuryPercentEventFilter;
 
     'NewVAIController(address,address)'(
       oldVAIController?: null,
-      newVAIController?: null,
+      newVAIController?: null
     ): NewVAIControllerEventFilter;
     NewVAIController(oldVAIController?: null, newVAIController?: null): NewVAIControllerEventFilter;
 
     'NewVAIMintRate(uint256,uint256)'(
       oldVAIMintRate?: null,
-      newVAIMintRate?: null,
+      newVAIMintRate?: null
     ): NewVAIMintRateEventFilter;
     NewVAIMintRate(oldVAIMintRate?: null, newVAIMintRate?: null): NewVAIMintRateEventFilter;
 
     'NewVAIVaultInfo(address,uint256,uint256)'(
       vault_?: string | null,
       releaseStartBlock_?: null,
-      releaseInterval_?: null,
+      releaseInterval_?: null
     ): NewVAIVaultInfoEventFilter;
     NewVAIVaultInfo(
       vault_?: string | null,
       releaseStartBlock_?: null,
-      releaseInterval_?: null,
+      releaseInterval_?: null
     ): NewVAIVaultInfoEventFilter;
 
     'NewVenusVAIVaultRate(uint256,uint256)'(
       oldVenusVAIVaultRate?: null,
-      newVenusVAIVaultRate?: null,
+      newVenusVAIVaultRate?: null
     ): NewVenusVAIVaultRateEventFilter;
     NewVenusVAIVaultRate(
       oldVenusVAIVaultRate?: null,
-      newVenusVAIVaultRate?: null,
+      newVenusVAIVaultRate?: null
     ): NewVenusVAIVaultRateEventFilter;
 
     'VenusBorrowSpeedUpdated(address,uint256)'(
       vToken?: string | null,
-      newSpeed?: null,
+      newSpeed?: null
     ): VenusBorrowSpeedUpdatedEventFilter;
     VenusBorrowSpeedUpdated(
       vToken?: string | null,
-      newSpeed?: null,
+      newSpeed?: null
     ): VenusBorrowSpeedUpdatedEventFilter;
 
     'VenusGranted(address,uint256)'(
       recipient?: string | null,
-      amount?: null,
+      amount?: null
     ): VenusGrantedEventFilter;
     VenusGranted(recipient?: string | null, amount?: null): VenusGrantedEventFilter;
 
     'VenusSupplySpeedUpdated(address,uint256)'(
       vToken?: string | null,
-      newSpeed?: null,
+      newSpeed?: null
     ): VenusSupplySpeedUpdatedEventFilter;
     VenusSupplySpeedUpdated(
       vToken?: string | null,
-      newSpeed?: null,
+      newSpeed?: null
     ): VenusSupplySpeedUpdatedEventFilter;
   };
 
@@ -2661,123 +2661,123 @@ export interface LegacyPoolComptroller extends BaseContract {
     _grantXVS(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setAccessControl(
       newAccessControlAddress: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setActionsPaused(
       markets_: string[],
       actions_: BigNumberish[],
       paused_: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setCloseFactor(
       newCloseFactorMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setCollateralFactor(
       vToken: string,
       newCollateralFactorMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setComptrollerLens(
       comptrollerLens_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setForcedLiquidation(
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setForcedLiquidationForUser(
       borrower: string,
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setLiquidationIncentive(
       newLiquidationIncentiveMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setLiquidatorContract(
       newLiquidatorContract_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setMarketBorrowCaps(
       vTokens: string[],
       newBorrowCaps: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setMarketSupplyCaps(
       vTokens: string[],
       newSupplyCaps: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setPauseGuardian(
       newPauseGuardian: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setPriceOracle(
       newOracle: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setPrimeToken(_prime: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     _setProtocolPaused(
       state: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setTreasuryData(
       newTreasuryGuardian: string,
       newTreasuryAddress: string,
       newTreasuryPercent: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setVAIController(
       vaiController_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setVAIMintRate(
       newVAIMintRate: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setVAIVaultInfo(
       vault_: string,
       releaseStartBlock_: BigNumberish,
       minReleaseAmount_: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setVenusSpeeds(
       vTokens: string[],
       supplySpeeds: BigNumberish[],
       borrowSpeeds: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _setVenusVAIVaultRate(
       venusVAIVaultRate_: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     _supportMarket(vToken: string, overrides?: Overrides & { from?: string }): Promise<BigNumber>;
@@ -2787,7 +2787,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     actionPaused(
       market: string,
       action: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2800,7 +2800,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     borrowCapGuardian(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2811,7 +2811,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     checkMembership(account: string, vToken: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2822,18 +2822,18 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrowers: boolean,
       suppliers: boolean,
       collateral: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     'claimVenus(address,address[])'(
       holder: string,
       vTokens: string[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     'claimVenus(address)'(
       holder: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     'claimVenus(address[],address[],bool,bool)'(
@@ -2841,12 +2841,12 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokens: string[],
       borrowers: boolean,
       suppliers: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     claimVenusAsCollateral(
       holder: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     closeFactorMantissa(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2857,14 +2857,14 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     diamondCut(
       diamondCut_: IDiamondCut.FacetCutStruct[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     enterMarkets(vTokens: string[], overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     exitMarket(
       vTokenAddress: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     facetAddress(functionSelector: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2888,7 +2888,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokenModify: string,
       redeemTokens: BigNumberish,
       borrowAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getXVSAddress(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2902,7 +2902,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     isForcedLiquidationEnabledForUser(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidateBorrowAllowed(
@@ -2911,7 +2911,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidateBorrowVerify(
@@ -2921,20 +2921,20 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     liquidateCalculateSeizeTokens(
       vTokenBorrowed: string,
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidateVAICalculateSeizeTokens(
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     liquidationIncentiveMantissa(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2951,7 +2951,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       minter: string,
       mintAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     mintVAIGuardianPaused(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2961,7 +2961,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       minter: string,
       actualMintAmount: BigNumberish,
       mintTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     mintedVAIs(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -2982,7 +2982,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       redeemer: string,
       redeemTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     redeemVerify(
@@ -2990,7 +2990,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       redeemer: string,
       redeemAmount: BigNumberish,
       redeemTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     releaseStartBlock(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3000,7 +3000,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       payer: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     repayBorrowVerify(
@@ -3009,7 +3009,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       borrowerIndex: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     repayVAIGuardianPaused(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3020,7 +3020,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     seizeVerify(
@@ -3029,13 +3029,13 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     setMintedVAIOf(
       owner: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     supplyCaps(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -3045,7 +3045,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     transferVerify(
@@ -3053,7 +3053,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     treasuryAddress(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3065,7 +3065,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     updateDelegate(
       delegate: string,
       allowBorrows: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     vaiController(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3096,149 +3096,149 @@ export interface LegacyPoolComptroller extends BaseContract {
   populateTransaction: {
     _become(
       unitroller: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _grantXVS(
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setAccessControl(
       newAccessControlAddress: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setActionsPaused(
       markets_: string[],
       actions_: BigNumberish[],
       paused_: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setCloseFactor(
       newCloseFactorMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setCollateralFactor(
       vToken: string,
       newCollateralFactorMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setComptrollerLens(
       comptrollerLens_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setForcedLiquidation(
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setForcedLiquidationForUser(
       borrower: string,
       vTokenBorrowed: string,
       enable: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setLiquidationIncentive(
       newLiquidationIncentiveMantissa: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setLiquidatorContract(
       newLiquidatorContract_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setMarketBorrowCaps(
       vTokens: string[],
       newBorrowCaps: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setMarketSupplyCaps(
       vTokens: string[],
       newSupplyCaps: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setPauseGuardian(
       newPauseGuardian: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setPriceOracle(
       newOracle: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setPrimeToken(
       _prime: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setProtocolPaused(
       state: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setTreasuryData(
       newTreasuryGuardian: string,
       newTreasuryAddress: string,
       newTreasuryPercent: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setVAIController(
       vaiController_: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setVAIMintRate(
       newVAIMintRate: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setVAIVaultInfo(
       vault_: string,
       releaseStartBlock_: BigNumberish,
       minReleaseAmount_: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setVenusSpeeds(
       vTokens: string[],
       supplySpeeds: BigNumberish[],
       borrowSpeeds: BigNumberish[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _setVenusVAIVaultRate(
       venusVAIVaultRate_: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     _supportMarket(
       vToken: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     accountAssets(
       arg0: string,
       arg1: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     actionPaused(
       market: string,
       action: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3248,14 +3248,14 @@ export interface LegacyPoolComptroller extends BaseContract {
     approvedDelegates(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     borrowAllowed(
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     borrowCapGuardian(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3266,13 +3266,13 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       borrower: string,
       borrowAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     checkMembership(
       account: string,
       vToken: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     'claimVenus(address[],address[],bool,bool,bool)'(
@@ -3281,18 +3281,18 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrowers: boolean,
       suppliers: boolean,
       collateral: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     'claimVenus(address,address[])'(
       holder: string,
       vTokens: string[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     'claimVenus(address)'(
       holder: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     'claimVenus(address[],address[],bool,bool)'(
@@ -3300,12 +3300,12 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokens: string[],
       borrowers: boolean,
       suppliers: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     claimVenusAsCollateral(
       holder: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     closeFactorMantissa(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3316,22 +3316,22 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     diamondCut(
       diamondCut_: IDiamondCut.FacetCutStruct[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     enterMarkets(
       vTokens: string[],
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     exitMarket(
       vTokenAddress: string,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     facetAddress(
       functionSelector: BytesLike,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     facetAddresses(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3353,7 +3353,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vTokenModify: string,
       redeemTokens: BigNumberish,
       borrowAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getXVSAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3364,13 +3364,13 @@ export interface LegacyPoolComptroller extends BaseContract {
 
     isForcedLiquidationEnabled(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     isForcedLiquidationEnabledForUser(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidateBorrowAllowed(
@@ -3379,7 +3379,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidateBorrowVerify(
@@ -3389,20 +3389,20 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     liquidateCalculateSeizeTokens(
       vTokenBorrowed: string,
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidateVAICalculateSeizeTokens(
       vTokenCollateral: string,
       actualRepayAmount: BigNumberish,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidationIncentiveMantissa(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3419,7 +3419,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       minter: string,
       mintAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     mintVAIGuardianPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3429,7 +3429,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       minter: string,
       actualMintAmount: BigNumberish,
       mintTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     mintedVAIs(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3450,7 +3450,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       vToken: string,
       redeemer: string,
       redeemTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     redeemVerify(
@@ -3458,7 +3458,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       redeemer: string,
       redeemAmount: BigNumberish,
       redeemTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     releaseStartBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3468,7 +3468,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       payer: string,
       borrower: string,
       repayAmount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     repayBorrowVerify(
@@ -3477,7 +3477,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       borrower: string,
       actualRepayAmount: BigNumberish,
       borrowerIndex: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     repayVAIGuardianPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3488,7 +3488,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     seizeVerify(
@@ -3497,13 +3497,13 @@ export interface LegacyPoolComptroller extends BaseContract {
       liquidator: string,
       borrower: string,
       seizeTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     setMintedVAIOf(
       owner: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     supplyCaps(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3513,7 +3513,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     transferVerify(
@@ -3521,7 +3521,7 @@ export interface LegacyPoolComptroller extends BaseContract {
       src: string,
       dst: string,
       transferTokens: BigNumberish,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     treasuryAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3533,7 +3533,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     updateDelegate(
       delegate: string,
       allowBorrows: boolean,
-      overrides?: Overrides & { from?: string },
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     vaiController(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3551,7 +3551,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     venusBorrowerIndex(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     venusInitialIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -3559,7 +3559,7 @@ export interface LegacyPoolComptroller extends BaseContract {
     venusSupplierIndex(
       arg0: string,
       arg1: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     venusSupplySpeeds(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;

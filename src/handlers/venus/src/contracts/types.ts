@@ -25,4 +25,4 @@ export interface Addresses {
   VBep20: VBep20Addresses;
   VBnb: VBnbAddresses;
   legacyPoolComptroller: LegacyPoolComptrollerAddresses;
-} 
+}

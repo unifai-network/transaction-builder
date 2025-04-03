@@ -12,5 +12,3 @@ interface GetVBnbContractInput {
 
 export const getVBnbContract = ({ signerOrProvider, address }: GetVBnbContractInput) =>
   new Contract(address, abi, signerOrProvider) as VBnb;
-
-

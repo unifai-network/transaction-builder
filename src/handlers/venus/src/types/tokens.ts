@@ -23,13 +23,13 @@ export const TOKEN_SYMBOLS = [
   'LUNA',
   'UST',
   'WBETH',
-  'FDUSD'
+  'FDUSD',
 ] as const;
 
 export const VBEP20_TOKEN_SYMBOLS = TOKEN_SYMBOLS.map(symbol => `v${symbol}`) as readonly string[];
 
-export type TokenSymbol = typeof TOKEN_SYMBOLS[number];
-export type VBep20TokenSymbol = typeof VBEP20_TOKEN_SYMBOLS[number];
+export type TokenSymbol = (typeof TOKEN_SYMBOLS)[number];
+export type VBep20TokenSymbol = (typeof VBEP20_TOKEN_SYMBOLS)[number];
 
 export function isTokenSymbol(symbol: string): symbol is TokenSymbol {
   return TOKEN_SYMBOLS.includes(symbol as TokenSymbol);
@@ -59,4 +59,4 @@ export function toVBep20Symbol(symbol: TokenSymbol): VBep20TokenSymbol {
 
 export function fromVBep20Symbol(vSymbol: VBep20TokenSymbol): TokenSymbol {
   return vSymbol.slice(1) as TokenSymbol;
-} 
+}

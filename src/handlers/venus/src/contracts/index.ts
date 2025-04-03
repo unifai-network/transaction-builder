@@ -45,7 +45,7 @@ export const addresses: Addresses = {
       UST: venusProtocolBscMainnetDeployments.addresses.UST,
       WBETH: venusProtocolBscMainnetDeployments.addresses.WBETH,
       FDUSD: venusProtocolBscMainnetDeployments.addresses.vFDUSD,
-    }
+    },
   },
   VBep20: {
     [ChainId.BSC_MAINNET]: {
@@ -74,12 +74,12 @@ export const addresses: Addresses = {
       vUST: venusProtocolBscMainnetDeployments.addresses.vUST,
       vWBETH: venusProtocolBscMainnetDeployments.addresses.vWBETH,
       vFDUSD: venusProtocolBscMainnetDeployments.addresses.vFDUSD,
-    }
+    },
   },
   VBnb: {
-    [ChainId.BSC_MAINNET]: venusProtocolBscMainnetDeployments.addresses.vBNB
+    [ChainId.BSC_MAINNET]: venusProtocolBscMainnetDeployments.addresses.vBNB,
   },
   legacyPoolComptroller: {
-    [ChainId.BSC_MAINNET]: venusProtocolBscMainnetDeployments.addresses.Unitroller
-  }
+    [ChainId.BSC_MAINNET]: venusProtocolBscMainnetDeployments.addresses.Unitroller,
+  },
 };

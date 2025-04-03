@@ -16,7 +16,6 @@ export const getLegacyPoolComptrollerContractAddress = ({
 }: GetLegacyPoolComptrollerContractAddressInput) =>
   getUniqueContractAddress({ name: 'LegacyPoolComptroller', chainId });
 
-
 interface GetLegacyPoolComptrollerContractInput {
   chainId: ChainId;
   signerOrProvider: Signer | Provider;
@@ -31,4 +30,3 @@ export const getLegacyPoolComptrollerContract = ({
     ? (new Contract(address, abi, signerOrProvider) as LegacyPoolComptroller)
     : undefined;
 };
-

@@ -32,6 +32,10 @@ export class OrbiterHandler implements TransactionHandler {
     validateEvmChain(payload.srcChain);
     validateEvmChain(payload.dstChain);
 
+    const orbiter = await OrbiterClient.create(config);
+
+    getTradePair(orbiter, payload.srcChain, payload.srcTokenSymbol, payload.dstChain, payload.dstTokenSymbol);
+
     return {
       chain: payload.srcChain,
       data: payload,
@@ -45,21 +49,8 @@ export class OrbiterHandler implements TransactionHandler {
 
     const orbiter = await OrbiterClient.create(config);
 
-    const tradePairs: TradePair[] = orbiter.getAvailableTradePairs(EVM_CHAIN_IDS[data.srcChain].toString(), data.srcTokenSymbol);
+    const tradePair = getTradePair(orbiter, data.srcChain, data.srcTokenSymbol, data.dstChain, data.dstTokenSymbol);
 
-    if (tradePairs.length === 0) {
-      throw new Error(`No trade pairs found for ${data.srcChain} ${data.srcTokenSymbol}`);
-    }
-
-    const tradePair = tradePairs.find(
-      (pair) => pair.dstChainId === EVM_CHAIN_IDS[data.dstChain].toString() && pair.dstTokenSymbol === data.dstTokenSymbol
-    );
-
-    if (!tradePair) {
-      throw new Error(
-        `No trade pair found for ${data.srcChain} ${data.srcTokenSymbol} to ${data.dstChain} ${data.dstTokenSymbol}`
-      );
-    }
     const router = orbiter.createRouter(tradePair);
 
     const min = Number(router.getMinSendAmount());
@@ -79,11 +70,7 @@ export class OrbiterHandler implements TransactionHandler {
       value: string;
     };
 
-    const [feeData, nonce, gasLimit] = await Promise.all([
-      provider.getFeeData(),
-      provider.getTransactionCount(address),
-      provider.estimateGas({ ...rawData, from: address }),
-    ]);
+    const feeData = await provider.getFeeData();
 
     const { maxFeePerGas, maxPriorityFeePerGas } = feeData;
 
@@ -95,8 +82,6 @@ export class OrbiterHandler implements TransactionHandler {
       chainId: EVM_CHAIN_IDS[data.srcChain],
       type: 2,
       ...rawData,
-      nonce,
-      gasLimit,
       maxFeePerGas: maxFeePerGas,
       maxPriorityFeePerGas: maxPriorityFeePerGas,
     };
@@ -110,4 +95,24 @@ export class OrbiterHandler implements TransactionHandler {
       ],
     };
   }
+}
+
+function getTradePair(orbiter: OrbiterClient, srcChain: string, srcTokenSymbol: string, dstChain: string, dstTokenSymbol: string): TradePair {
+  const tradePairs: TradePair[] = orbiter.getAvailableTradePairs(EVM_CHAIN_IDS[srcChain].toString(), srcTokenSymbol);
+
+  if (tradePairs.length === 0) {
+    throw new Error(`No trade pairs found for ${srcChain} ${srcTokenSymbol}`);
+  }
+
+  const tradePair = tradePairs.find(
+    (pair) => pair.dstChainId === EVM_CHAIN_IDS[dstChain].toString() && pair.dstTokenSymbol === dstTokenSymbol
+  );
+
+  if (!tradePair) {
+    throw new Error(
+      `No trade pair found for ${srcChain} ${srcTokenSymbol} to ${dstChain} ${dstTokenSymbol}`
+    );
+  }
+
+  return tradePair;
 }

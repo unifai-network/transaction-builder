@@ -2,20 +2,6 @@ import { ChainId } from '../types';
 import venusProtocolBscMainnetDeployments from '@venusprotocol/venus-protocol/deployments/bscmainnet_addresses.json';
 import { Addresses } from './types';
 
-// Export contract getter functions and hooks
-export * from './getters';
-export * from './utilities/contractHelpers';
-export * from './utilities/uniqueContractAddressHelper';
-
-// Export types
-export * from './generated/infos/contractTypes';
-export * from './generated/infos/types';
-export * from './types';
-
-// Export contract interfaces
-export type { VBep20Interface } from './generated/infos/contractTypes/VBep20';
-export type { LegacyPoolComptrollerInterface } from './generated/infos/contractTypes/LegacyPoolComptroller';
-
 // Export addresses
 export const addresses: Addresses = {
   tokens: {
@@ -81,5 +67,8 @@ export const addresses: Addresses = {
   },
   legacyPoolComptroller: {
     [ChainId.BSC_MAINNET]: venusProtocolBscMainnetDeployments.addresses.Unitroller,
+  },
+  isolatedPoolComptroller: {
+    [ChainId.BSC_MAINNET]: venusProtocolBscMainnetDeployments.addresses.Unitroller_Proxy,
   },
 };

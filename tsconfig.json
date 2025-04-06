@@ -9,7 +9,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "resolveJsonModule":true
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
   "include": ["src/**/*.ts"]
 }

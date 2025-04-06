@@ -14,7 +14,7 @@ import {
   getTokenDecimals,
   parseUnits,
 } from '../../utils/evm';
-import { VenusService } from './src/services/venus';
+import { VenusService } from './src/services/venusService';
 import { ChainId } from './src/types';
 import { isVBep20TokenSymbol, isTokenSymbol, toTokenSymbol } from './src/types/tokens';
 
@@ -35,6 +35,7 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 export class VenusV5Handler implements TransactionHandler {
+
   async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
@@ -47,7 +48,6 @@ export class VenusV5Handler implements TransactionHandler {
 
     payload.chain = payload.chain.toUpperCase();
     payload.asset = payload.asset?.toUpperCase();
-    validateEvmAddress(payload.asset);
     validateEvmChain(payload.chain.toLowerCase());
 
     if (isNaN(Number(payload.amount))) {
@@ -63,11 +63,12 @@ export class VenusV5Handler implements TransactionHandler {
   async build(data: Payload, address: string): Promise<BuildTransactionResponse> {
     validateEvmAddress(address);
     const transactions: Array<{ hex: string }> = [];
-    const provider = new ethers.providers.JsonRpcProvider(process.env.BNB_RPC_URL);
+    const provider = new ethers.JsonRpcProvider('https://bsc-dataseed.binance.org/');
     const userAddress = address;
     if (!userAddress) {
       throw new Error('USER_ADDRESS environment variable not set');
     }
+    
     if (data.asset && data.asset.length > 1 && isVBep20TokenSymbol(data.asset)) {
       data.asset = data.asset.slice(1);
       data.asset = data.asset.toUpperCase();
@@ -81,30 +82,32 @@ export class VenusV5Handler implements TransactionHandler {
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         } else {
           const supplyTx = await venusService.buildSupplyTransaction(
             toTokenSymbol(data.asset),
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         }
       } else {
         throw new Error('No compatible BSC token found for supply process!');
@@ -116,30 +119,32 @@ export class VenusV5Handler implements TransactionHandler {
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         } else {
           const supplyTx = await venusService.buildRedeemTransaction(
             toTokenSymbol(data.asset),
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         }
       } else {
         throw new Error('No compatible BSC token found for redeem process!');
@@ -151,30 +156,32 @@ export class VenusV5Handler implements TransactionHandler {
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         } else {
           const supplyTx = await venusService.buildBorrowTransaction(
             toTokenSymbol(data.asset),
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         }
       } else {
         throw new Error('No compatible BSC token found for borrow process!');
@@ -186,30 +193,32 @@ export class VenusV5Handler implements TransactionHandler {
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         } else {
           const supplyTx = await venusService.buildRepayBorrowTransaction(
             toTokenSymbol(data.asset),
             data.amount.toString(),
             userAddress
           );
-          const transactionUnsign = {
-            to: supplyTx.to,
-            data: supplyTx.data,
-            value: supplyTx.value,
-            gasLimit: supplyTx.gasLimit,
-            gasPrice: supplyTx.gasPrice,
-            nonce: supplyTx.nonce,
-          };
-          transactions.push({ hex: ethers.utils.serializeTransaction(transactionUnsign) });
+          transactions.push({ 
+            hex: ethers.Transaction.from({
+              to: supplyTx.to.toString(),
+              data: supplyTx.data,
+              value: supplyTx.value,
+              gasLimit: Number(supplyTx.gasLimit),
+              gasPrice: Number(supplyTx.gasPrice),
+              nonce: Number(supplyTx.nonce),
+            }).unsignedSerialized 
+          });
         }
       } else {
         throw new Error('No compatible BSC token found for repay borrow process!');

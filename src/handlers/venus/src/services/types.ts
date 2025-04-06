@@ -1,19 +1,19 @@
-import { ethers } from 'ethers';
+import { ethers, Provider } from 'ethers';
 
 export interface VenusServiceConfig {
-  provider: ethers.providers.Provider;
+  provider: Provider;
   signer: ethers.Signer;
   networkId: number;
 }
 
 export interface SupplyParams {
-  amount: ethers.BigNumber;
+  amount: BigNumber;
 }
 
 export interface RedeemParams {
-  amount: ethers.BigNumber;
+  amount: BigNumber;
 }
 
 export interface BorrowParams {
-  amount: ethers.BigNumber;
+  amount: BigNumber;
 }

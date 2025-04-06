@@ -1,5 +1,7 @@
 /* Automatically generated file, do not update manually */
-export default {
+import { ChainId } from '../types';
+
+export const addresses = {
   VenusLens: {
     56: '0xfB0f09dB330dC842a6637BfB959209424BbFE8C7',
     97: '0x11c8dC3DcA87E8205ec01e6d79Be9442d31701d3',
@@ -18,9 +20,11 @@ export default {
     5611: '0x560eA4e1cC42591E9f5F5D83Ad2fd65F30128951',
     11155111: '0x758f5715d817e02857Ba40889251201A5aE3E186',
   },
-  LegacyPoolComptroller: {
-    56: '0xfD36E2c2a6789Db23113685031d7F16329158384',
-    97: '0x94d1820b2D1c7c7452A163983Dc888CEC546b77D',
+  legacyPoolComptroller: {
+    [ChainId.BSC_MAINNET]: '0xfd36e2c2a6789db23113685031d7f16329158384',
+  },
+  isolatedPoolComptroller: {
+    [ChainId.BSC_MAINNET]: '0x94d1820b2D1c7c7452A163983Dc888CEC546b77D',
   },
   VaiController: {
     56: '0x004065D34C6b18cE4370ced1CeBDE94865DbFAFE',

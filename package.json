@@ -3,7 +3,8 @@
     "build": "tsc",
     "test": "jest",
     "start": "ts-node src/index.ts",
-    "vercel-build": "prisma generate && prisma migrate deploy && tsc"
+    "vercel-build": "prisma generate && prisma migrate deploy && tsc",
+    "typechain": "typechain --target ethers-v6 --out-dir src/contracts/types src/contracts/abis/*.json"
   },
   "dependencies": {
     "@cetusprotocol/aggregator-sdk": "^0.3.22",
@@ -16,11 +17,13 @@
     "@solana/web3.js": "^1.98.0",
     "@types/cors": "^2.8.17",
     "@wormhole-foundation/sdk": "^1.11.1",
+    "axios": "^1.8.4",
     "bs58": "^6.0.0",
     "cors": "^2.8.5",
     "decimal.js": "^10.5.0",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.5",
+    "expand-network": "^3.2.5",
     "express": "^4.21.2",
     "https-proxy-agent": "^7.0.6",
     "pg": "^8.13.1",
@@ -32,11 +35,13 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@typechain/ethers-v6": "^0.5.1",
     "@types/bn.js": "^5.1.6",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.9",
     "prisma": "^6.3.0",
     "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
     "typescript": "^5.7.3"
   }
 }

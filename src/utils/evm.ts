@@ -6,6 +6,7 @@ export const EVM_CHAIN_IDS: Record<string, number> = {
   'base': 8453,
   'bnb': 56,
   'bsc': 56,
+  'polygon': 137,
 };
 
 export function getEvmProvider(chain: string) {
@@ -18,6 +19,9 @@ export function getEvmProvider(chain: string) {
   }
   if (chain === 'bnb' || chain === 'bsc') {
     return new ethers.JsonRpcProvider(process.env.BNB_RPC_URL);
+  }
+  if (chain === 'polygon') {
+    return new ethers.JsonRpcProvider(process.env.POLYGON_RPC_URL);
   }
   throw new Error(`Unsupported EVM chain: ${chain}`);
 }

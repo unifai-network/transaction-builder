@@ -100,15 +100,18 @@ async function createTransactions(data: Payload, publicKey: PublicKey) {
 
 async function getFeeBps2BinStepMap() {
   const presetParameters = await DLMM.getAllPresetParameters(connection, { cluster: 'mainnet-beta' });
-  return presetParameters.reduce((map, acc) => {
+  const map: Record<number, Record<number, { publicKey: PublicKey; baseFactor: number }>> = {};
+  
+  // Process both arrays
+  [...presetParameters.presetParameter, ...presetParameters.presetParameter2].forEach(acc => {
     const { account: { binStep, baseFactor }, publicKey } = acc;
     const { baseFeeRatePercentage } = DLMM.calculateFeeInfo(baseFactor, binStep);
     const feeBps = baseFeeRatePercentage.mul(100).toNumber();
-    if (map[feeBps]) {
-      map[feeBps][binStep] = { publicKey, baseFactor };
-    } else {
-      map[feeBps] = { [binStep]: { publicKey, baseFactor } };
+    if (!map[feeBps]) {
+      map[feeBps] = {};
     }
-    return map;
-  }, {} as Record<number, Record<number, { publicKey: PublicKey, baseFactor: number }>>);
+    map[feeBps][binStep] = { publicKey, baseFactor };
+  });
+
+  return map;
 }

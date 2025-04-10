@@ -92,7 +92,6 @@ async function createTransaction(data: Payload, publicKey: PublicKey) {
     data.hasAlphaVault ?? false,
     publicKey,
     data.activationPoint ? new BN(data.activationPoint) : undefined,
-    true,
     {
       cluster: 'mainnet-beta',
     },

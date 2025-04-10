@@ -6,7 +6,6 @@ import { PublicKey } from "@solana/web3.js";
 import DLMM from "@meteora-ag/dlmm";
 import Decimal from "decimal.js";
 import { prepareTransactions } from "../utils";
-import { getMint } from "@solana/spl-token";
 
 const PayloadSchema = z.object({
   lbPair: z.string().nonempty(),
@@ -57,14 +56,8 @@ async function createTransactions(data: Payload, publicKey: PublicKey) {
   const dlmm = await DLMM.create(connection, new PublicKey(data.lbPair));
   const position = await dlmm.getPosition(new PublicKey(data.position));
 
-  // Get token decimals from the mint
-  const [tokenXDecimals, tokenYDecimals] = await Promise.all([
-    getMint(connection, new PublicKey(dlmm.tokenX.mint)).then(mint => mint.decimals),
-    getMint(connection, new PublicKey(dlmm.tokenY.mint)).then(mint => mint.decimals)
-  ]);
-
   const priceMultiplier = new Decimal(
-    10 ** (tokenYDecimals - tokenXDecimals)
+    10 ** (dlmm.tokenY.decimal - dlmm.tokenX.decimal)
   );
 
   const minPrice = new Decimal(data.minPrice).mul(priceMultiplier);
@@ -82,8 +75,7 @@ async function createTransactions(data: Payload, publicKey: PublicKey) {
   const txs = await dlmm.removeLiquidity({
     position: new PublicKey(data.position),
     user: new PublicKey(publicKey),
-    fromBinId: minBinId,
-    toBinId: maxBinId,
+    binIds: binIds,
     bps: new BN(data.bps),
     shouldClaimAndClose: data.shouldClaimAndClose,
   });

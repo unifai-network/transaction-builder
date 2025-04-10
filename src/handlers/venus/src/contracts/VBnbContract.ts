@@ -1,5 +1,5 @@
 import { Contract, Provider, Signer, BigNumberish, Overrides } from 'ethers';
-import abi from './abi/VBnb.json'; // 从父目录的abi文件夹导入完整ABI
+import abi from './abi/VBnb.json'; // Import complete ABI from parent directory's abi folder
 
 export class VBnbContract {
   private contract: Contract;
@@ -15,9 +15,9 @@ export class VBnbContract {
   }
 
   /**
-   * 存入 BNB 获取 vBNB 代币
-   * @param value 存入的 BNB 数量 (wei)
-   * @param overrides 交易参数 (如 gasLimit, gasPrice 等)
+   * Deposit BNB to get vBNB tokens
+   * @param value Amount of BNB to deposit (in wei)
+   * @param overrides Transaction parameters (such as gasLimit, gasPrice, etc.)
    */
   async mint(value: BigNumberish, overrides?: Overrides) {
     return this.contract.mint({
@@ -27,27 +27,27 @@ export class VBnbContract {
   }
 
   /**
-   * 赎回 vBNB 代币获取 BNB
-   * @param redeemTokens 要赎回的 vBNB 代币数量
-   * @param overrides 交易参数
+   * Redeem vBNB tokens to get BNB
+   * @param redeemTokens Amount of vBNB tokens to redeem
+   * @param overrides Transaction parameters
    */
   async redeem(redeemTokens: BigNumberish, overrides?: Overrides) {
     return this.contract.redeem(redeemTokens, overrides);
   }
 
   /**
-   * 赎回特定数量的 BNB (会自动计算需要的 vBNB 代币数量)
-   * @param redeemAmount 要赎回的 BNB 数量 (wei)
-   * @param overrides 交易参数
+   * Redeem a specific amount of BNB (automatically calculates required vBNB tokens)
+   * @param redeemAmount Amount of BNB to redeem (in wei)
+   * @param overrides Transaction parameters
    */
   async redeemUnderlying(redeemAmount: BigNumberish, overrides?: Overrides) {
     return this.contract.redeemUnderlying(redeemAmount, overrides);
   }
 
   /**
-   * 借出 BNB
-   * @param borrowAmount 要借出的 BNB 数量 (wei)
-   * @param overrides 交易参数
+   * Borrow BNB
+   * @param borrowAmount Amount of BNB to borrow (in wei)
+   * @param overrides Transaction parameters
    */
   async borrow(borrowAmount: BigNumberish, overrides?: Overrides) {
     return this.contract.borrow(borrowAmount, overrides);
@@ -62,7 +62,7 @@ export class VBnbContract {
   }
 
   /**
-   * 获取合约实例 (用于需要直接访问合约的情况)
+   * Get contract instance (for direct contract access)
    */
   getContractInstance(): Contract {
     return this.contract;

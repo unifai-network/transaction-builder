@@ -11,8 +11,8 @@ export class IsolatedPoolComptrollerContract {
   }
 
   /**
-   * 获取账户流动性
-   * @param account 账户地址
+   * Get account liquidity
+   * @param account Account address
    * @returns [error, liquidity, shortfall]
    */
   async getAccountLiquidity(account: string): Promise<[bigint, bigint, bigint]> {
@@ -20,18 +20,18 @@ export class IsolatedPoolComptrollerContract {
   }
 
   /**
-   * 获取账户资产列表
-   * @param account 账户地址
-   * @returns 资产地址列表
+   * Get list of assets for an account
+   * @param account Account address
+   * @returns List of asset addresses
    */
   async getAssetsIn(account: string): Promise<string[]> {
     return this.contract.getAssetsIn(account);
   }
 
   /**
-   * 获取市场信息
-   * @param vToken vToken地址
-   * @returns 市场信息
+   * Get market information
+   * @param vToken vToken address
+   * @returns Market information
    */
   async markets(vToken: string): Promise<{
     isListed: boolean;
@@ -41,18 +41,18 @@ export class IsolatedPoolComptrollerContract {
   }
 
   /**
-   * 获取合约实例
+   * Get contract instance
    */
   getContractInstance(): Contract {
     return this.contract;
   }
 
   /**
-   * 获取假设的账户流动性
-   * @param account 账户地址
-   * @param vTokenModify 要修改的vToken地址
-   * @param redeemTokens 要赎回的代币数量
-   * @param borrowAmount 要借贷的数量
+   * Get hypothetical account liquidity
+   * @param account Account address
+   * @param vTokenModify vToken address to modify
+   * @param redeemTokens Amount of tokens to redeem
+   * @param borrowAmount Amount to borrow
    * @returns [error, liquidity, shortfall]
    */
   async getHypotheticalAccountLiquidity(

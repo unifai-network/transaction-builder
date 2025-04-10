@@ -1,5 +1,5 @@
 import { Contract, Provider, Signer, BigNumberish, Overrides } from 'ethers';
-import abi from './abi/VBep20.json'; // 从父目录的abi文件夹导入完整ABI
+import abi from './abi/VBep20.json'; // Import complete ABI from parent directory's abi folder
 
 export class VTokenContract {
   protected contract: Contract;
@@ -15,40 +15,40 @@ export class VTokenContract {
   }
 
   /**
-   * 铸造vToken
-   * @param value 要铸造的vToken数量
-   * @param overrides 可选参数
-   * @returns 交易响应
+   * Mint vToken
+   * @param value Amount of vToken to mint
+   * @param overrides Optional parameters
+   * @returns Transaction response
    */
   async mint(value: BigNumberish, overrides?: Overrides) {
     return this.contract.mint(value, overrides);
   }
 
   /**
-   * 赎回vToken
-   * @param redeemTokens 要赎回的vToken数量
-   * @param overrides 可选参数
-   * @returns 交易响应
+   * Redeem vToken
+   * @param redeemTokens Amount of vToken to redeem
+   * @param overrides Optional parameters
+   * @returns Transaction response
    */
   async redeem(redeemTokens: BigNumberish, overrides?: Overrides) {
     return this.contract.redeem(redeemTokens, overrides);
   }
 
   /**
-   * 赎回底层资产
-   * @param redeemAmount 要赎回的底层资产数量
-   * @param overrides 可选参数
-   * @returns 交易响应
+   * Redeem underlying asset
+   * @param redeemAmount Amount of underlying asset to redeem
+   * @param overrides Optional parameters
+   * @returns Transaction response
    */
   async redeemUnderlying(redeemAmount: BigNumberish, overrides?: Overrides) {
     return this.contract.redeemUnderlying(redeemAmount, overrides);
   }
 
   /**
-   * 借贷
-   * @param borrowAmount 要借贷的数量
-   * @param overrides 可选参数
-   * @returns 交易响应
+   * Borrow
+   * @param borrowAmount Amount to borrow
+   * @param overrides Optional parameters
+   * @returns Transaction response
    */
   async borrow(borrowAmount: BigNumberish, overrides?: Overrides) {
     return this.contract.borrow(borrowAmount, overrides);
@@ -63,9 +63,9 @@ export class VTokenContract {
   }
 
   /**
-   * 偿还借出的 BNB
-   * @param value 偿还的 BNB 数量 (wei)
-   * @param overrides 交易参数
+   * Repay borrowed BNB
+   * @param value Amount of BNB to repay (in wei)
+   * @param overrides Transaction parameters
    */
   async repayBorrow(value: BigNumberish, overrides?: Overrides) {
     return this.contract.repayBorrow({
@@ -75,10 +75,10 @@ export class VTokenContract {
   }
 
   /**
-   * 为其他账户偿还借出的 BNB
-   * @param borrower 借款人的地址
-   * @param value 偿还的 BNB 数量 (wei)
-   * @param overrides 交易参数
+   * Repay borrowed BNB on behalf of another account
+   * @param borrower Borrower's address
+   * @param value Amount of BNB to repay (in wei)
+   * @param overrides Transaction parameters
    */
   async repayBorrowBehalf(borrower: string, value: BigNumberish, overrides?: Overrides) {
     return this.contract.repayBorrowBehalf(borrower, {
@@ -88,17 +88,17 @@ export class VTokenContract {
   }
 
   /**
-   * 授权其他地址使用代币
-   * @param spender 被授权的地址
-   * @param amount 授权数量
-   * @param overrides 交易参数
+   * Approve another address to spend tokens
+   * @param spender Address to be approved
+   * @param amount Amount to approve
+   * @param overrides Transaction parameters
    */
   async approve(spender: string, amount: BigNumberish, overrides?: Overrides) {
     return this.contract.approve(spender, amount, overrides);
   }
 
   /**
-   * 获取合约实例 (用于需要直接访问合约的情况)
+   * Get contract instance (for direct contract access)
    */
   getContractInstance(): Contract {
     return this.contract;

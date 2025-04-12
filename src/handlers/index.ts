@@ -11,6 +11,7 @@ import * as meteora from "./meteora";
 import * as okx from './okx';
 import * as sonic from './sonic';
 import * as orbiter from "./orbiter";
+import * as pendle from "./pendle";
 export const handlerRegistry = new Map<string, TransactionHandler>();
 
 handlerRegistry.set("evm/transfer", new evm.TransferHandler());
@@ -42,3 +43,12 @@ handlerRegistry.set("okx/defi/redeem", new okx.OkxDefiRedeemHandler());
 handlerRegistry.set("okx/defi/claim-bonus", new okx.OkxDefiClaimBonusHandler());
 
 handlerRegistry.set("orbiter/transfer", new orbiter.OrbiterHandler());
+
+handlerRegistry.set("pendle/add-liquidity", new pendle.addLiquiditytHandler());
+handlerRegistry.set("pendle/add-liquidity-dual", new pendle.addLiquidityDualHandler());
+handlerRegistry.set("pendle/mint", new pendle.mintHandler());
+handlerRegistry.set("pendle/mint-sy", new pendle.mintSYHandler());
+handlerRegistry.set("pendle/redeem", new pendle.redeemHandler());
+handlerRegistry.set("pendle/redeem-sy", new pendle.redeemSYHandler());
+handlerRegistry.set("pendle/remove-liquidity", new pendle.removeLiquidityHandler());
+handlerRegistry.set("pendle/remove-liquidity-dual", new pendle.removeLiquidityDualHandler());

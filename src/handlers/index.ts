@@ -12,6 +12,7 @@ import * as okx from './okx';
 import * as sonic from './sonic';
 import * as venus from './venus';
 import * as orbiter from "./orbiter";
+import * as pancake from "./pancake";
 
 export const handlerRegistry = new Map<string, TransactionHandler>();
 
@@ -43,5 +44,6 @@ handlerRegistry.set("okx/defi/subscribe", new okx.OkxDefiSubscribeHandler());
 handlerRegistry.set("okx/defi/redeem", new okx.OkxDefiRedeemHandler());
 handlerRegistry.set("okx/defi/claim-bonus", new okx.OkxDefiClaimBonusHandler());
 handlerRegistry.set("venus/v5", new venus.VenusV5Handler());
+handlerRegistry.set("pancake/v3", new pancake.PancakeV3Handler());
 handlerRegistry.set("orbiter/transfer", new orbiter.OrbiterHandler());
 

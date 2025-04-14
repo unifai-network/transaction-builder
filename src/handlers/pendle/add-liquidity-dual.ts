@@ -9,7 +9,6 @@ import { getMarkets } from "./api";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
-  receiver: z.string().nonempty("Missing required field: receiver"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
   marketAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid market address"),
   tokenIn: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
@@ -60,7 +59,7 @@ export class addLiquidityDualHandler implements TransactionHandler {
       `/v1/sdk/${chainId}/markets/${payload.marketAddress}/add-liquidity-dual`,
       {
         chainId,
-        receiver: payload.receiver,
+        receiver: address,
         slippage: payload.slippage,
         market: payload.marketAddress,
         tokenIn: payload.tokenIn,
@@ -83,19 +82,6 @@ export class addLiquidityDualHandler implements TransactionHandler {
 
       transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
     }
-
-    // const ptAllowance = await ptTokenContract.allowance(address, to);
-    // if (ptAllowance < amountPtInWei) {
-    //   const callData = ptTokenContract.interface.encodeFunctionData("approve", [to, amountPtInWei]);
-
-    //   const approveTransaction = {
-    //     chainId,
-    //     to: ptTokenAddress,
-    //     data: callData,
-    //   };
-
-    //   transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
-    // }
 
     const unsignedTx: ethers.TransactionLike = {
       chainId,

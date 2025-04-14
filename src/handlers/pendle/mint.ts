@@ -9,7 +9,6 @@ import { ERC20Abi__factory } from "../../contracts/types";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
-  receiver: z.string().nonempty("Missing required field: receiver"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
   ytAdress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
   tokenIn: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
@@ -48,7 +47,7 @@ export class mintHandler implements TransactionHandler {
 
     const res = await callSDK<MintPyData>(`/v1/sdk/${chainId}/mint`, {
       chainId,
-      receiver: payload.receiver,
+      receiver: address,
       slippage: payload.slippage,
       yt: payload.ytAdress,
       tokenIn: payload.tokenIn,

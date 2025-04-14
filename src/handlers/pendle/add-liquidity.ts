@@ -8,7 +8,6 @@ import { ERC20Abi__factory } from "../../contracts/types";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
-  receiver: z.string().nonempty("Missing required field: receiver"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
   marketAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid market address"),
   tokenIn: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
@@ -48,7 +47,7 @@ export class addLiquiditytHandler implements TransactionHandler {
 
     const res = await callSDK<AddLiquidityData>(`/v1/sdk/${chainId}/markets/${payload.marketAddress}/add-liquidity`, {
       chainId,
-      receiver: payload.receiver,
+      receiver: address,
       slippage: payload.slippage,
       market: payload.marketAddress,
       enableAggregator: true,

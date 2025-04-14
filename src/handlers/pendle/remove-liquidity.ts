@@ -9,7 +9,6 @@ import { getMarkets } from "./api";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
-  receiver: z.string().nonempty("Missing required field: receiver"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
   marketAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid market address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
@@ -48,7 +47,6 @@ export class removeLiquidityHandler implements TransactionHandler {
       `/v1/sdk/${chainId}/markets/${payload.marketAddress}/remove-liquidity`,
       {
         chainId,
-        receiver: payload.receiver,
         slippage: payload.slippage,
         market: payload.marketAddress,
         enableAggregator: true,

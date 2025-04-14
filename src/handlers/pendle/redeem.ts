@@ -9,7 +9,6 @@ import { getMarkets } from "./api";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
-  receiver: z.string().nonempty("Missing required field: receiver"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
   ytAdress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
@@ -62,7 +61,7 @@ export class redeemHandler implements TransactionHandler {
 
     const res = await callSDK<RedeemPyData>(`/v1/sdk/${chainId}/redeem`, {
       chainId,
-      receiver: payload.receiver,
+      receiver: address,
       slippage: payload.slippage,
       yt: payload.ytAdress,
       tokenOut: payload.tokenOut,

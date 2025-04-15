@@ -10,7 +10,7 @@ import { getMarkets } from "./api";
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
-  syAdress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
+  sy: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
 });
@@ -41,7 +41,7 @@ export class redeemSYHandler implements TransactionHandler {
     const chainId = EVM_CHAIN_IDS[payload.chain];
     const provider = getEvmProvider(payload.chain);
 
-    const syAddress = payload.syAdress;
+    const syAddress = payload.sy;
     const syContract = ERC20Abi__factory.connect(syAddress, provider);
     const syDecimals = await syContract.decimals();
     const syAmountInWei = parseUnits(payload.amountIn, syDecimals);
@@ -50,7 +50,7 @@ export class redeemSYHandler implements TransactionHandler {
       chainId,
       receiver: address,
       slippage: payload.slippage,
-      sy: payload.syAdress,
+      sy: payload.sy,
       tokenOut: payload.tokenOut,
       amountIn: syAmountInWei.toString(),
       enableAggregator: true,

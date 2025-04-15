@@ -47,6 +47,7 @@ export class removeLiquidityHandler implements TransactionHandler {
       `/v1/sdk/${chainId}/markets/${payload.marketAddress}/remove-liquidity`,
       {
         chainId,
+        receiver: address,
         slippage: payload.slippage,
         market: payload.marketAddress,
         enableAggregator: true,

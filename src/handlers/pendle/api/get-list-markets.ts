@@ -27,9 +27,14 @@ export async function getMarkets(chainId: number) {
 
   const targetPath = `/v1/${param.chainId}/markets/active`;
 
-  const { data } = await axios.get<Response>(CORE_DOMAIN + targetPath);
+  try {
+    const { data } = await axios.get<Response>(CORE_DOMAIN + targetPath);
 
-  const { markets } = data;
+    const { markets } = data;
 
-  return markets;
+    return markets;
+  } catch (error: any) {
+    console.log(error);
+    throw new Error(error?.response?.data || "Failed to call Pendle API");
+  }
 }

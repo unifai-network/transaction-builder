@@ -10,7 +10,7 @@ import { getMarkets } from "./api";
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
-  ytAdress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
+  yt: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
 });
@@ -43,7 +43,7 @@ export class redeemHandler implements TransactionHandler {
 
     // query PT and YT token addresses, then need to check allowance, if not enough, then approve
     const markets = await getMarkets(chainId);
-    const market = markets.find((m) => m.yt.toLowerCase() === `${chainId}-` + payload.ytAdress.toLowerCase());
+    const market = markets.find((m) => m.yt.toLowerCase() === `${chainId}-` + payload.yt.toLowerCase());
     if (!market) {
       throw new Error("Market not found");
     }
@@ -63,7 +63,7 @@ export class redeemHandler implements TransactionHandler {
       chainId,
       receiver: address,
       slippage: payload.slippage,
-      yt: payload.ytAdress,
+      yt: payload.yt,
       tokenOut: payload.tokenOut,
       amountIn: ytAmountInWei.toString(),
       enableAggregator: true,

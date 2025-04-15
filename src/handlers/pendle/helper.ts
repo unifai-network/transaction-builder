@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const HOSTED_SDK_URL = 'https://api-v2.pendle.finance/core/';
+const HOSTED_SDK_URL = 'https://api-v2.pendle.finance/core';
 export const LIMIT_ORDER_URL = 'https://api-v2.pendle.finance/limit-order/'
 
 type MethodReturnType<Data> = {
@@ -13,9 +13,15 @@ type MethodReturnType<Data> = {
 };
 
 export async function callSDK<Data>(path: string, params: Record<string, any> = {}) {
-    const response = await axios.get<MethodReturnType<Data>>(HOSTED_SDK_URL + path, {
-        params
-    });
+    try{
 
-    return response.data;
+        const response = await axios.get<MethodReturnType<Data>>(HOSTED_SDK_URL + path, {
+            params
+        });
+        return response.data;
+    } catch (error: any) {
+        console.log(error?.response?.data);
+        throw new Error(error?.response?.data || 'Failed to call Pendle API');
+    }
+    
 }

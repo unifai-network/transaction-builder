@@ -6,11 +6,10 @@ import { MintPyData } from "./types";
 import { ethers, parseUnits } from "ethers";
 import { ERC20Abi__factory } from "../../contracts/types";
 
-
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
-  ytAdress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
+  yt: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
   tokenIn: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
 });
@@ -22,7 +21,7 @@ export class mintHandler implements TransactionHandler {
     const validation = PayloadSchema.safeParse(payload);
 
     if (!validation.success) {
-      throw new Error(validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
+      throw new Error(validation.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", "));
     }
 
     validateEvmChain(payload.chain);
@@ -44,12 +43,11 @@ export class mintHandler implements TransactionHandler {
     const decimals = await erc20Contract.decimals();
     const amountInWei = parseUnits(payload.amountIn, decimals);
 
-
     const res = await callSDK<MintPyData>(`/v1/sdk/${chainId}/mint`, {
       chainId,
       receiver: address,
       slippage: payload.slippage,
-      yt: payload.ytAdress,
+      yt: payload.yt,
       tokenIn: payload.tokenIn,
       amountIn: amountInWei.toString(),
       enableAggregator: true,
@@ -58,12 +56,8 @@ export class mintHandler implements TransactionHandler {
 
     const allowance = await erc20Contract.allowance(address, to);
 
-    if(allowance < amountInWei) {
-      
-      const callData = erc20Contract.interface.encodeFunctionData('approve', [
-        to,
-        amountInWei
-      ]);
+    if (allowance < amountInWei) {
+      const callData = erc20Contract.interface.encodeFunctionData("approve", [to, amountInWei]);
 
       const approveTransaction = {
         chainId,
@@ -83,7 +77,6 @@ export class mintHandler implements TransactionHandler {
     const serializedTx = ethers.Transaction.from(unsignedTx).unsignedSerialized;
     transactions.push({ hex: serializedTx });
 
-    return {transactions};
+    return { transactions };
   }
-
 }

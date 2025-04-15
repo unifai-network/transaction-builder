@@ -43,13 +43,13 @@ export class mintSYHandler implements TransactionHandler {
     const decimals = await erc20Contract.decimals();
     const amountInWei = parseUnits(payload.amountIn, decimals);
 
-    const res = await callSDK<MintPyData>(`/v1/sdk/${payload.chain}/mint-sy`, {
+    const res = await callSDK<MintPyData>(`/v1/sdk/${chainId}/mint-sy`, {
       chainId,
       receiver: address,
       slippage: payload.slippage,
       sy: payload.sy,
       tokenIn: payload.tokenIn,
-      amountIn: payload.amountIn,
+      amountIn: amountInWei,
       enableAggregator: true,
     });
 

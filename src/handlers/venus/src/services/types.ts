@@ -1,4 +1,5 @@
 import { ethers, Provider } from 'ethers';
+import BigNumber from 'bignumber.js';
 
 export interface VenusServiceConfig {
   provider: Provider;

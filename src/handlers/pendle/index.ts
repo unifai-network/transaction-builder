@@ -6,3 +6,4 @@ export * from "./redeem";
 export * from "./redeem-sy";
 export * from "./remove-liquidity";
 export * from "./remove-liquidity-dual";
+export * from "./swap";

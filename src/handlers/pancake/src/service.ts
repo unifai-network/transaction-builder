@@ -1,5 +1,5 @@
 import { ChainId, Token, WETH9, Fetcher, Route, Trade, TradeType, Percent } from '@pancakeswap/sdk';
-import { Contract, JsonRpcProvider, BigNumberish } from 'ethers';
+import { Contract, JsonRpcProvider, BigNumberish, ethers } from 'ethers';
 import { BigNumber } from '@ethersproject/bignumber';
 import { 
   PoolInfo, 
@@ -99,20 +99,80 @@ export class PancakeService {
     return pools;
   }
 
-  async addLiquidity(params: AddLiquidityParams): Promise<PositionInfo> {
-    const tx = await this.router.addLiquidity(
-      params.token0,
-      params.token1,
-      params.amount0Desired,
-      params.amount1Desired,
-      params.amount0Min,
-      params.amount1Min,
-      params.deadline
-    );
+  private async getPriceRatio(token0: string, token1: string): Promise<number> {
+    try {
+      // 1. 获取池子合约
+      const pair = await this.factory.getPair(token0, token1);
+      if (pair === ethers.ZeroAddress) {
+        throw new Error('Pool does not exist');
+      }
 
-    const receipt = await tx.wait();
-    const tokenId = receipt.events[0].args.tokenId;
-    return this.getPositionInfo(tokenId);
+      const pairContract = new Contract(pair, [
+        'function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)',
+        'function token0() view returns (address)',
+        'function token1() view returns (address)'
+      ], this.provider);
+
+      // 2. 获取储备量
+      const [reserve0, reserve1] = await pairContract.getReserves();
+      
+      // 3. 计算价格比例
+      return Number(reserve1) / Number(reserve0);
+    } catch (error) {
+      console.error('Error getting price ratio:', error);
+      throw error;
+    }
+  }
+
+  async addLiquidity(params: AddLiquidityParams): Promise<PositionInfo> {
+    try {
+      const { token0, token1, amount0Desired, amount1Desired, deadline } = params;
+      
+      // 1. 获取当前价格比例
+      const priceRatio = await this.getPriceRatio(token0, token1);
+      
+      // 2. 计算实际需要的代币数量
+      let actualAmount0 = amount0Desired;
+      let actualAmount1 = amount1Desired;
+
+      // 如果只提供了一个代币的数量，计算另一个代币的数量
+      if (BigNumber.from(amount0Desired).gt(0) && BigNumber.from(amount1Desired).eq(0)) {
+        actualAmount1 = ethers.parseUnits(
+          (Number(ethers.formatUnits(amount0Desired, 18)) * priceRatio).toString(),
+          18
+        );
+      } else if (BigNumber.from(amount1Desired).gt(0) && BigNumber.from(amount0Desired).eq(0)) {
+        actualAmount0 = ethers.parseUnits(
+          (Number(ethers.formatUnits(amount1Desired, 18)) / priceRatio).toString(),
+          18
+        );
+      }
+
+      // 3. 设置滑点保护（默认 20%）
+      const SLIPPAGE_TOLERANCE = 20;
+      const amount0Min = BigNumber.from(actualAmount0).mul(100 - SLIPPAGE_TOLERANCE).div(100);
+      const amount1Min = BigNumber.from(actualAmount1).mul(100 - SLIPPAGE_TOLERANCE).div(100);
+
+      // 4. 执行添加流动性操作
+      const tx = await this.router.addLiquidity(
+        token0,
+        token1,
+        actualAmount0,
+        actualAmount1,
+        amount0Min,
+        amount1Min,
+        deadline
+      );
+
+      const receipt = await tx.wait();
+      const tokenId = receipt.events[0].args.tokenId;
+      
+      // 5. 返回仓位信息
+      return this.getPositionInfo(tokenId);
+    } catch (error) {
+      console.error('Error adding liquidity:', error);
+      throw error;
+    }
   }
 
   async removeLiquidity(params: RemoveLiquidityParams): Promise<void> {

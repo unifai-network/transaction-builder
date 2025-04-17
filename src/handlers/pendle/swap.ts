@@ -13,6 +13,7 @@ const PayloadSchema = z.object({
   tokenIn: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
+  enableAggregator: z.boolean().default(true),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -52,7 +53,7 @@ export class swapHandler implements TransactionHandler {
       tokenIn: payload.tokenIn,
       tokenOut: payload.tokenOut,
       amountIn: amountInWei.toString(),
-      enableAggregator: true,
+      enableAggregator: payload.enableAggregator,
     });
     const { data, to, value } = res.tx;
 

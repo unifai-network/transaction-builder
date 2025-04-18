@@ -59,16 +59,16 @@ export class swapHandler implements TransactionHandler {
     const { data, to, value } = res.tx;
 
     if (!isPendleGasToken(payload.tokenIn)) {
-    const allowance = await tokenInContract.allowance(address, to);
+      const allowance = await tokenInContract.allowance(address, to);
 
-    if (allowance < amountInWei) {
-      const callData = tokenInContract.interface.encodeFunctionData("approve", [to, amountInWei]);
+      if (allowance < amountInWei) {
+        const callData = tokenInContract.interface.encodeFunctionData("approve", [to, amountInWei]);
 
-      const approveTransaction = {
-        chainId,
-        to: payload.tokenIn,
-        data: callData,
-      };
+        const approveTransaction = {
+          chainId,
+          to: payload.tokenIn,
+          data: callData,
+        };
 
         transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
       }

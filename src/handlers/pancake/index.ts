@@ -105,7 +105,7 @@ export class PancakeV3Handler implements TransactionHandler {
             minRate,
             maxRate
           };
-          const position = await this.service.addLiquidity(addLiquidityParams);
+          const position = await this.service.addLiquidityWithSwap(addLiquidityParams);
           transactions.push({
             hex: position.tokenId.toString()
           });

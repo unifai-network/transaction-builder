@@ -14,6 +14,7 @@ import {
   UserAssets,
   TokenPrice
 } from './types';
+import { WalletService } from './wallet';
 
 const PANCAKE_ROUTER_ADDRESS = '0x10ED43C718714eb63d5aA57B78B54704E256024E';
 const PANCAKE_FACTORY_ADDRESS = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
@@ -29,6 +30,7 @@ export class PancakeService {
   private masterChef: Contract;
   private priceCache: Map<string, TokenPrice>;
   private readonly PRICE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private walletService: WalletService;
 
   constructor(provider: JsonRpcProvider) {
     this.provider = provider;
@@ -37,7 +39,15 @@ export class PancakeService {
       PANCAKE_ROUTER_ADDRESS,
       [
         'function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)',
+        'function addLiquidityETH(address token, uint amountTokenDesired, uint amountTokenMin, uint amountETHMin, uint deadline) external payable returns (uint amountToken, uint amountETH, uint liquidity)',
         'function removeLiquidity(address tokenA, address tokenB, uint liquidity, uint amountAMin, uint amountBMin, uint deadline) external returns (uint amountA, uint amountB)',
+        'function removeLiquidityETH(address token, uint liquidity, uint amountTokenMin, uint amountETHMin, uint deadline) external returns (uint amountToken, uint amountETH)',
+        'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
+        'function swapTokensForExactTokens(uint amountOut, uint amountInMax, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
+        'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, uint deadline) external payable returns (uint[] memory amounts)',
+        'function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
+        'function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
+        'function swapETHForExactTokens(uint amountOut, address[] calldata path, uint deadline) external payable returns (uint[] memory amounts)',
       ],
       provider
     );
@@ -67,6 +77,7 @@ export class PancakeService {
       ],
       provider
     );
+    this.walletService = new WalletService(provider, this.factory);
   }
 
   async createPool(token0: string, token1: string, fee: number): Promise<string> {
@@ -428,6 +439,129 @@ export class PancakeService {
       return assets;
     } catch (error) {
       console.error('Failed to get user assets:', error);
+      throw error;
+    }
+  }
+
+  async addLiquidityWithSwap(params: AddLiquidityParams & { swapPath?: string[] }): Promise<PositionInfo> {
+    try {
+      const { token0, token1, amount0Desired, amount1Desired, deadline, swapPath } = params;
+      
+      // 1. 获取当前价格比例
+      const priceRatio = await this.getPriceRatio(token0, token1);
+      
+      // 2. 计算实际需要的代币数量
+      let actualAmount0 = amount0Desired;
+      let actualAmount1 = amount1Desired;
+
+      // 如果只提供了一个代币的数量，计算另一个代币的数量
+      if (BigNumber.from(amount0Desired).gt(0) && BigNumber.from(amount1Desired).eq(0)) {
+        actualAmount1 = ethers.parseUnits(
+          (Number(ethers.formatUnits(amount0Desired, 18)) * priceRatio).toString(),
+          18
+        );
+      } else if (BigNumber.from(amount1Desired).gt(0) && BigNumber.from(amount0Desired).eq(0)) {
+        actualAmount0 = ethers.parseUnits(
+          (Number(ethers.formatUnits(amount1Desired, 18)) / priceRatio).toString(),
+          18
+        );
+      }
+
+      // 3. 设置滑点保护（默认 20%）
+      const SLIPPAGE_TOLERANCE = 20;
+      const amount0Min = BigNumber.from(actualAmount0).mul(100 - SLIPPAGE_TOLERANCE).div(100);
+      const amount1Min = BigNumber.from(actualAmount1).mul(100 - SLIPPAGE_TOLERANCE).div(100);
+
+      // 4. 检查是否需要先兑换代币
+      if (swapPath && swapPath.length > 0) {
+        // 使用 Router 合约的 swap 功能
+        const swapAmount = BigNumber.from(actualAmount0).gt(0) ? actualAmount0 : actualAmount1;
+        const swapTx = await this.router.swapExactTokensForTokens(
+          swapAmount,
+          amount0Min, // 使用相同的滑点保护
+          swapPath,
+          deadline
+        );
+        await swapTx.wait();
+      }
+
+      // 5. 执行添加流动性操作
+      const tx = await this.router.addLiquidity(
+        token0,
+        token1,
+        actualAmount0,
+        actualAmount1,
+        amount0Min,
+        amount1Min,
+        deadline
+      );
+
+      const receipt = await tx.wait();
+      const tokenId = receipt.events[0].args.tokenId;
+      
+      // 6. 返回仓位信息
+      return this.getPositionInfo(tokenId);
+    } catch (error) {
+      console.error('Error adding liquidity with swap:', error);
+      throw error;
+    }
+  }
+
+  // 添加 ETH 流动性的特殊方法
+  async addLiquidityETH(params: {
+    token: string;
+    amountTokenDesired: BigNumberish;
+    amountETHDesired: BigNumberish;
+    amountTokenMin: BigNumberish;
+    amountETHMin: BigNumberish;
+    deadline: number;
+  }): Promise<PositionInfo> {
+    try {
+      const { token, amountTokenDesired, amountETHDesired, amountTokenMin, amountETHMin, deadline } = params;
+
+      // 执行添加流动性操作
+      const tx = await this.router.addLiquidityETH(
+        token,
+        amountTokenDesired,
+        amountTokenMin,
+        amountETHMin,
+        deadline,
+        { value: amountETHDesired }
+      );
+
+      const receipt = await tx.wait();
+      const tokenId = receipt.events[0].args.tokenId;
+      
+      return this.getPositionInfo(tokenId);
+    } catch (error) {
+      console.error('Error adding liquidity with ETH:', error);
+      throw error;
+    }
+  }
+
+  // 添加新的方法来获取钱包余额
+  async getWalletBalances(walletAddress: string): Promise<Map<string, BigNumber>> {
+    return this.walletService.getWalletBalances(walletAddress);
+  }
+
+  async getFormattedBalances(walletAddress: string): Promise<Map<string, string>> {
+    return this.walletService.getFormattedBalances(walletAddress);
+  }
+
+  // 获取钱包地址下的所有流动性头寸信息
+  async getAllPositions(walletAddress: string): Promise<PositionInfo[]> {
+    try {
+      // 1. 获取所有 tokenId
+      const tokenIds = await this.walletService.getPositionTokenIds(walletAddress);
+
+      // 2. 获取每个头寸的详细信息
+      const positions = await Promise.all(
+        tokenIds.map(tokenId => this.getPositionInfo(tokenId))
+      );
+
+      return positions;
+    } catch (error) {
+      console.error('Error getting all positions:', error);
       throw error;
     }
   }

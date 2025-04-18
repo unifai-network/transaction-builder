@@ -48,6 +48,7 @@ export class PancakeService {
         'function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
         'function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
         'function swapETHForExactTokens(uint amountOut, address[] calldata path, uint deadline) external payable returns (uint[] memory amounts)',
+        'function collect(uint256 tokenId, uint128 amount0Max, uint128 amount1Max) external returns (uint128 amount0, uint128 amount1)',
       ],
       provider
     );
@@ -562,6 +563,36 @@ export class PancakeService {
       return positions;
     } catch (error) {
       console.error('Error getting all positions:', error);
+      throw error;
+    }
+  }
+
+  // 收集流动性头寸的手续费奖励
+  async collect(tokenId: number): Promise<{ amount0: BigNumber; amount1: BigNumber }> {
+    try {
+      // 1. 获取头寸信息
+      const position = await this.nftPositions.positions(tokenId);
+      
+      // 2. 计算可收集的手续费数量
+      const amount0 = position.tokensOwed0;
+      const amount1 = position.tokensOwed1;
+
+      // 3. 如果有可收集的手续费，执行收集操作
+      if (BigNumber.from(amount0).gt(0) || BigNumber.from(amount1).gt(0)) {
+        const tx = await this.router.collect(
+          tokenId,
+          amount0, // amount0Max
+          amount1  // amount1Max
+        );
+        await tx.wait();
+      }
+
+      return {
+        amount0: BigNumber.from(amount0),
+        amount1: BigNumber.from(amount1)
+      };
+    } catch (error) {
+      console.error('Error collecting fees:', error);
       throw error;
     }
   }

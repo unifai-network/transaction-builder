@@ -13,6 +13,7 @@ import * as sonic from './sonic';
 import * as venus from './venus';
 import * as orbiter from "./orbiter";
 import * as pendle from "./pendle";
+import * as pancake from "./pancake";
 export const handlerRegistry = new Map<string, TransactionHandler>();
 
 handlerRegistry.set("evm/transfer", new evm.TransferHandler());
@@ -54,3 +55,4 @@ handlerRegistry.set("pendle/redeem-sy", new pendle.redeemSYHandler());
 handlerRegistry.set("pendle/remove-liquidity", new pendle.removeLiquidityHandler());
 handlerRegistry.set("pendle/remove-liquidity-dual", new pendle.removeLiquidityDualHandler());
 handlerRegistry.set("pendle/swap", new pendle.swapHandler());
+handlerRegistry.set("pancake/v3", new pancake.PancakeV3Handler());

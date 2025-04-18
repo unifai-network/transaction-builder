@@ -4,13 +4,13 @@ import { WalletService } from './src/wallet';
 
 async function main() {
   try {
-    // 1. 初始化 provider（使用 BSC 主网）
+    // 1. Initialize provider (using BSC mainnet)
     const provider = new JsonRpcProvider('https://bsc-dataseed1.binance.org/');
     
-    // 2. 创建服务实例
+    // 2. Create service instances
     const pancakeService = new PancakeService(provider);
     
-    // 创建 factory 合约实例
+    // Create factory contract instance
     const factory = new Contract(
       PANCAKE_FACTORY_ADDRESS,
       [
@@ -23,23 +23,23 @@ async function main() {
     
     const walletService = new WalletService(provider, factory);
 
-    // 3. 测试获取钱包余额（使用一个示例地址）
-    const walletAddress = '0xcc1ddb9673e3e435334205ca71154ab4af5b272b'; // 示例地址
+    // 3. Test getting wallet balances (using an example address)
+    const walletAddress = '0xcc1ddb9673e3e435334205ca71154ab4af5b272b'; // Example address
     console.log('Getting wallet balances...');
     const balances = await walletService.getWalletBalances(walletAddress);
     console.log('Wallet balances:', balances);
 
-    // 4. 测试获取高收益池子
+    // 4. Test finding high yield pools
     console.log('\nFinding high yield pools...');
-    const highYieldPools = await pancakeService.findHighYieldPools(20); // 最小 APY 20%
+    const highYieldPools = await pancakeService.findHighYieldPools(20); // Minimum APY 20%
     console.log('High yield pools:', highYieldPools);
 
-    // 5. 测试获取流动性头寸
+    // 5. Test getting liquidity positions
     console.log('\nGetting position token IDs...');
     const tokenIds = await walletService.getPositionTokenIds(walletAddress);
     console.log('Position token IDs:', tokenIds);
 
-    // 6. 获取每个头寸的详细信息
+    // 6. Get detailed information for each position
     for (const tokenId of tokenIds) {
       console.log(`\nGetting position info for token ID ${tokenId}...`);
       const positionInfo = await pancakeService.getPositionInfo(tokenId);

@@ -27,7 +27,7 @@ export class WalletService {
     try {
       const balances = new Map<string, BigNumber>();
 
-      // 1. 获取常见代币
+      // 1. Get common tokens
       const commonTokens = [
         WETH9[ChainId.BSC], // WBNB
         new Token(ChainId.BSC, TOKEN_ADDRESSES.CAKE, 18, 'CAKE', 'PancakeSwap Token'),
@@ -41,7 +41,7 @@ export class WalletService {
         new Token(ChainId.BSC, TOKEN_ADDRESSES.LINK, 18, 'LINK', 'Chainlink'),
       ];
 
-      // 2. 获取代币余额
+      // 2. Get token balances
       const balancePromises = commonTokens.map(async (token) => {
         const contract = new Contract(
           token.address,
@@ -52,14 +52,14 @@ export class WalletService {
         balances.set(token.symbol, BigNumber.from(balance));
       });
 
-      // 3. 获取 BNB 余额
+      // 3. Get BNB balance
       const bnbBalance = await this.provider.getBalance(walletAddress);
       balances.set('BNB', BigNumber.from(bnbBalance));
 
-      // 4. 等待所有余额查询完成
+      // 4. Wait for all balance queries to complete
       await Promise.all(balancePromises);
 
-      // 5. 获取 LP 代币余额
+      // 5. Get LP token balances
       const lpTokens = await this.getLPTokenBalances(walletAddress);
       lpTokens.forEach((balance, symbol) => {
         balances.set(symbol, balance);
@@ -76,10 +76,10 @@ export class WalletService {
     const lpBalances = new Map<string, BigNumber>();
 
     try {
-      // 1. 获取所有池子
+      // 1. Get all pools
       const pools = await this.getTopPools({});
       
-      // 2. 获取每个池子的 LP 代币余额
+      // 2. Get LP token balance for each pool
       for (const pool of pools) {
         const lpTokenContract = new Contract(
           pool.address,
@@ -101,7 +101,7 @@ export class WalletService {
     }
   }
 
-  // 获取代币余额的格式化显示
+  // Get formatted token balances for display
   async getFormattedBalances(walletAddress: string): Promise<Map<string, string>> {
     const balances = await this.getWalletBalances(walletAddress);
     const formattedBalances = new Map<string, string>();
@@ -123,14 +123,14 @@ export class WalletService {
     return [];
   }
 
-  // 获取钱包地址下的所有流动性头寸的 tokenId
+  // Get all position tokenIds for a wallet address
   async getPositionTokenIds(walletAddress: string): Promise<number[]> {
     try {
-      // 1. 获取钱包地址下的头寸数量
+      // 1. Get the number of positions for the wallet address
       const balance = await this.nftPositions.balanceOf(walletAddress);
       const positionCount = Number(balance);
 
-      // 2. 获取每个头寸的 tokenId
+      // 2. Get tokenId for each position
       const tokenIds: number[] = [];
       for (let i = 0; i < positionCount; i++) {
         const tokenId = await this.nftPositions.tokenOfOwnerByIndex(walletAddress, i);

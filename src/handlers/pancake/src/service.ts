@@ -113,7 +113,7 @@ export class PancakeService {
 
   private async getPriceRatio(token0: string, token1: string): Promise<number> {
     try {
-      // 1. 获取池子合约
+      // 1. Get pool contract
       const pair = await this.factory.getPair(token0, token1);
       if (pair === ethers.ZeroAddress) {
         throw new Error('Pool does not exist');
@@ -125,10 +125,10 @@ export class PancakeService {
         'function token1() view returns (address)'
       ], this.provider);
 
-      // 2. 获取储备量
+      // 2. Get reserves
       const [reserve0, reserve1] = await pairContract.getReserves();
       
-      // 3. 计算价格比例
+      // 3. Calculate price ratio
       return Number(reserve1) / Number(reserve0);
     } catch (error) {
       console.error('Error getting price ratio:', error);
@@ -140,14 +140,14 @@ export class PancakeService {
     try {
       const { token0, token1, amount0Desired, amount1Desired, deadline } = params;
       
-      // 1. 获取当前价格比例
+      // 1. Get current price ratio
       const priceRatio = await this.getPriceRatio(token0, token1);
       
-      // 2. 计算实际需要的代币数量
+      // 2. Calculate actual token amounts needed
       let actualAmount0 = amount0Desired;
       let actualAmount1 = amount1Desired;
 
-      // 如果只提供了一个代币的数量，计算另一个代币的数量
+      // If only one token amount is provided, calculate the other token amount
       if (BigNumber.from(amount0Desired).gt(0) && BigNumber.from(amount1Desired).eq(0)) {
         actualAmount1 = ethers.parseUnits(
           (Number(ethers.formatUnits(amount0Desired, 18)) * priceRatio).toString(),
@@ -160,12 +160,12 @@ export class PancakeService {
         );
       }
 
-      // 3. 设置滑点保护（默认 20%）
+      // 3. Set slippage protection (default 20%)
       const SLIPPAGE_TOLERANCE = 20;
       const amount0Min = BigNumber.from(actualAmount0).mul(100 - SLIPPAGE_TOLERANCE).div(100);
       const amount1Min = BigNumber.from(actualAmount1).mul(100 - SLIPPAGE_TOLERANCE).div(100);
 
-      // 4. 执行添加流动性操作
+      // 4. Execute add liquidity operation
       const tx = await this.router.addLiquidity(
         token0,
         token1,
@@ -179,7 +179,7 @@ export class PancakeService {
       const receipt = await tx.wait();
       const tokenId = receipt.events[0].args.tokenId;
       
-      // 5. 返回仓位信息
+      // 5. Return position information
       return this.getPositionInfo(tokenId);
     } catch (error) {
       console.error('Error adding liquidity:', error);
@@ -448,14 +448,14 @@ export class PancakeService {
     try {
       const { token0, token1, amount0Desired, amount1Desired, deadline, swapPath } = params;
       
-      // 1. 获取当前价格比例
+      // 1. Get current price ratio
       const priceRatio = await this.getPriceRatio(token0, token1);
       
-      // 2. 计算实际需要的代币数量
+      // 2. Calculate actual token amounts needed
       let actualAmount0 = amount0Desired;
       let actualAmount1 = amount1Desired;
 
-      // 如果只提供了一个代币的数量，计算另一个代币的数量
+      // If only one token amount is provided, calculate the other token amount
       if (BigNumber.from(amount0Desired).gt(0) && BigNumber.from(amount1Desired).eq(0)) {
         actualAmount1 = ethers.parseUnits(
           (Number(ethers.formatUnits(amount0Desired, 18)) * priceRatio).toString(),
@@ -468,25 +468,25 @@ export class PancakeService {
         );
       }
 
-      // 3. 设置滑点保护（默认 20%）
+      // 3. Set slippage protection (default 20%)
       const SLIPPAGE_TOLERANCE = 20;
       const amount0Min = BigNumber.from(actualAmount0).mul(100 - SLIPPAGE_TOLERANCE).div(100);
       const amount1Min = BigNumber.from(actualAmount1).mul(100 - SLIPPAGE_TOLERANCE).div(100);
 
-      // 4. 检查是否需要先兑换代币
+      // 4. Check if tokens need to be swapped before adding liquidity
       if (swapPath && swapPath.length > 0) {
-        // 使用 Router 合约的 swap 功能
+        // Use Router contract's swap function
         const swapAmount = BigNumber.from(actualAmount0).gt(0) ? actualAmount0 : actualAmount1;
         const swapTx = await this.router.swapExactTokensForTokens(
           swapAmount,
-          amount0Min, // 使用相同的滑点保护
+          amount0Min, // Use same slippage protection
           swapPath,
           deadline
         );
         await swapTx.wait();
       }
 
-      // 5. 执行添加流动性操作
+      // 5. Execute add liquidity operation
       const tx = await this.router.addLiquidity(
         token0,
         token1,
@@ -500,7 +500,7 @@ export class PancakeService {
       const receipt = await tx.wait();
       const tokenId = receipt.events[0].args.tokenId;
       
-      // 6. 返回仓位信息
+      // 6. Return position information
       return this.getPositionInfo(tokenId);
     } catch (error) {
       console.error('Error adding liquidity with swap:', error);
@@ -508,7 +508,7 @@ export class PancakeService {
     }
   }
 
-  // 添加 ETH 流动性的特殊方法
+  // Add ETH liquidity special method
   async addLiquidityETH(params: {
     token: string;
     amountTokenDesired: BigNumberish;
@@ -520,7 +520,7 @@ export class PancakeService {
     try {
       const { token, amountTokenDesired, amountETHDesired, amountTokenMin, amountETHMin, deadline } = params;
 
-      // 执行添加流动性操作
+      // Execute add liquidity operation
       const tx = await this.router.addLiquidityETH(
         token,
         amountTokenDesired,
@@ -540,7 +540,7 @@ export class PancakeService {
     }
   }
 
-  // 添加新的方法来获取钱包余额
+  // Add new method to get wallet balances
   async getWalletBalances(walletAddress: string): Promise<Map<string, BigNumber>> {
     return this.walletService.getWalletBalances(walletAddress);
   }
@@ -549,13 +549,13 @@ export class PancakeService {
     return this.walletService.getFormattedBalances(walletAddress);
   }
 
-  // 获取钱包地址下的所有流动性头寸信息
+  // Get all liquidity positions information for wallet address
   async getAllPositions(walletAddress: string): Promise<PositionInfo[]> {
     try {
-      // 1. 获取所有 tokenId
+      // 1. Get all tokenIds
       const tokenIds = await this.walletService.getPositionTokenIds(walletAddress);
 
-      // 2. 获取每个头寸的详细信息
+      // 2. Get detailed information for each position
       const positions = await Promise.all(
         tokenIds.map(tokenId => this.getPositionInfo(tokenId))
       );
@@ -567,17 +567,17 @@ export class PancakeService {
     }
   }
 
-  // 收集流动性头寸的手续费奖励
+  // Collect liquidity position fee rewards
   async collect(tokenId: number): Promise<{ amount0: BigNumber; amount1: BigNumber }> {
     try {
-      // 1. 获取头寸信息
+      // 1. Get position information
       const position = await this.nftPositions.positions(tokenId);
       
-      // 2. 计算可收集的手续费数量
+      // 2. Calculate collectible fee amounts
       const amount0 = position.tokensOwed0;
       const amount1 = position.tokensOwed1;
 
-      // 3. 如果有可收集的手续费，执行收集操作
+      // 3. Execute collect operation if there are fees to collect
       if (BigNumber.from(amount0).gt(0) || BigNumber.from(amount1).gt(0)) {
         const tx = await this.router.collect(
           tokenId,

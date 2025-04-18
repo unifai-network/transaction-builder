@@ -13,6 +13,7 @@ const PayloadSchema = z.object({
   marketAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid market address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
+  enableAggregator: z.boolean().default(false),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -50,7 +51,7 @@ export class removeLiquidityHandler implements TransactionHandler {
         receiver: address,
         slippage: payload.slippage,
         market: payload.marketAddress,
-        enableAggregator: true,
+        enableAggregator: payload.enableAggregator,
         tokenOut: payload.tokenOut,
         amountIn: lpAmountInWei.toString(),
       }

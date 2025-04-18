@@ -2,23 +2,24 @@ import { z } from "zod";
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
 import { EVM_CHAIN_IDS, getEvmProvider, getTokenDecimals, validateEvmAddress, validateEvmChain } from "../../utils/evm";
 import { callSDK } from "./helper";
-import { MintPyData, RedeemPyData } from "./types";
+import { MintPyData } from "./types";
 import { ethers, parseUnits } from "ethers";
 import { ERC20Abi__factory } from "../../contracts/types";
-import { getMarkets } from "./api";
+import { isPendleGasToken } from "./util";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
   slippage: z.number().nonnegative("Slippage must be a non-negative number").min(0).max(1),
-  yt: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
+  market: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid market address"),
+  tokenIn: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
-  enableAggregator: z.boolean().default(false),
+  enableAggregator: z.boolean().default(true),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
 
-export class redeemHandler implements TransactionHandler {
+export class swapHandler implements TransactionHandler {
   async create(payload: Payload): Promise<CreateTransactionResponse> {
     const validation = PayloadSchema.safeParse(payload);
 
@@ -41,56 +42,36 @@ export class redeemHandler implements TransactionHandler {
     const transactions: Array<{ hex: string }> = [];
     const chainId = EVM_CHAIN_IDS[payload.chain];
     const provider = getEvmProvider(payload.chain);
+    const tokenInContract = ERC20Abi__factory.connect(payload.tokenIn, provider);
+    const decimals = await getTokenDecimals(payload.chain, payload.tokenIn);
+    const amountInWei = parseUnits(payload.amountIn, decimals);
 
-    // query PT and YT token addresses, then need to check allowance, if not enough, then approve
-    const markets = await getMarkets(chainId);
-    const market = markets.find((m) => m.yt.toLowerCase() === `${chainId}-` + payload.yt.toLowerCase());
-    if (!market) {
-      throw new Error("Market not found");
-    }
-
-    const ptAddress = market.pt.replace(`${chainId}-`, "");
-    const ytAddress = market.yt.replace(`${chainId}-`, "");
-
-    const ptContract = ERC20Abi__factory.connect(ptAddress, provider);
-    const ytContract = ERC20Abi__factory.connect(ytAddress, provider);
-
-    const ptDecimals = await ptContract.decimals();
-    const ytDecimals = await ytContract.decimals();
-    const ytAmountInWei = parseUnits(payload.amountIn, ytDecimals);
-    const ptAmountInWei = parseUnits(payload.amountIn, ptDecimals);
-
-    const res = await callSDK<RedeemPyData>(`/v1/sdk/${chainId}/redeem`, {
+    const res = await callSDK<MintPyData>(`/v1/sdk/${chainId}/markets/${payload.market}/swap`, {
       chainId,
       receiver: address,
       slippage: payload.slippage,
-      yt: payload.yt,
+      market: payload.market,
+      tokenIn: payload.tokenIn,
       tokenOut: payload.tokenOut,
-      amountIn: ytAmountInWei.toString(),
+      amountIn: amountInWei.toString(),
       enableAggregator: payload.enableAggregator,
     });
-
     const { data, to, value } = res.tx;
 
-    const ptAllowance = await ptContract.allowance(address, to);
-    const ytAllowance = await ytContract.allowance(address, to);
-    if (ptAllowance < ptAmountInWei) {
-      const callData = ptContract.interface.encodeFunctionData("approve", [to, ptAmountInWei]);
+    if (!isPendleGasToken(payload.tokenIn)) {
+    const allowance = await tokenInContract.allowance(address, to);
+
+    if (allowance < amountInWei) {
+      const callData = tokenInContract.interface.encodeFunctionData("approve", [to, amountInWei]);
+
       const approveTransaction = {
         chainId,
-        to: ptAddress,
+        to: payload.tokenIn,
         data: callData,
       };
-      transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
-    }
-    if (ytAllowance < ytAmountInWei) {
-      const callData = ytContract.interface.encodeFunctionData("approve", [to, ytAmountInWei]);
-      const approveTransaction = {
-        chainId,
-        to: ytAddress,
-        data: callData,
-      };
-      transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
+
+        transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
+      }
     }
 
     const unsignedTx: ethers.TransactionLike = {

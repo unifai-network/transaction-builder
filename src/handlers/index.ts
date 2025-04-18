@@ -53,3 +53,4 @@ handlerRegistry.set("pendle/redeem", new pendle.redeemHandler());
 handlerRegistry.set("pendle/redeem-sy", new pendle.redeemSYHandler());
 handlerRegistry.set("pendle/remove-liquidity", new pendle.removeLiquidityHandler());
 handlerRegistry.set("pendle/remove-liquidity-dual", new pendle.removeLiquidityDualHandler());
+handlerRegistry.set("pendle/swap", new pendle.swapHandler());

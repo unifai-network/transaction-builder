@@ -1,3 +1,4 @@
+import { ERC20Abi__factory } from '../contracts/types';
 import { ethers } from 'ethers';
 
 export const EVM_CHAIN_IDS: Record<string, number> = {
@@ -39,16 +40,12 @@ export function validateEvmChain(chain: string) {
 }
 
 export async function getTokenDecimals(chain: string, tokenAddress: string): Promise<number> {
-  if (tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+  if (tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' || tokenAddress === '0x0000000000000000000000000000000000000000') {
     return 18;
   }
   const provider = getEvmProvider(chain);
-  const tokenContract = new ethers.Contract(
-    tokenAddress,
-    ['function decimals() view returns (uint8)'],
-    provider
-  );
-  return await tokenContract.decimals();
+  const contract = ERC20Abi__factory.connect(tokenAddress, provider);
+  return Number(await contract.decimals());
 }
 
 // ethers.parseUnits but also works for strings like '1e-18'
@@ -58,4 +55,10 @@ export function parseUnits(amount: string|number, decimals: number) {
   } catch (error) {
     return ethers.parseUnits(Number(amount).toFixed(decimals), decimals);
   }
+}
+
+export async function getAllowance(chain: string, tokenAddress: string, address: string) {
+  const provider = getEvmProvider(chain);
+  const contract = ERC20Abi__factory.connect(tokenAddress, provider);
+  return await contract.allowance(address, address);
 }

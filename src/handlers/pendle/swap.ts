@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { TransactionHandler, CreateTransactionResponse, BuildTransactionResponse } from "../TransactionHandler";
-import { EVM_CHAIN_IDS, getEvmProvider, validateEvmAddress, validateEvmChain } from "../../utils/evm";
+import { EVM_CHAIN_IDS, getEvmProvider, getTokenDecimals, validateEvmAddress, validateEvmChain } from "../../utils/evm";
 import { callSDK } from "./helper";
 import { MintPyData } from "./types";
 import { ethers, parseUnits } from "ethers";
 import { ERC20Abi__factory } from "../../contracts/types";
+import { isPendleGasToken } from "./util";
 
 const PayloadSchema = z.object({
   chain: z.string().nonempty("Missing required field: chain"),
@@ -42,7 +43,7 @@ export class swapHandler implements TransactionHandler {
     const chainId = EVM_CHAIN_IDS[payload.chain];
     const provider = getEvmProvider(payload.chain);
     const tokenInContract = ERC20Abi__factory.connect(payload.tokenIn, provider);
-    const decimals = await tokenInContract.decimals();
+    const decimals = await getTokenDecimals(payload.chain, payload.tokenIn);
     const amountInWei = parseUnits(payload.amountIn, decimals);
 
     const res = await callSDK<MintPyData>(`/v1/sdk/${chainId}/markets/${payload.market}/swap`, {
@@ -57,18 +58,20 @@ export class swapHandler implements TransactionHandler {
     });
     const { data, to, value } = res.tx;
 
-    const allowance = await tokenInContract.allowance(address, to);
+    if (!isPendleGasToken(payload.tokenIn)) {
+      const allowance = await tokenInContract.allowance(address, to);
 
-    if (allowance < amountInWei) {
-      const callData = tokenInContract.interface.encodeFunctionData("approve", [to, amountInWei]);
+      if (allowance < amountInWei) {
+        const callData = tokenInContract.interface.encodeFunctionData("approve", [to, amountInWei]);
 
-      const approveTransaction = {
-        chainId,
-        to: payload.tokenIn,
-        data: callData,
-      };
+        const approveTransaction = {
+          chainId,
+          to: payload.tokenIn,
+          data: callData,
+        };
 
-      transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
+        transactions.push({ hex: ethers.Transaction.from(approveTransaction).unsignedSerialized });
+      }
     }
 
     const unsignedTx: ethers.TransactionLike = {

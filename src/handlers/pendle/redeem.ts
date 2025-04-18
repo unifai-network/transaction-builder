@@ -13,6 +13,7 @@ const PayloadSchema = z.object({
   yt: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid YT address"),
   tokenOut: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
   amountIn: z.string().regex(/^\d+(\.\d+)?$/, "Amount must be a number"),
+  enableAggregator: z.boolean().default(false),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -66,7 +67,7 @@ export class redeemHandler implements TransactionHandler {
       yt: payload.yt,
       tokenOut: payload.tokenOut,
       amountIn: ytAmountInWei.toString(),
-      enableAggregator: true,
+      enableAggregator: payload.enableAggregator,
     });
 
     const { data, to, value } = res.tx;

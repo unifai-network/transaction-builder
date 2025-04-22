@@ -40,7 +40,12 @@ export function validateEvmChain(chain: string) {
 }
 
 export async function getTokenDecimals(chain: string, tokenAddress: string): Promise<number> {
-  if (tokenAddress.toLowerCase() === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' || tokenAddress === '0x0000000000000000000000000000000000000000') {
+  const isNative = [
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    '0x0000000000000000000000000000000000000000'
+  ].includes(tokenAddress.toLowerCase());
+  
+  if (isNative) {
     return 18;
   }
   const provider = getEvmProvider(chain);

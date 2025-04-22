@@ -18,6 +18,10 @@ import {
 } from './types';
 import { WalletService } from './wallet';
 import NFT_POSITIONS_ABI from './abis/NFT_POSITIONS_ABI.json';
+import ROUTER_ABI from './abis/ROUTER_ABI.json';
+import FACTORY_ABI from './abis/FACTORY_ABI.json';
+import QUOTER_ABI from './abis/QUOTER_ABI.json';
+import STAKER_ABI from './abis/STAKER_ABI.json';
 
 // V3 Contract Addresses
 const PANCAKE_V3_FACTORY_ADDRESS = '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865';
@@ -45,27 +49,14 @@ export class PancakeService {
     // Initialize V3 Router contract
     this.router = new Contract(
       PANCAKE_V3_ROUTER_ADDRESS,
-      [
-        'function exactInputSingle(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum) external payable returns (uint256 amountOut)',
-        'function exactOutputSingle(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum) external payable returns (uint256 amountIn)',
-        'function exactInput(address path, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum) external payable returns (uint256 amountOut)',
-        'function exactOutput(address path, address recipient, uint256 deadline, uint256 amountOut, uint256 amountInMaximum) external payable returns (uint256 amountIn)',
-        'function multicall(bytes[] calldata data) external payable returns (bytes[] memory results)',
-        'function refundETH() external payable',
-        'function sweepToken(address token, uint256 amountMinimum, address recipient) external payable',
-      ],
+      ROUTER_ABI,
       provider
     );
 
     // Initialize V3 Factory contract
     this.factory = new Contract(
       PANCAKE_V3_FACTORY_ADDRESS,
-      [
-        'function createPool(address tokenA, address tokenB, uint24 fee) external returns (address pool)',
-        'function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool)',
-        'function setOwner(address _owner) external',
-        'function enableFeeAmount(uint24 fee, int24 tickSpacing) external',
-      ],
+      FACTORY_ABI,
       provider
     );
 
@@ -79,22 +70,14 @@ export class PancakeService {
     // Initialize V3 Quoter contract
     this.quoter = new Contract(
       PANCAKE_V3_QUOTER_ADDRESS,
-      [
-        'function quoteExactInputSingle(address tokenIn, address tokenOut, uint24 fee, uint256 amountIn, uint160 sqrtPriceLimitX96) external returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)',
-        'function quoteExactOutputSingle(address tokenIn, address tokenOut, uint24 fee, uint256 amountOut, uint160 sqrtPriceLimitX96) external returns (uint256 amountIn, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)',
-      ],
+      QUOTER_ABI,
       provider
     );
 
     // Initialize V3 Staker contract
     this.staker = new Contract(
       PANCAKE_V3_STAKER_ADDRESS,
-      [
-        'function deposit(uint256 tokenId) external',
-        'function withdraw(uint256 tokenId) external',
-        'function harvest(uint256 tokenId) external',
-        'function emergencyWithdraw(uint256 tokenId) external',
-      ],
+      STAKER_ABI,
       provider
     );
 
@@ -716,24 +699,56 @@ export class PancakeService {
   }
 
   // 收集流动性头寸的手续费奖励
-  async collectFees(tokenId: number): Promise<{ amount0: BigNumber; amount1: BigNumber }> {
+  async collectFees(tokenId: number, recipient?: string): Promise<{ amount0: BigNumber; amount1: BigNumber }> {
     try {
+      // 1. Get position info to check available fees and owner
+      const position = await this.getPositionInfo(tokenId);
+      console.log('Position info for collect fees:', position);
+
+      // 2. Get position owner if recipient is not provided
+      const positionOwner = await this.nftPositions.ownerOf(tokenId);
+      console.log('Position owner:', positionOwner);
+
+      // 3. Prepare collect params
       const collectParams = {
         tokenId,
-        recipient: ethers.ZeroAddress,
-        amount0Max: ethers.MaxUint256,
-        amount1Max: ethers.MaxUint256
+        recipient: recipient || positionOwner,  // Use position owner as default recipient
+        amount0Max: BigNumber.from('0xffffffffffffffffffffffffffffffff'), // uint128 max value
+        amount1Max: BigNumber.from('0xffffffffffffffffffffffffffffffff')  // uint128 max value
       };
 
+      console.log('Collect fees params:', collectParams);
+
+      // 4. Execute collect operation
       const tx = await this.nftPositions.collect(collectParams);
+      console.log('Collect fees transaction sent:', tx.hash);
+
+      // 5. Wait for transaction confirmation
       const receipt = await tx.wait();
-      
-      return {
-        amount0: receipt.events[0].args.amount0,
-        amount1: receipt.events[0].args.amount1
+      console.log('Collect fees transaction confirmed:', receipt.transactionHash);
+
+      // 6. Find the Collect event
+      const collectEvent = receipt.events?.find((e: ethers.EventLog) => e.fragment.name === 'Collect');
+      if (!collectEvent) {
+        throw new Error('Collect event not found in transaction receipt');
+      }
+
+      // 7. Return collected amounts
+      const result = {
+        amount0: collectEvent.args.amount0,
+        amount1: collectEvent.args.amount1
       };
+      console.log('Collected amounts:', result);
+
+      return result;
     } catch (error) {
       console.error('Error collecting fees:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+      }
       throw error;
     }
   }
@@ -765,8 +780,8 @@ export class PancakeService {
       const collectParams = {
         tokenId: tokenId,
         recipient: recipient,
-        amount0Max: '1000000000000000000000000', // Use a reasonable large number instead of MaxUint256
-        amount1Max: '1000000000000000000000000'  // Use a reasonable large number instead of MaxUint256
+        amount0Max: BigNumber.from('0xffffffffffffffffffffffffffffffff'), // uint128 max value
+        amount1Max: BigNumber.from('0xffffffffffffffffffffffffffffffff')  // uint128 max value
       };
 
       console.log('Collect params:', collectParams);

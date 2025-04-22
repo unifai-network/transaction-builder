@@ -56,4 +56,5 @@ handlerRegistry.set("pendle/redeem-sy", new pendle.redeemSYHandler());
 handlerRegistry.set("pendle/remove-liquidity", new pendle.removeLiquidityHandler());
 handlerRegistry.set("pendle/remove-liquidity-dual", new pendle.removeLiquidityDualHandler());
 handlerRegistry.set("pendle/swap", new pendle.swapHandler());
-handlerRegistry.set("pancake/v3", new pancake.PancakeV3Handler());
+handlerRegistry.set("pancake/v3/add-liquidity", new pancake.PancakeV3AddLiquidityHandler());
+handlerRegistry.set("pancake/v3/remove-liquidity", new pancake.PancakeV3RemoveLiquidityHandler());

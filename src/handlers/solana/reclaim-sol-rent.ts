@@ -5,7 +5,7 @@ import { createCloseAccountInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-tok
 import { connection, prepareTransactions, validateSolanaAddress } from "../../utils/solana";
 
 const PayloadSchema = z.object({
-  walletAddress: z.string().nonempty(),
+  walletAddress: z.string().nonempty().optional(),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -23,12 +23,14 @@ export class ReclaimSolRentHandler implements TransactionHandler {
 
     payload = validation.data;
 
-    validateSolanaAddress(payload.walletAddress);
+    if (payload.walletAddress) {
+      validateSolanaAddress(payload.walletAddress);
 
-    const claimableRentAccounts = await getClaimableRentAccounts(new PublicKey(payload.walletAddress));
+      const claimableRentAccounts = await getClaimableRentAccounts(new PublicKey(payload.walletAddress));
 
-    if (claimableRentAccounts.length === 0) {
-      throw new Error("No claimable rent accounts found");
+      if (claimableRentAccounts.length === 0) {
+        throw new Error("No claimable rent accounts found");
+      }
     }
 
     return {
@@ -38,12 +40,12 @@ export class ReclaimSolRentHandler implements TransactionHandler {
   }
 
   async build(data: Payload, publicKey: string): Promise<BuildTransactionResponse> {
-    if (publicKey !== data.walletAddress) {
-      throw new Error("Wallet address does not match");
-    }
-
-    const walletAddress = new PublicKey(data.walletAddress);
+    const walletAddress = new PublicKey(publicKey);
     const claimableRentAccounts = await getClaimableRentAccounts(walletAddress);
+
+    if (claimableRentAccounts.length === 0) {
+      throw new Error("No claimable rent accounts found");
+    }
 
     const transactions: Transaction[] = [];
 

@@ -23,6 +23,7 @@ handlerRegistry.set("pumpfun/launch", new pumpfun.PumpFunLaunchHandler());
 
 handlerRegistry.set("solana/transfer", new solana.TransferHandler());
 handlerRegistry.set("solana/spl-create", new solana.SplCreateHandler());
+handlerRegistry.set("solana/reclaim-sol-rent", new solana.ReclaimSolRentHandler());
 
 handlerRegistry.set("sonic/transfer", new sonic.TransferHandler());
 handlerRegistry.set("sonic/spl-create", new sonic.SplCreateHandler());

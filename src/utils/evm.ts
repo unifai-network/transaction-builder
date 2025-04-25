@@ -10,6 +10,18 @@ export const EVM_CHAIN_IDS: Record<string, number> = {
   'polygon': 137,
 };
 
+export const USDC_CHAIN_ADDRESS: Record<string, string> = {
+  'eth': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  'ethereum': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  'base': '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  'bnb': '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+};
+
+export const ERC20_ABI = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+];
+
 export function getEvmProvider(chain: string) {
   chain = chain.toLowerCase();
   if (chain === 'ethereum' || chain === 'eth') {
@@ -40,12 +52,7 @@ export function validateEvmChain(chain: string) {
 }
 
 export async function getTokenDecimals(chain: string, tokenAddress: string): Promise<number> {
-  const isNative = [
-    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-    '0x0000000000000000000000000000000000000000'
-  ].includes(tokenAddress.toLowerCase());
-  
-  if (isNative) {
+  if (tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' || tokenAddress === '0x0000000000000000000000000000000000000000') {
     return 18;
   }
   const provider = getEvmProvider(chain);
@@ -66,4 +73,25 @@ export async function getAllowance(chain: string, tokenAddress: string, address:
   const provider = getEvmProvider(chain);
   const contract = ERC20Abi__factory.connect(tokenAddress, provider);
   return await contract.allowance(address, address);
+}
+
+export async function checkERC20Balance(
+  provider: ethers.Provider,
+  chain: string,
+  userAddress: string,
+  requiredAmount: string
+): Promise<{ isEnough: boolean; balance: BigInt }> {
+  const tokenAddress = USDC_CHAIN_ADDRESS[chain];
+  const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+
+  const decimals = await contract.decimals();
+
+  const requiredAmountInWei = ethers.parseUnits(requiredAmount, decimals);
+
+  const balance = await contract.balanceOf(userAddress);
+
+  return {
+    isEnough: balance >= requiredAmountInWei,
+    balance,
+  };
 }

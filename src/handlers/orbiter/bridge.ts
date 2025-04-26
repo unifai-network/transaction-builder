@@ -92,10 +92,11 @@ export class OrbiterHandler implements TransactionHandler {
       throw new Error("Missing fee data");
     }
 
-    // make sure the token is an erc-20 token. if so, request approval before the transaction
-    if(data.srcTokenSymbol.toUpperCase() === 'USDC') {
+    // make sure the token is an erc-20 token when the transaction involves the Solana chain. if so, request approval before the transaction
+    if(data.srcChain === 'solana' || data.dstChain === 'solana') {
       const { isEnough } = await checkERC20Balance(provider,
         data.srcChain,
+        data.srcTokenSymbol,
         address,
         data.amount);
       if(!isEnough) throw new Error(`transfer amount exceeds balance for ${data.srcChain} 

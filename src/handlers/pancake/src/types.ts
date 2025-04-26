@@ -68,9 +68,10 @@ export interface PositionInfo {
   token1Amount: BigNumberish;
   feeGrowthInside0LastX128: BigNumberish;
   feeGrowthInside1LastX128: BigNumberish;
-  tickLower?: number;
-  tickUpper?: number;
-  fee?: number;
+  tickLower: number;
+  tickUpper: number;
+  fee: number;
+  transactionData?: string;
 }
 
 export interface AddLiquidityParams {

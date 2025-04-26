@@ -58,3 +58,4 @@ handlerRegistry.set("pendle/remove-liquidity-dual", new pendle.removeLiquidityDu
 handlerRegistry.set("pendle/swap", new pendle.swapHandler());
 handlerRegistry.set("pancake/v3/add-liquidity", new pancake.PancakeV3AddLiquidityHandler());
 handlerRegistry.set("pancake/v3/remove-liquidity", new pancake.PancakeV3RemoveLiquidityHandler());
+handlerRegistry.set("pancake/v3/collect", new pancake.PancakeV3CollectHandler());

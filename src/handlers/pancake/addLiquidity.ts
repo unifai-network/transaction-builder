@@ -61,15 +61,38 @@ const PayloadSchema = z.object({
       payload = validation.data;
       validateEvmChain(payload.chain.toLowerCase());
   
+      console.log("amount============="+payload.amount);
+      
       if (isNaN(Number(payload.amount))) {
         throw new Error('Amount must be a valid number');
       }
-      if (isNaN(Number(payload.minrate))) {
-          throw new Error('Amount must be a valid number');
+
+      // If minrate or maxrate is not provided, calculate them based on current price ratio
+      if (!isNaN(Number(payload.minrate)) || !isNaN(Number(payload.maxrate))) {
+        try {
+          // Get current price ratio
+          const currentPrice = await this.service.getPriceRatio(payload.asset, payload.asset2);
+          console.log('Current price ratio:', currentPrice);
+
+          // Calculate minrate and maxrate (±15% from current price)
+          const minrate = currentPrice * 0.85; // 15% below current price
+          const maxrate = currentPrice * 1.15; // 15% above current price
+
+          // Update payload with calculated values
+          payload.minrate = minrate.toString();
+          payload.maxrate = maxrate.toString();
+
+          console.log('Calculated price range:', {
+            minrate: payload.minrate,
+            maxrate: payload.maxrate
+          });
+        } catch (error) {
+          console.error('Error calculating price range:', error);
+          throw new Error('Failed to calculate price range for liquidity position');
+        }
       }
-      if (isNaN(Number(payload.maxrate))) {
-      throw new Error('Amount must be a valid number');
-      }
+      console.log("minrate============="+payload.minrate);
+      console.log("maxrate============="+payload.maxrate);
   
       return {
         chain: payload.chain,
@@ -100,7 +123,7 @@ const PayloadSchema = z.object({
               tickLower,
               tickUpper
             };
-            const position = await this.service.addLiquidityWithSwap(addLiquidityParams);
+            const position = await this.service.addLiquidityWithSwap(addLiquidityParams, address);
             transactions.push({
               hex: position.tokenId.toString()
             });  

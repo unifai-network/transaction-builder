@@ -10,17 +10,34 @@ export const EVM_CHAIN_IDS: Record<string, number> = {
   'polygon': 137,
 };
 
-export const USDC_CHAIN_ADDRESS: Record<string, string> = {
-  'eth': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  'ethereum': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  'base': '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-  'bnb': '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
-};
 
 export const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
   "function decimals() view returns (uint8)",
 ];
+
+
+export const tokenAddressMap: Record<string, Record<string, string>> = {
+  eth: {
+    USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  },
+  ethereum: {
+    USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  },
+  base: {
+    USDC: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+    USDT: '0xfde4c96c8593536e31f229ea8f37b2ada2699bb2',
+  },
+  bnb: {
+    USDC: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+    USDT: '0x55d398326f99059ff775485246999027b3197955',
+    WBTC: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',
+  }
+};
 
 export function getEvmProvider(chain: string) {
   chain = chain.toLowerCase();
@@ -52,7 +69,12 @@ export function validateEvmChain(chain: string) {
 }
 
 export async function getTokenDecimals(chain: string, tokenAddress: string): Promise<number> {
-  if (tokenAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' || tokenAddress === '0x0000000000000000000000000000000000000000') {
+  const isNative = [
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    '0x0000000000000000000000000000000000000000'
+  ].includes(tokenAddress.toLowerCase());
+  
+  if (isNative) {
     return 18;
   }
   const provider = getEvmProvider(chain);
@@ -78,10 +100,14 @@ export async function getAllowance(chain: string, tokenAddress: string, address:
 export async function checkERC20Balance(
   provider: ethers.Provider,
   chain: string,
+  tokenSymbol: string,
   userAddress: string,
   requiredAmount: string
 ): Promise<{ isEnough: boolean; balance: BigInt }> {
-  const tokenAddress = USDC_CHAIN_ADDRESS[chain];
+  const tokenAddress = tokenAddressMap[chain]?.[tokenSymbol];
+  if (!tokenAddress) {
+    throw new Error(`Token ${tokenSymbol} not supported on ${chain}`);
+  }
   const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
 
   const decimals = await contract.decimals();

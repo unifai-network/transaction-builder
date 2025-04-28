@@ -22,6 +22,7 @@ import FACTORY_ABI from './abis/FACTORY_ABI.json';
 import QUOTER_ABI from './abis/QUOTER_ABI.json';
 import STAKER_ABI from './abis/STAKER_ABI.json';
 import { PancakeV3PoolABI } from './abis/PancakeV3Pool';
+import { NIL } from 'uuid';
 
 // V3 Contract Addresses
 const PANCAKE_V3_FACTORY_ADDRESS = '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865';
@@ -30,6 +31,7 @@ const PANCAKE_V3_ROUTER_ADDRESS = '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4';
 const PANCAKE_V3_QUOTER_ADDRESS = '0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997';
 const PANCAKE_V3_STAKER_ADDRESS = '0x3E8B82326FfFf58Dbe7db6E9E6c8fC1C0E0AeA8B';
 const CAKE_TOKEN_ADDRESS = '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82';
+const PANCAKE_V3_ZAP_ADDRESS = '0x03a520b32C04BF3aEe7bF72f4fC9e5a3B2a0a0a0'; // Replace with actual Zap contract address
 
 interface TokenAddresses {
   [key: string]: `0x${string}`;
@@ -52,6 +54,11 @@ interface GetAmount1ForLiquidityParams {
   tickUpper: number;
   fee: number;
 }
+
+const ZAP_ABI = [
+  'function zapIn(address token0, address token1, uint256 amount0, uint256 amount1, uint24 fee, int24 tickLower, int24 tickUpper, uint256 amount0Min, uint256 amount1Min, uint256 deadline) external returns (uint256 tokenId)',
+  'function zapInWithSwap(address tokenIn, address token0, address token1, uint256 amountIn, uint24 fee, int24 tickLower, int24 tickUpper, uint256 amountOutMin, uint256 deadline) external returns (uint256 tokenId)'
+];
 
 export class PancakeService {
   private provider: JsonRpcProvider;
@@ -796,6 +803,128 @@ export class PancakeService {
       return this.getPositionInfo(tokenId);
     } catch (error) {
       console.error('Error adding liquidity with swap:', error);
+      throw error;
+    }
+  }
+
+  async addLiquidityWithZap(params: AddLiquidityParams & { swapPath?: string[] }, address: string): Promise<PositionInfo> {
+    try {
+      const { token0, token1, amount0Desired, amount1Desired, deadline, swapPath } = params;
+      
+      // 1. Get pool address
+      const pool = await this.factory.getPool(token0, token1, 500);
+      if (pool === ethers.ZeroAddress) {
+        throw new Error('Pool does not exist');
+      }
+
+      // 2. Check if user already has a position in this pool
+      const allPositions = await this.getAllPositions(address);
+      const existingPosition = allPositions.find(pos => {
+        const positionPool = this.factory.getPool(token0, token1, pos.fee);
+        return positionPool === pool;
+      });
+
+      if (existingPosition) {
+        console.log('Found existing position:', existingPosition);
+        // If position exists, use increaseLiquidity instead
+        return this.increaseLiquidity({
+          tokenId: existingPosition.tokenId,
+          amount0Desired,
+          amount1Desired,
+          amount0Min: '0',
+          amount1Min: '0',
+          deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        });
+      }
+
+      // 3. Calculate price range if not provided
+      const tickLower = params.tickLower ?? Math.floor(Math.log(0.8) / Math.log(1.0001));
+      const tickUpper = params.tickUpper ?? Math.ceil(Math.log(1.2) / Math.log(1.0001));
+
+      // 4. Calculate correct amount1Desired using getAmount1ForLiquidity
+      const calculatedAmount1Desired = await this.getAmount1ForLiquidity({
+        token0,
+        token1,
+        amount0: amount0Desired.toString(),
+        tickLower,
+        tickUpper,
+        fee: 500
+      });
+
+      // 5. Get wallet balances
+      const balances = await this.getWalletBalances(address);
+      const token0Balance = balances.get(token0.toLowerCase()) || BigNumber.from(0);
+      const token1Balance = balances.get(token1.toLowerCase()) || BigNumber.from(0);
+
+      console.log('Wallet balances:', {
+        token0: token0Balance.toString(),
+        token1: token1Balance.toString()
+      });
+
+      // 6. Check if wallet has any of the tokens
+      if (token0Balance.eq(0) && token1Balance.eq(0)) {
+        throw new Error('Wallet does not have any of the required tokens');
+      }
+
+      // 7. Initialize Zap contract
+      const zapContract = new Contract(PANCAKE_V3_ZAP_ADDRESS, ZAP_ABI, this.provider);
+
+      // 8. Prepare transaction data based on token balances
+      let tx;
+      if (token0Balance.gt(0) && token1Balance.gt(0)) {
+        // If user has both tokens, use zapIn
+        tx = await zapContract.zapIn(
+          token0,
+          token1,
+          amount0Desired,
+          calculatedAmount1Desired,
+          500, // fee
+          tickLower,
+          tickUpper,
+          0, // amount0Min
+          0, // amount1Min
+          deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        );
+      } else if (token0Balance.gt(0)) {
+        // If user only has token0, use zapInWithSwap
+        tx = await zapContract.zapInWithSwap(
+          token0,
+          token0,
+          token1,
+          amount0Desired,
+          500, // fee
+          tickLower,
+          tickUpper,
+          0, // amountOutMin
+          deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        );
+      } else if (token1Balance.gt(0)) {
+        // If user only has token1, use zapInWithSwap
+        tx = await zapContract.zapInWithSwap(
+          token1,
+          token1,
+          token0,
+          calculatedAmount1Desired,
+          500, // fee
+          tickLower,
+          tickUpper,
+          0, // amountOutMin
+          deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        );
+      }
+
+      // 9. Wait for transaction and get tokenId
+      const receipt = await tx.wait();
+      const zapEvent = receipt.events.find((e: ethers.EventLog) => e.fragment.name === 'ZapIn' || e.fragment.name === 'ZapInWithSwap');
+      if (!zapEvent) {
+        throw new Error('Zap event not found');
+      }
+      const tokenId = zapEvent.args.tokenId;
+      
+      // 10. Return position info
+      return this.getPositionInfo(tokenId);
+    } catch (error) {
+      console.error('Error adding liquidity with zap:', error);
       throw error;
     }
   }

@@ -20,8 +20,7 @@ export async function callSDK<Data>(path: string, params: Record<string, any> = 
         });
         return response.data;
     } catch (error: any) {
-        console.log(error?.response?.data);
-        throw new Error(error?.response?.data || 'Failed to call Pendle API');
+        throw new Error(error.response.data.message || 'Failed to call Pendle API');
     }
     
 }

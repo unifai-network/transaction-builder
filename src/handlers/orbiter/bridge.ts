@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { BuildTransactionResponse, CreateTransactionResponse, TransactionHandler } from "../TransactionHandler";
 import { OrbiterClient, ENDPOINT, RouterType, ConfigOptions, TradePair, Router } from "@orbiter-finance/bridge-sdk";
-import { EVM_CHAIN_IDS, getEvmProvider, checkERC20Balance, validateEvmChain } from "../../utils/evm";
+import { EVM_CHAIN_IDS, getEvmProvider, checkERC20Balance, validateEvmChain, EIP1559_SUPPORTED_CHAINS } from "../../utils/evm";
 import { validateAddress } from "../../utils/validators";
 import { ethers } from "ethers";
 import { connection } from "../../utils/solana";
@@ -72,9 +72,12 @@ export class OrbiterHandler implements TransactionHandler {
 
   async generateTxEvm(data: Payload, address: string, router: Router) : Promise<BuildTransactionResponse>{
     const transactions: Array<{ hex: string }> = [];
-
+    let unsignedTx: ethers.TransactionLike;
+    
     const provider = getEvmProvider(data.srcChain);
- 
+
+    const isEIP1559 = EIP1559_SUPPORTED_CHAINS.includes(data.srcChain.toLowerCase());
+
     const min = Number(router.getMinSendAmount());
     const max = Number(router.getMaxSendAmount());
 
@@ -86,14 +89,18 @@ export class OrbiterHandler implements TransactionHandler {
 
     const feeData = await provider.getFeeData();
 
-    const { maxFeePerGas, maxPriorityFeePerGas } = feeData;
+    const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = feeData;
 
-    if (!maxFeePerGas || !maxPriorityFeePerGas) {
+    if (
+      (isEIP1559 && (!maxFeePerGas || !maxPriorityFeePerGas)) ||
+      (!isEIP1559 && !gasPrice)
+    ) {
       throw new Error("Missing fee data");
     }
 
-    // make sure the token is an erc-20 token when the transaction involves the Solana chain. if so, request approval before the transaction
+    // make sure the token is an erc-20 token. if so, request approval before the transaction
     if(data.srcChain === 'solana' || data.dstChain === 'solana') {
+      let unsignedApproveTx: ethers.TransactionLike;
       const { isEnough } = await checkERC20Balance(provider,
         data.srcChain,
         data.srcTokenSymbol,
@@ -110,16 +117,26 @@ export class OrbiterHandler implements TransactionHandler {
         value: string;
       };
 
-      const unsignedApproveTx: ethers.TransactionLike = {
-        chainId: EVM_CHAIN_IDS[data.srcChain],
-        type: 2,
-        to: approveRawData.to,
-        data: approveRawData.data,
-        value: approveRawData.value || '0x0',
-        maxFeePerGas: maxFeePerGas,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-      };
-
+      if(isEIP1559) {
+        unsignedApproveTx =  {
+          chainId: EVM_CHAIN_IDS[data.srcChain],
+          type: 2,
+          to: approveRawData.to,
+          data: approveRawData.data,
+          value: approveRawData.value || '0x0',
+          maxFeePerGas: maxFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+        };
+      } else {
+        unsignedApproveTx =  {
+          chainId: EVM_CHAIN_IDS[data.srcChain],
+          to: approveRawData.to,
+          data: approveRawData.data,
+          value: approveRawData.value || '0x0',
+          gasPrice: feeData.gasPrice,
+        };
+      }
+      
       transactions.push({ hex: ethers.Transaction.from(unsignedApproveTx).unsignedSerialized });
     }
     
@@ -133,14 +150,22 @@ export class OrbiterHandler implements TransactionHandler {
       value: string;
     };
 
-
-    const unsignedTx: ethers.TransactionLike = {
-      chainId: EVM_CHAIN_IDS[data.srcChain],
-      type: 2,
-      ...rawData,
-      maxFeePerGas: maxFeePerGas,
-      maxPriorityFeePerGas: maxPriorityFeePerGas,
-    };
+    if(isEIP1559) {
+      unsignedTx = {
+        chainId: EVM_CHAIN_IDS[data.srcChain],
+        type: 2,
+        ...rawData,
+        maxFeePerGas: maxFeePerGas,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+      };
+    } else {
+      unsignedTx = {
+        chainId: EVM_CHAIN_IDS[data.srcChain],
+        ...rawData,
+        gasPrice: feeData.gasPrice,
+      };
+    }
+    
     transactions.push({ hex: ethers.Transaction.from(unsignedTx).unsignedSerialized });
 
     return {transactions};
@@ -150,7 +175,7 @@ export class OrbiterHandler implements TransactionHandler {
     const sender = new PublicKey(address);
     const { sendAmount } = router.simulationAmount(data.amount);
     const transfers = await router.createTransaction(address, data.dstAddress, sendAmount);
-    console.log(transfers);
+   
     const rawData = transfers.raw as {
       instructions: Array<TransactionInstruction>;
     };

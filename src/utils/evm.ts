@@ -16,6 +16,8 @@ export const ERC20_ABI = [
   "function decimals() view returns (uint8)",
 ];
 
+export const EIP1559_SUPPORTED_CHAINS = ['eth', 'ethereum','base'];
+
 
 export const tokenAddressMap: Record<string, Record<string, string>> = {
   eth: {

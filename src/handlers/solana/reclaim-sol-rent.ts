@@ -6,7 +6,7 @@ import { connection, prepareTransactions, validateSolanaAddress } from "../../ut
 
 const PayloadSchema = z.object({
   walletAddress: z.string().nonempty().optional(),
-  language: z.enum(["en", "zh"]).optional(),
+  language: z.string().optional(),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;

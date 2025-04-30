@@ -61,8 +61,6 @@ const PayloadSchema = z.object({
       payload = validation.data;
       validateEvmChain(payload.chain.toLowerCase());
   
-      console.log("amount============="+payload.amount);
-      
       if (isNaN(Number(payload.amount))) {
         throw new Error('Amount must be a valid number');
       }
@@ -86,14 +84,38 @@ const PayloadSchema = z.object({
             minrate: payload.minrate,
             maxrate: payload.maxrate
           });
+
+          // Calculate price range size
+          const priceRangeSize = (maxrate - minrate) / currentPrice;
+          console.log('Price range size:', priceRangeSize);
+
+          // Select fee tier based on price range size
+          let fee = 500; // Default to 0.05%
+          if (priceRangeSize <= 0.1) { // Very narrow range
+            fee = 100; // 0.01%
+          } else if (priceRangeSize <= 0.3) { // Narrow range
+            fee = 500; // 0.05%
+          } else { // Wide range
+            fee = 2500; // 0.25%
+          }
+          // Calculate amount2 using getAmount1ForLiquidity
+          const amount2 = await this.service.getAmount1ForLiquidity({
+            token0: payload.asset,
+            token1: payload.asset2,
+            amount0: String(payload.amount),
+            tickLower: Math.floor(Math.log(minrate) / Math.log(1.0001)),
+            tickUpper: Math.ceil(Math.log(maxrate) / Math.log(1.0001)),
+            fee
+          });
+
+          // Update payload with calculated amount2
+          payload.amount2 = String(amount2);
+
         } catch (error) {
-          console.error('Error calculating price range:', error);
-          throw new Error('Failed to calculate price range for liquidity position');
+          console.error('Error calculating price range and amount2:', error);
+          throw new Error('Failed to calculate price range and amount2 for liquidity position');
         }
       }
-      console.log("minrate============="+payload.minrate);
-      console.log("maxrate============="+payload.maxrate);
-  
       return {
         chain: payload.chain,
         data: payload,
@@ -109,23 +131,38 @@ const PayloadSchema = z.object({
       }
   
       try {
-            const tickLower = data.minrate ? parseFloat(data.minrate.toString()) : 0.8;
-            const tickUpper = data.maxrate ? parseFloat(data.maxrate.toString()) : 1.2;
-            const amount0 = parseFloat(data.amount.toString());
-            const amount1 = parseFloat(data.amount.toString());
+            // Convert price range to ticks
+            const tickLower = Math.floor(Math.log(Number(data.minrate)) / Math.log(1.0001));
+            const tickUpper = Math.ceil(Math.log(Number(data.maxrate)) / Math.log(1.0001));
+            
+            if (!data.amount2) {
+              throw new Error('amount2 is required');
+            }
             
             const addLiquidityParams: AddLiquidityParams = {
               token0: data.asset,
               token1: data.asset2,
-              amount0Desired: amount0.toString(),
-              amount1Desired: amount1.toString(),
+              amount0Desired: data.amount.toString(),
+              amount1Desired: data.amount2.toString(),
               deadline: Math.floor(Date.now() / 1000) + 60 * 20,
               tickLower,
               tickUpper
             };
+            
             const position = await this.service.addLiquidityWithSwap(addLiquidityParams, address);
+            if (!position.transactionData) {
+              throw new Error('Transaction data is missing');
+            }
+            
+            // Create a complete transaction object
+            const transaction = {
+              to: '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4', // PancakeSwap V3 Router address
+              data: position.transactionData,
+              value: '0x0' // No value needed for this transaction
+            };
+            
             transactions.push({
-              hex: position.tokenId.toString()
+              hex: ethers.Transaction.from(transaction).unsignedSerialized
             });  
         return { transactions };
       } catch (error) {

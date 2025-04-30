@@ -39,6 +39,7 @@ export class WalletService {
         new Token(ChainId.BSC, TOKEN_ADDRESSES.BTCB, 18, 'BTCB', 'Bitcoin BEP20'),
         new Token(ChainId.BSC, TOKEN_ADDRESSES.DOT, 18, 'DOT', 'Polkadot'),
         new Token(ChainId.BSC, TOKEN_ADDRESSES.LINK, 18, 'LINK', 'Chainlink'),
+        new Token(ChainId.BSC, TOKEN_ADDRESSES.WBNB, 18, 'WBNB', 'Binance WBNB'),
       ];
 
       // 2. Get token balances

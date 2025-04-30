@@ -6,12 +6,13 @@ import { connection, prepareTransactions, validateSolanaAddress } from "../../ut
 
 const PayloadSchema = z.object({
   walletAddress: z.string().nonempty().optional(),
+  language: z.enum(["en", "zh"]).optional(),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
 
-const feeRecipient = new PublicKey("BQXC768JbRehE1Cp4mKRBaGY5z66YAxk1MeGYdNLXVHN");
-const feeRate = 0.05;
+const feeRecipient = process.env.SOLANA_RENT_FEE_RECIPIENT ? new PublicKey(process.env.SOLANA_RENT_FEE_RECIPIENT) : null;
+const feeRate = process.env.SOLANA_RENT_FEE_RATE ? parseFloat(process.env.SOLANA_RENT_FEE_RATE) : 0;
 
 export class ReclaimSolRentHandler implements TransactionHandler {
   async create(payload: Payload): Promise<CreateTransactionResponse> {
@@ -48,10 +49,11 @@ export class ReclaimSolRentHandler implements TransactionHandler {
     }
 
     const transactions: Transaction[] = [];
-
+    let totalClaimableSol = 0;
+    let totalClaimableAccounts = 0;
     for (let i = 0; i < claimableRentAccounts.length; i += 20) {
       const tx = new Transaction();
-      let totalClaimableSol = 0;
+      let txClaimableSol = 0;
 
       tx.add(ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }));
 
@@ -60,17 +62,21 @@ export class ReclaimSolRentHandler implements TransactionHandler {
         const claimableSol = account.claimableSol;
 
         tx.add(createCloseAccountInstruction(tokenAddress, walletAddress, walletAddress));
+        txClaimableSol += claimableSol;
         totalClaimableSol += claimableSol;
+        totalClaimableAccounts++;
       }
 
-      if (totalClaimableSol > 0) {
+      if (txClaimableSol > 0 && feeRecipient && feeRate > 0) {
         tx.add(SystemProgram.transfer({
           fromPubkey: walletAddress,
           toPubkey: feeRecipient,
-          lamports: Math.round(totalClaimableSol * LAMPORTS_PER_SOL * feeRate),
+          lamports: Math.round(txClaimableSol * LAMPORTS_PER_SOL * feeRate),
         }));
 
         transactions.push(tx);
+
+        totalClaimableSol -= txClaimableSol * feeRate;
       }
     }
 
@@ -83,6 +89,11 @@ export class ReclaimSolRentHandler implements TransactionHandler {
         }).toString('base64'),
         type: "legacy",
       })),
+      data: {
+        language: data.language,
+        totalClaimableSol,
+        totalClaimableAccounts,
+      },
     };
   }
 }

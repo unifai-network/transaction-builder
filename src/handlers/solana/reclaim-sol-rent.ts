@@ -7,6 +7,7 @@ import { connection, prepareTransactions, validateSolanaAddress } from "../../ut
 const PayloadSchema = z.object({
   walletAddress: z.string().nonempty().optional(),
   language: z.string().optional(),
+  referralCode: z.string().optional(),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -91,6 +92,7 @@ export class ReclaimSolRentHandler implements TransactionHandler {
       })),
       data: {
         language: data.language,
+        referralCode: data.referralCode,
         totalClaimableSol,
         totalClaimableAccounts,
       },

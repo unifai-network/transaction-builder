@@ -1,5 +1,6 @@
 import { Token } from '@pancakeswap/sdk';
 import { BigNumberish } from 'ethers';
+import { BigNumber } from '@ethersproject/bignumber';
 
 export const FEE_TIERS = {
   LOWEST: 100, // 0.01%
@@ -67,6 +68,10 @@ export interface PositionInfo {
   token1Amount: BigNumberish;
   feeGrowthInside0LastX128: BigNumberish;
   feeGrowthInside1LastX128: BigNumberish;
+  tickLower: number;
+  tickUpper: number;
+  fee: number;
+  transactionData?: string;
 }
 
 export interface AddLiquidityParams {
@@ -74,28 +79,40 @@ export interface AddLiquidityParams {
   token1: string;
   amount0Desired: BigNumberish;
   amount1Desired: BigNumberish;
-  amount0Min: BigNumberish;
-  amount1Min: BigNumberish;
   deadline: number;
-  minRate?: number;
-  maxRate?: number;
+  tickLower?: number;
+  tickUpper?: number;
 }
 
 export interface RemoveLiquidityParams {
   tokenId: number;
-  liquidity: BigNumberish;
-  amount0Min: BigNumberish;
-  amount1Min: BigNumberish;
+  liquidity: string;
+  amount0Min?: string;
+  amount1Min?: string;
   deadline: number;
 }
 
 export interface StakeParams {
   tokenId: number;
-  amount: BigNumberish;
 }
 
 export interface PoolSearchParams {
   minTVL?: BigNumberish;
   minAPY?: number;
   limit?: number;
+}
+
+export interface DecreaseLiquidityParams {
+  tokenId: BigNumberish | BigNumber;
+  liquidity: BigNumberish | BigNumber;
+  amount0Min: BigNumberish | BigNumber;
+  amount1Min: BigNumberish | BigNumber;
+  deadline: BigNumberish | BigNumber;
+}
+
+export interface CollectParams {
+  tokenId: BigNumberish | BigNumber;
+  recipient: string;
+  amount0Max: BigNumberish | BigNumber;
+  amount1Max: BigNumberish | BigNumber;
 } 

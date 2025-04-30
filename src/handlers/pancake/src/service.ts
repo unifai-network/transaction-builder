@@ -1,4 +1,4 @@
-import { ChainId, Token, WETH9, Fetcher, Route, Trade, TradeType, Percent } from '@pancakeswap/sdk';
+import { ChainId, Token, WETH9, Fetcher, Route, Trade, TradeType, Percent, Price } from '@pancakeswap/sdk';
 import { Contract, JsonRpcProvider, BigNumberish, ethers } from 'ethers';
 import { BigNumber } from '@ethersproject/bignumber';
 import { 
@@ -9,76 +9,147 @@ import {
   StakeParams,
   PoolSearchParams,
   FEE_TIERS,
-  TOKEN_ADDRESSES,
   LPPosition,
   UserAssets,
-  TokenPrice
+  TokenPrice,
+  DecreaseLiquidityParams,
+  CollectParams
 } from './types';
 import { WalletService } from './wallet';
+import NFT_POSITIONS_ABI from './abis/NFT_POSITIONS_ABI.json';
+import ROUTER_ABI from './abis/ROUTER_ABI.json';
+import FACTORY_ABI from './abis/FACTORY_ABI.json';
+import QUOTER_ABI from './abis/QUOTER_ABI.json';
+import STAKER_ABI from './abis/STAKER_ABI.json';
+import { PancakeV3PoolABI } from './abis/PancakeV3Pool';
+import { NIL } from 'uuid';
 
-const PANCAKE_ROUTER_ADDRESS = '0x10ED43C718714eb63d5aA57B78B54704E256024E';
-export const PANCAKE_FACTORY_ADDRESS = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
-const PANCAKE_NFT_POSITIONS_ADDRESS = '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364';
-const PANCAKE_MASTER_CHEF_ADDRESS = '0x73feaa1eE314F8c655E354234017bE2193C9E24E';
+// V3 Contract Addresses
+const PANCAKE_V3_FACTORY_ADDRESS = '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865';
+const PANCAKE_V3_NFT_POSITIONS_ADDRESS = '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364';
+const PANCAKE_V3_ROUTER_ADDRESS = '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4';
+const PANCAKE_V3_QUOTER_ADDRESS = '0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997';
+const PANCAKE_V3_STAKER_ADDRESS = '0x3E8B82326FfFf58Dbe7db6E9E6c8fC1C0E0AeA8B';
 const CAKE_TOKEN_ADDRESS = '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82';
+const PANCAKE_V3_ZAP_ADDRESS = '0x03a520b32C04BF3aEe7bF72f4fC9e5a3B2a0a0a0'; // Replace with actual Zap contract address
+
+interface TokenAddresses {
+  [key: string]: `0x${string}`;
+}
+//0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c
+const TOKEN_ADDRESSES: TokenAddresses = {
+  'BNB': '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' as `0x${string}`,
+  'WBNB': '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' as `0x${string}`,
+  'USDC': '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d' as `0x${string}`,
+  'USDT': '0x55d398326f99059fF775485246999027B3197955' as `0x${string}`,
+  'BUSD': '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56' as `0x${string}`,
+  'CAKE': '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82' as `0x${string}`
+};
+
+interface GetAmount1ForLiquidityParams {
+  token0: string;
+  token1: string;
+  amount0: string;
+  tickLower: number;
+  tickUpper: number;
+  fee: number;
+}
+
+const ZAP_ABI = [
+  'function zapIn(address token0, address token1, uint256 amount0, uint256 amount1, uint24 fee, int24 tickLower, int24 tickUpper, uint256 amount0Min, uint256 amount1Min, uint256 deadline) external returns (uint256 tokenId)',
+  'function zapInWithSwap(address tokenIn, address token0, address token1, uint256 amountIn, uint24 fee, int24 tickLower, int24 tickUpper, uint256 amountOutMin, uint256 deadline) external returns (uint256 tokenId)'
+];
 
 export class PancakeService {
   private provider: JsonRpcProvider;
   private router: Contract;
   private factory: Contract;
   private nftPositions: Contract;
-  private masterChef: Contract;
+  private quoter: Contract;
+  private staker: Contract;
   private priceCache: Map<string, TokenPrice>;
   private readonly PRICE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
   private walletService: WalletService;
 
   constructor(provider: JsonRpcProvider) {
-    this.provider = provider;
+    // List of BSC RPC endpoints
+    const rpcUrls = [
+      'https://bsc-dataseed.binance.org/',
+      'https://bsc-dataseed1.defibit.io/',
+      'https://bsc-dataseed1.ninicoin.io/',
+      'https://bsc-dataseed2.defibit.io/'
+    ];
+
+    // Try each RPC URL until one works
+    let lastError: Error | undefined;
+    let currentProvider: JsonRpcProvider | undefined;
+    
+    for (const url of rpcUrls) {
+      try {
+        const testProvider = new JsonRpcProvider(url);
+        // Test the connection
+        testProvider.getBlockNumber().then(blockNumber => {
+          console.log(`Connected to BSC RPC: ${url}, current block: ${blockNumber}`);
+        }).catch(error => {
+          console.error(`Failed to connect to ${url}:`, error);
+        });
+        currentProvider = testProvider;
+        break;
+      } catch (error) {
+        console.error(`Failed to initialize provider with ${url}:`, error);
+        lastError = error as Error;
+      }
+    }
+
+    if (!currentProvider) {
+      throw new Error(`Failed to connect to any BSC RPC endpoint. Last error: ${lastError?.message}`);
+    }
+
+    this.provider = currentProvider;
     this.priceCache = new Map();
+    
+    // Initialize V3 Router contract
     this.router = new Contract(
-      PANCAKE_ROUTER_ADDRESS,
-      [
-        'function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)',
-        'function addLiquidityETH(address token, uint amountTokenDesired, uint amountTokenMin, uint amountETHMin, uint deadline) external payable returns (uint amountToken, uint amountETH, uint liquidity)',
-        'function removeLiquidity(address tokenA, address tokenB, uint liquidity, uint amountAMin, uint amountBMin, uint deadline) external returns (uint amountA, uint amountB)',
-        'function removeLiquidityETH(address token, uint liquidity, uint amountTokenMin, uint amountETHMin, uint deadline) external returns (uint amountToken, uint amountETH)',
-        'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
-        'function swapTokensForExactTokens(uint amountOut, uint amountInMax, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
-        'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, uint deadline) external payable returns (uint[] memory amounts)',
-        'function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
-        'function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, uint deadline) external returns (uint[] memory amounts)',
-        'function swapETHForExactTokens(uint amountOut, address[] calldata path, uint deadline) external payable returns (uint[] memory amounts)',
-        'function collect(uint256 tokenId, uint128 amount0Max, uint128 amount1Max) external returns (uint128 amount0, uint128 amount1)',
-      ],
-      provider
+      PANCAKE_V3_ROUTER_ADDRESS,
+      ROUTER_ABI,
+      this.provider
     );
+
+    // Initialize V3 Factory contract
     this.factory = new Contract(
-      PANCAKE_FACTORY_ADDRESS,
-      [
-        'function getPair(address tokenA, address tokenB) external view returns (address pair)',
-        'function allPairs(uint) external view returns (address pair)',
-        'function allPairsLength() external view returns (uint)',
-      ],
-      provider
+      PANCAKE_V3_FACTORY_ADDRESS,
+      FACTORY_ABI,
+      this.provider
     );
+
+    // Initialize V3 NFT Positions contract
     this.nftPositions = new Contract(
-      PANCAKE_NFT_POSITIONS_ADDRESS,
-      [
-        'function positions(uint256 tokenId) external view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)',
-        'function balanceOf(address owner) external view returns (uint256)',
-        'function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)',
-      ],
-      provider
+      PANCAKE_V3_NFT_POSITIONS_ADDRESS,
+      NFT_POSITIONS_ABI,
+      this.provider
     );
-    this.masterChef = new Contract(
-      PANCAKE_MASTER_CHEF_ADDRESS,
+
+    // Initialize V3 Quoter contract
+    this.quoter = new Contract(
+      PANCAKE_V3_QUOTER_ADDRESS,
       [
-        'function userInfo(uint256 pid, address user) external view returns (uint256 amount, uint256 rewardDebt)',
-        'function poolInfo(uint256 pid) external view returns (address lpToken, uint256 allocPoint, uint256 lastRewardBlock, uint256 accCakePerShare)',
+        'function quote(bytes memory path, uint256 amount) external returns (uint256[] memory amounts)',
+        'function quoteExactInput(bytes memory path, uint256 amountIn) external returns (uint256 amountOut)',
+        'function quoteExactInputSingle(address tokenIn, address tokenOut, uint24 fee, uint256 amountIn, uint160 sqrtPriceLimitX96) external returns (uint256 amountOut)',
+        'function quoteExactOutput(bytes memory path, uint256 amountOut) external returns (uint256 amountIn)',
+        'function quoteExactOutputSingle(address tokenIn, address tokenOut, uint24 fee, uint256 amountOut, uint160 sqrtPriceLimitX96) external returns (uint256 amountIn)'
       ],
-      provider
+      this.provider
     );
-    this.walletService = new WalletService(provider, this.factory);
+
+    // Initialize V3 Staker contract
+    this.staker = new Contract(
+      PANCAKE_V3_STAKER_ADDRESS,
+      STAKER_ABI,
+      this.provider
+    );
+
+    this.walletService = new WalletService(this.provider, this.factory);
   }
 
   async createPool(token0: string, token1: string, fee: number): Promise<string> {
@@ -111,27 +182,94 @@ export class PancakeService {
     return pools;
   }
 
-  private async getPriceRatio(token0: string, token1: string): Promise<number> {
+  private getTokenAddress(token: string): `0x${string}` {
+    if (token.startsWith('0x')) {
+      return token as `0x${string}`;
+    }
+    const address = TOKEN_ADDRESSES[token.toUpperCase()];
+    if (!address) {
+      throw new Error(`Unknown token symbol: ${token}`);
+    }
+    return address;
+  }
+
+  async getPriceRatio(token0: string, token1: string): Promise<number> {
     try {
-      // 1. Get pool contract
-      const pair = await this.factory.getPair(token0, token1);
-      if (pair === ethers.ZeroAddress) {
+      // Convert token symbols to addresses if needed
+      const token0Address = this.getTokenAddress(token0);
+      const token1Address = this.getTokenAddress(token1);
+
+      console.log("token0Address:", token0Address);
+      console.log("token1Address:", token1Address);
+
+      // 1. Create Token instances
+      const token0Contract = new Contract(token0Address, [
+        'function decimals() view returns (uint8)',
+        'function symbol() view returns (string)'
+      ], this.provider);
+
+      const token1Contract = new Contract(token1Address, [
+        'function decimals() view returns (uint8)',
+        'function symbol() view returns (string)'
+      ], this.provider);
+
+      const [token0Decimals, token1Decimals, token0Symbol, token1Symbol] = await Promise.all([
+        token0Contract.decimals(),
+        token1Contract.decimals(),
+        token0Contract.symbol(),
+        token1Contract.symbol()
+      ]);
+
+      // Validate decimals
+      if (token0Decimals === undefined || token1Decimals === undefined) {
+        throw new Error('Failed to get token decimals');
+      }
+
+      // 2. Get pool address - always use token0 as token0 and token1 as token1
+      const pool = await this.factory.getPool(token0Address, token1Address, 500);
+      if (pool === ethers.ZeroAddress) {
         throw new Error('Pool does not exist');
       }
 
-      const pairContract = new Contract(pair, [
-        'function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)',
-        'function token0() view returns (address)',
-        'function token1() view returns (address)'
-      ], this.provider);
+      console.log("Pool address:", pool);
 
-      // 2. Get reserves
-      const [reserve0, reserve1] = await pairContract.getReserves();
-      
-      // 3. Calculate price ratio
-      return Number(reserve1) / Number(reserve0);
+      // 3. Get pool contract
+      const poolContract = new Contract(pool, PancakeV3PoolABI, this.provider);
+
+      // 4. Get slot0 data
+      const { tick } = await poolContract.slot0();
+
+      // 5. Calculate price from tick
+      const tickNumber = Number(tick);
+      const price = 1.0001 ** tickNumber;
+
+      // 6. Get actual token order from pool
+      const [actualToken0, actualToken1] = await Promise.all([
+        poolContract.token0(),
+        poolContract.token1()
+      ]);
+
+      // 7. Adjust price based on token order and decimals
+      const baseTokenIsToken0 = token0Address.toLowerCase() === actualToken0.toLowerCase();
+      const decimalAdjustment = baseTokenIsToken0 
+        ? 10 ** (Number(token1Decimals) - Number(token0Decimals))
+        : 10 ** (Number(token0Decimals) - Number(token1Decimals));
+
+      const adjustedPrice = baseTokenIsToken0 ? price * decimalAdjustment : (1 / price) * decimalAdjustment;
+
+      console.log('Raw price:', price);
+      console.log('Adjusted price:', adjustedPrice);
+      console.log('Token order:', {
+        requestedBase: token0Symbol,
+        requestedQuote: token1Symbol,
+        actualToken0: await (new Contract(actualToken0, ['function symbol() view returns (string)'], this.provider)).symbol(),
+        actualToken1: await (new Contract(actualToken1, ['function symbol() view returns (string)'], this.provider)).symbol(),
+        baseTokenIsToken0
+      });
+
+      return adjustedPrice;
     } catch (error) {
-      console.error('Error getting price ratio:', error);
+      console.error('Error in getPriceRatio:', error);
       throw error;
     }
   }
@@ -140,46 +278,51 @@ export class PancakeService {
     try {
       const { token0, token1, amount0Desired, amount1Desired, deadline } = params;
       
-      // 1. Get current price ratio
-      const priceRatio = await this.getPriceRatio(token0, token1);
-      
-      // 2. Calculate actual token amounts needed
-      let actualAmount0 = amount0Desired;
-      let actualAmount1 = amount1Desired;
-
-      // If only one token amount is provided, calculate the other token amount
-      if (BigNumber.from(amount0Desired).gt(0) && BigNumber.from(amount1Desired).eq(0)) {
-        actualAmount1 = ethers.parseUnits(
-          (Number(ethers.formatUnits(amount0Desired, 18)) * priceRatio).toString(),
-          18
-        );
-      } else if (BigNumber.from(amount1Desired).gt(0) && BigNumber.from(amount0Desired).eq(0)) {
-        actualAmount0 = ethers.parseUnits(
-          (Number(ethers.formatUnits(amount1Desired, 18)) / priceRatio).toString(),
-          18
-        );
+      // 1. Get pool address
+      const pool = await this.factory.getPool(token0, token1, 500);
+      if (pool === ethers.ZeroAddress) {
+        throw new Error('Pool does not exist');
       }
 
-      // 3. Set slippage protection (default 20%)
-      const SLIPPAGE_TOLERANCE = 20;
-      const amount0Min = BigNumber.from(actualAmount0).mul(100 - SLIPPAGE_TOLERANCE).div(100);
-      const amount1Min = BigNumber.from(actualAmount1).mul(100 - SLIPPAGE_TOLERANCE).div(100);
+      // 2. Calculate price range if not provided
+      const tickLower = params.tickLower ?? Math.floor(Math.log(0.8) / Math.log(1.0001));
+      const tickUpper = params.tickUpper ?? Math.ceil(Math.log(1.2) / Math.log(1.0001));
 
-      // 4. Execute add liquidity operation
-      const tx = await this.router.addLiquidity(
+      // 3. Calculate correct amount1Desired using getAmount1ForLiquidity
+      const calculatedAmount1Desired = await this.getAmount1ForLiquidity({
         token0,
         token1,
-        actualAmount0,
-        actualAmount1,
-        amount0Min,
-        amount1Min,
-        deadline
-      );
+        amount0: amount0Desired.toString(),
+        tickLower,
+        tickUpper,
+        fee: 500
+      });
 
+      // 4. Create mint parameters with calculated amount1Desired
+      const mintParams = {
+        token0,
+        token1,
+        fee: 500,
+        tickLower,
+        tickUpper,
+        amount0Desired,
+        amount1Desired: calculatedAmount1Desired,
+        amount0Min: 0,
+        amount1Min: 0,
+        recipient: ethers.ZeroAddress,
+        deadline
+      };
+
+      // 5. Mint new position
+      const tx = await this.nftPositions.mint(mintParams);
       const receipt = await tx.wait();
-      const tokenId = receipt.events[0].args.tokenId;
+      const mintEvent = receipt.events.find((e: ethers.EventLog) => e.fragment.name === 'Mint');
+      if (!mintEvent) {
+        throw new Error('Mint event not found');
+      }
+      const tokenId = mintEvent.args.tokenId;
       
-      // 5. Return position information
+      // 6. Return position info
       return this.getPositionInfo(tokenId);
     } catch (error) {
       console.error('Error adding liquidity:', error);
@@ -187,84 +330,154 @@ export class PancakeService {
     }
   }
 
-  async removeLiquidity(params: RemoveLiquidityParams): Promise<void> {
-    const tx = await this.router.removeLiquidity(
-      params.tokenId,
-      params.liquidity,
-      params.amount0Min,
-      params.amount1Min,
-      params.deadline
-    );
-    await tx.wait();
+  async removeLiquidity(params: RemoveLiquidityParams): Promise<ethers.TransactionResponse> {
+    try {
+      const { tokenId, liquidity, amount0Min, amount1Min, deadline } = params;
+      
+      // 1. Get position info
+      const position = await this.getPositionInfo(tokenId);
+      
+      // 2. Prepare multicall data
+      const multicallData = [];
+
+      // 3. Add decreaseLiquidity operation
+      const decreaseLiquidityParams = {
+        tokenId: tokenId,
+        liquidity: liquidity,
+        amount0Min: amount0Min || '0',
+        amount1Min: amount1Min || '0',
+        deadline: deadline
+      };
+
+      const decreaseLiquidityCalldata = this.nftPositions.interface.encodeFunctionData('decreaseLiquidity', [decreaseLiquidityParams]);
+      multicallData.push(decreaseLiquidityCalldata);
+
+      // 4. Add collect operation
+      const collectParams = {
+        tokenId: tokenId,
+        recipient: ethers.ZeroAddress,
+        amount0Max: position.token0Amount.toString(),
+        amount1Max: position.token1Amount.toString()
+      };
+
+      const collectCalldata = this.nftPositions.interface.encodeFunctionData('collect', [collectParams]);
+      multicallData.push(collectCalldata);
+
+      // 5. Execute multicall on NFT Positions contract using wallet service
+      const tx = await this.walletService.sendTransaction(
+        PANCAKE_V3_NFT_POSITIONS_ADDRESS,
+        this.nftPositions.interface.encodeFunctionData('multicall', [multicallData])
+      );
+      return tx;
+    } catch (error) {
+      console.error('Error removing liquidity:', error);
+      throw error;
+    }
   }
 
   async stake(params: StakeParams): Promise<void> {
-    const tx = await this.masterChef.deposit(0, params.amount, params.tokenId);
-    await tx.wait();
+    try {
+      const tx = await this.staker.deposit(params.tokenId);
+      await tx.wait();
+    } catch (error) {
+      console.error('Error staking position:', error);
+      throw error;
+    }
   }
 
   async getPositionInfo(tokenId: number): Promise<PositionInfo> {
-    const position = await this.nftPositions.positions(tokenId);
-    return {
-      tokenId,
-      liquidity: position.liquidity,
-      token0Amount: position.amount0,
-      token1Amount: position.amount1,
-      feeGrowthInside0LastX128: position.feeGrowthInside0LastX128,
-      feeGrowthInside1LastX128: position.feeGrowthInside1LastX128,
-    };
+    try {
+      const position = await this.nftPositions.positions(tokenId);
+      return {
+        tokenId,
+        liquidity: position.liquidity,
+        token0Amount: position.tokensOwed0,
+        token1Amount: position.tokensOwed1,
+        feeGrowthInside0LastX128: position.feeGrowthInside0LastX128,
+        feeGrowthInside1LastX128: position.feeGrowthInside1LastX128,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+        fee: position.fee
+      };
+    } catch (error) {
+      console.error('Error getting position info:', error);
+      throw error;
+    }
   }
 
   async findHighYieldPools(minTVL: number = 100000, minVolume24h: number = 50000, minAPY: number = 20): Promise<PoolInfo[]> {
-    // Get all pools from the factory
-    const pools = await this.getTopPools({});
-    
-    const highYieldPools: PoolInfo[] = [];
-    
-    for (const pool of pools) {
-      // Get pool TVL (Total Value Locked)
-      const tvl = await this.getPoolTVL(pool.address);
-      
-      // Get 24h volume
-      const volume24h = await this.getPoolVolume24h(pool.address);
-      
-      // Calculate APY based on fees and TVL
-      const apy = await this.calculatePoolAPY(pool.address);
-      
-      if (tvl >= minTVL && volume24h >= minVolume24h && apy >= minAPY) {
-        highYieldPools.push({
-          ...pool,
-          tvl,
-          volume24h,
-          apy
-        });
-      }
-    }
-    
-    // Sort pools by APY in descending order
-    return highYieldPools.sort((a, b) => b.apy - a.apy);
+    // Implementation would depend on available APIs or subgraph queries
+    // This is a placeholder implementation
+    const pools: PoolInfo[] = [];
+    // TODO: Implement actual pool fetching logic using PancakeSwap's V3 subgraph
+    return pools;
   }
 
   private async getPoolTVL(poolAddress: string): Promise<number> {
-    // Implementation to get pool's TVL
-    // This would typically involve querying the pool contract for token balances
-    // and getting their USD values
-    return 0; // Placeholder
+    try {
+      const poolContract = new Contract(poolAddress, [
+        'function liquidity() external view returns (uint128)',
+        'function token0() external view returns (address)',
+        'function token1() external view returns (address)',
+        'function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)'
+      ], this.provider);
+
+      const [liquidity, token0, token1, [sqrtPriceX96]] = await Promise.all([
+        poolContract.liquidity(),
+        poolContract.token0(),
+        poolContract.token1(),
+        poolContract.slot0()
+      ]);
+
+      const price = (Number(sqrtPriceX96) / 2 ** 96) ** 2;
+      const token0Contract = new Contract(token0, ['function decimals() view returns (uint8)'], this.provider);
+      const token1Contract = new Contract(token1, ['function decimals() view returns (uint8)'], this.provider);
+      
+      const [decimals0, decimals1] = await Promise.all([
+        token0Contract.decimals(),
+        token1Contract.decimals()
+      ]);
+
+      const tvl = Number(liquidity) * price * (10 ** (decimals1 - decimals0));
+      return tvl;
+    } catch (error) {
+      console.error('Error getting pool TVL:', error);
+      return 0;
+    }
   }
 
   private async getPoolVolume24h(poolAddress: string): Promise<number> {
     // Implementation to get pool's 24h trading volume
-    // This would typically involve querying historical swap events
+    // This would typically involve querying the V3 subgraph for swap events
     return 0; // Placeholder
   }
 
   private async calculatePoolAPY(poolAddress: string): Promise<number> {
-    // Implementation to calculate pool's APY
-    // This would typically involve:
-    // 1. Getting pool's fee rate
-    // 2. Getting historical trading volume
-    // 3. Calculating annualized returns based on fees collected
-    return 0; // Placeholder
+    try {
+      const poolContract = new Contract(poolAddress, [
+        'function fee() external view returns (uint24)',
+        'function liquidity() external view returns (uint128)',
+        'function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)'
+      ], this.provider);
+
+      const [fee, liquidity, [sqrtPriceX96]] = await Promise.all([
+        poolContract.fee(),
+        poolContract.liquidity(),
+        poolContract.slot0()
+      ]);
+
+      const price = (Number(sqrtPriceX96) / 2 ** 96) ** 2;
+      const feeRate = Number(fee) / 1000000;
+      const volume24h = await this.getPoolVolume24h(poolAddress);
+      const fees24h = volume24h * feeRate;
+      const tvl = await this.getPoolTVL(poolAddress);
+      const apy = (fees24h * 365) / tvl * 100;
+
+      return apy;
+    } catch (error) {
+      console.error('Error calculating pool APY:', error);
+      return 0;
+    }
   }
 
   private async getTokenPrice(token: Token): Promise<number> {
@@ -371,7 +584,7 @@ export class PancakeService {
 
       const [cakeBalance, cakeStaked] = await Promise.all([
         cakeContract.balanceOf(walletAddress),
-        this.masterChef.userInfo(0, walletAddress).then(info => info.amount)
+        this.staker.userInfo(0, walletAddress).then(info => info.amount)
       ]);
 
       const cakePrice = prices.get(TOKEN_ADDRESSES.CAKE.toLowerCase()) || 0;
@@ -407,7 +620,7 @@ export class PancakeService {
           lpTokenContract.totalSupply()
         ]);
 
-        const staked = await this.masterChef.userInfo(0, walletAddress).then(info => info.amount);
+        const staked = await this.staker.userInfo(0, walletAddress).then(info => info.amount);
 
         if (BigNumber.from(balance).gt(0) || BigNumber.from(staked).gt(0)) {
           const tvl = await this.calculateLPTVL(pair, totalSupply, prices);
@@ -444,71 +657,369 @@ export class PancakeService {
     }
   }
 
-  async addLiquidityWithSwap(params: AddLiquidityParams & { swapPath?: string[] }): Promise<PositionInfo> {
+  async addLiquidityWithSwap(params: AddLiquidityParams & { swapPath?: string[] }, address: string): Promise<PositionInfo> {
+    
+    const aprovider = new JsonRpcProvider('https://bsc-dataseed.binance.org/');
     try {
+
       const { token0, token1, amount0Desired, amount1Desired, deadline, swapPath } = params;
       
-      // 1. Get current price ratio
-      const priceRatio = await this.getPriceRatio(token0, token1);
+      // 1. Get pool address with fee from FEE_TIERS
+      const fee = FEE_TIERS.MEDIUM; // Use the medium fee tier (0.05%)
       
-      // 2. Calculate actual token amounts needed
-      let actualAmount0 = amount0Desired;
-      let actualAmount1 = amount1Desired;
-
-      // If only one token amount is provided, calculate the other token amount
-      if (BigNumber.from(amount0Desired).gt(0) && BigNumber.from(amount1Desired).eq(0)) {
-        actualAmount1 = ethers.parseUnits(
-          (Number(ethers.formatUnits(amount0Desired, 18)) * priceRatio).toString(),
-          18
-        );
-      } else if (BigNumber.from(amount1Desired).gt(0) && BigNumber.from(amount0Desired).eq(0)) {
-        actualAmount0 = ethers.parseUnits(
-          (Number(ethers.formatUnits(amount1Desired, 18)) / priceRatio).toString(),
-          18
-        );
+      // Convert token symbols to addresses if needed
+      const token0Address = this.getTokenAddress(token0);
+      const token1Address = this.getTokenAddress(token1);
+      
+      const pool = await this.factory.getPool(token0Address, token1Address, fee);
+  
+      if (pool === ethers.ZeroAddress) {
+        throw new Error('Pool does not exist');
       }
 
-      // 3. Set slippage protection (default 20%)
-      const SLIPPAGE_TOLERANCE = 20;
-      const amount0Min = BigNumber.from(actualAmount0).mul(100 - SLIPPAGE_TOLERANCE).div(100);
-      const amount1Min = BigNumber.from(actualAmount1).mul(100 - SLIPPAGE_TOLERANCE).div(100);
+      // 2. Check if user already has a position in this pool
+      const allPositions = await this.getAllPositions(address);
+      const existingPosition = allPositions.find(pos => {
+        const positionPool = this.factory.getPool(token0, token1, pos.fee);
+        return positionPool === pool;
+      });
 
-      // 4. Check if tokens need to be swapped before adding liquidity
-      if (swapPath && swapPath.length > 0) {
-        // Use Router contract's swap function
-        const swapAmount = BigNumber.from(actualAmount0).gt(0) ? actualAmount0 : actualAmount1;
-        const swapTx = await this.router.swapExactTokensForTokens(
+      if (existingPosition) {
+        // If position exists, use increaseLiquidity instead
+        return this.increaseLiquidity({
+          tokenId: existingPosition.tokenId,
+          amount0Desired,
+          amount1Desired,
+          amount0Min: '0',
+          amount1Min: '0',
+          deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        });
+      }
+
+      // 3. Calculate price range if not provided
+      const tickLower = params.tickLower ?? Math.floor(Math.log(0.8) / Math.log(1.0001));
+      const tickUpper = params.tickUpper ?? Math.ceil(Math.log(1.2) / Math.log(1.0001));
+
+      // 4. Calculate correct amount1Desired using getAmount1ForLiquidity
+      const calculatedAmount1Desired = params.amount1Desired;
+
+      // 5. Get wallet balances
+      const balances = await this.getWalletBalances(address);
+      const balanceDetails = Array.from(balances.entries()).map(([token, balance]) => {
+        // Get token symbol from our TOKEN_ADDRESSES mapping
+        const symbol = Object.entries(TOKEN_ADDRESSES).find(([_, addr]) => 
+          addr.toLowerCase() === token.toLowerCase()
+        )?.[0] || 'Unknown';
+        
+        return {
+          token,
+          symbol,
+          balance: balance.toString()
+        };
+      });
+      const token0Balance = balances.get(token0.toLowerCase()) || BigNumber.from(0);
+      const token1Balance = balances.get(token1.toLowerCase()) || BigNumber.from(0);
+      const bnbBalance = BigNumber.from(await this.provider.getBalance(address));
+
+      // 6. Check if wallet has any of the tokens
+      if (token0Balance.eq(0) && token1Balance.eq(0)) {
+        throw new Error('Wallet does not have any of the required tokens');
+      }
+
+      // Initialize token contracts
+      const token0Contract = new Contract(token0Address, [
+        'function approve(address spender, uint256 amount) external returns (bool)',
+        'function allowance(address owner, address spender) view returns (uint256)'
+    ], this.provider);
+
+    const token1Contract = new Contract(token1Address, [
+        'function approve(address spender, uint256 amount) external returns (bool)',
+        'function allowance(address owner, address spender) view returns (uint256)'
+    ], this.provider);
+
+    // Initialize multicall data array
+    const multicallData: string[] = [];
+
+    // Add approve transactions
+    const approve0Calldata = token0Contract.interface.encodeFunctionData('approve', [
+        PANCAKE_V3_ROUTER_ADDRESS,
+        ethers.MaxUint256
+    ]);
+    multicallData.push(approve0Calldata);
+
+    const approve1Calldata = token1Contract.interface.encodeFunctionData('approve', [
+        PANCAKE_V3_ROUTER_ADDRESS,
+        ethers.MaxUint256
+    ]);
+    multicallData.push(approve1Calldata);
+
+      // 10. Add swap operation if needed
+      
+      if (token0Balance.gt(0) && token1Balance.eq(0)) {
+        
+        const swapAmount = BigNumber.from(amount0Desired).gt(token0Balance) ? token0Balance : amount0Desired;
+       
+        
+        const swapCalldata = this.router.interface.encodeFunctionData('exactInputSingle', [
+          token0Address,
+          token1Address,
+          500,
+          address,
+          deadline,
           swapAmount,
-          amount0Min, // Use same slippage protection
-          swapPath,
-          deadline
-        );
-        await swapTx.wait();
+          0 // amountOutMinimum
+        ]);
+        
+        multicallData.push(swapCalldata);
+      } else if (token1Balance.gt(0) && token0Balance.eq(0)) {
+        
+        const swapAmount = BigNumber.from(calculatedAmount1Desired).gt(token1Balance) ? token1Balance : calculatedAmount1Desired;
+        const swapCalldata = this.router.interface.encodeFunctionData('exactInputSingle', [
+          token1Address,
+          token0Address,
+          500,
+          address,
+          deadline,
+          swapAmount,
+          0 // amountOutMinimum
+        ]);
+        multicallData.push(swapCalldata);
       }
 
-      // 5. Execute add liquidity operation
-      const tx = await this.router.addLiquidity(
-        token0,
-        token1,
-        actualAmount0,
-        actualAmount1,
-        amount0Min,
-        amount1Min,
+      // 11. Add mint operation with calculated amount1Desired
+      const mintParams = {
+        token0: token0Address,
+        token1: token1Address,
+        fee,
+        tickLower,
+        tickUpper,
+        amount0Desired,
+        amount1Desired: calculatedAmount1Desired,
+        amount0Min: 0,
+        amount1Min: 0,
+        recipient: address,
         deadline
-      );
+      };
+     
 
-      const receipt = await tx.wait();
-      const tokenId = receipt.events[0].args.tokenId;
+      const mintCalldata = this.nftPositions.interface.encodeFunctionData('mint', [mintParams]);
+      multicallData.push(mintCalldata);
+      // Encode multicall data
+      const multicallCalldata = this.router.interface.encodeFunctionData('multicall', [multicallData]);
+      console.log('Multicall calldata:', multicallCalldata);
+
+      try {
+        const decoded = this.router.interface.decodeFunctionData('multicall', multicallCalldata);
+        console.log('Decoded multicall data:', decoded);
+      } catch (error) {
+        console.error('Error decoding multicall data:', error);
+        throw new Error('Failed to encode multicall data');
+      }
       
-      // 6. Return position information
-      return this.getPositionInfo(tokenId);
-    } catch (error) {
+      // Return transaction data
+      return {
+        tokenId: 0, // This will be set after execution
+        liquidity: '0',
+        token0Amount: '0',
+        token1Amount: '0',
+        feeGrowthInside0LastX128: '0',
+        feeGrowthInside1LastX128: '0',
+        tickLower,
+        tickUpper,
+        fee,
+        transactionData: multicallCalldata
+      };
+    } catch (error: any) {
       console.error('Error adding liquidity with swap:', error);
+      if (error.message) {
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+      }
       throw error;
     }
   }
 
-  // Add ETH liquidity special method
+  async addLiquidityWithZap(params: AddLiquidityParams & { swapPath?: string[] }, address: string): Promise<PositionInfo> {
+    try {
+      const { token0, token1, amount0Desired, amount1Desired, deadline, swapPath } = params;
+      
+      // 1. Get pool address
+      const pool = await this.factory.getPool(token0, token1, 500);
+      if (pool === ethers.ZeroAddress) {
+        throw new Error('Pool does not exist');
+      }
+
+      // 2. Check if user already has a position in this pool
+      const allPositions = await this.getAllPositions(address);
+      const existingPosition = allPositions.find(pos => {
+        const positionPool = this.factory.getPool(token0, token1, pos.fee);
+        return positionPool === pool;
+      });
+
+      if (existingPosition) {
+        // If position exists, use increaseLiquidity instead
+        return this.increaseLiquidity({
+          tokenId: existingPosition.tokenId,
+          amount0Desired,
+          amount1Desired,
+          amount0Min: '0',
+          amount1Min: '0',
+          deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        });
+      }
+
+      // 3. Calculate price range if not provided
+      const tickLower = params.tickLower ?? Math.floor(Math.log(0.8) / Math.log(1.0001));
+      const tickUpper = params.tickUpper ?? Math.ceil(Math.log(1.2) / Math.log(1.0001));
+
+      // 4. Get wallet balances
+      const balances = await this.getWalletBalances(address);
+      const token0Balance = balances.get(token0.toLowerCase()) || BigNumber.from(0);
+      const token1Balance = balances.get(token1.toLowerCase()) || BigNumber.from(0);
+      const bnbBalance = BigNumber.from(await this.provider.getBalance(address));
+
+      // 5. Check if wallet has any of the tokens
+      if (token0Balance.eq(0) && token1Balance.eq(0)) {
+        throw new Error('Wallet does not have any of the required tokens');
+      }
+
+      // 6. Initialize Zap contract
+      const zapContract = new Contract(
+        PANCAKE_V3_ZAP_ADDRESS,
+        ZAP_ABI,
+        this.provider
+      );
+
+      // 7. Prepare zap parameters
+      let zapParams;
+      if (token0Balance.gt(0) && token1Balance.eq(0)) {
+        // Zap in with token0
+        zapParams = {
+          tokenIn: token0,
+          token0,
+          token1,
+          amountIn: token0Balance,
+          fee: 500,
+          tickLower,
+          tickUpper,
+          amountOutMin: '0',
+          deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        };
+      } else if (token1Balance.gt(0) && token0Balance.eq(0)) {
+        // Zap in with token1
+        zapParams = {
+          tokenIn: token1,
+          token0,
+          token1,
+          amountIn: token1Balance,
+          fee: 500,
+          tickLower,
+          tickUpper,
+          amountOutMin: '0',
+          deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        };
+      } else {
+        // Zap in with both tokens
+        zapParams = {
+          token0,
+          token1,
+          amount0: amount0Desired,
+          amount1: amount1Desired,
+          fee: 500,
+          tickLower,
+          tickUpper,
+          amount0Min: '0',
+          amount1Min: '0',
+          deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+        };
+      }
+
+      // 8. Add token approvals
+      const token0Contract = new Contract(token0, [
+        'function approve(address spender, uint256 amount) external returns (bool)',
+        'function allowance(address owner, address spender) external view returns (uint256)'
+      ], this.provider);
+
+      const token1Contract = new Contract(token1, [
+        'function approve(address spender, uint256 amount) external returns (bool)',
+        'function allowance(address owner, address spender) external view returns (uint256)'
+      ], this.provider);
+
+      // Check and approve for Zap contract
+      const [zapAllowance0, zapAllowance1] = await Promise.all([
+        token0Contract.allowance(address, PANCAKE_V3_ZAP_ADDRESS),
+        token1Contract.allowance(address, PANCAKE_V3_ZAP_ADDRESS)
+      ]);
+
+      if (BigNumber.from(zapAllowance0).lt(amount0Desired)) {
+        await token0Contract.approve(PANCAKE_V3_ZAP_ADDRESS, ethers.MaxUint256);
+      }
+
+      if (BigNumber.from(zapAllowance1).lt(amount1Desired)) {
+        await token1Contract.approve(PANCAKE_V3_ZAP_ADDRESS, ethers.MaxUint256);
+      }
+
+      // 9. Execute zap
+      let tx;
+      if (token0Balance.gt(0) && token1Balance.eq(0)) {
+        tx = await zapContract.zapInWithSwap(
+          zapParams.tokenIn,
+          zapParams.token0,
+          zapParams.token1,
+          zapParams.amountIn,
+          zapParams.fee,
+          zapParams.tickLower,
+          zapParams.tickUpper,
+          zapParams.amountOutMin,
+          zapParams.deadline
+        );
+      } else if (token1Balance.gt(0) && token0Balance.eq(0)) {
+        tx = await zapContract.zapInWithSwap(
+          zapParams.tokenIn,
+          zapParams.token0,
+          zapParams.token1,
+          zapParams.amountIn,
+          zapParams.fee,
+          zapParams.tickLower,
+          zapParams.tickUpper,
+          zapParams.amountOutMin,
+          zapParams.deadline
+        );
+      } else {
+        tx = await zapContract.zapIn(
+          zapParams.token0,
+          zapParams.token1,
+          zapParams.amount0,
+          zapParams.amount1,
+          zapParams.fee,
+          zapParams.tickLower,
+          zapParams.tickUpper,
+          zapParams.amount0Min,
+          zapParams.amount1Min,
+          zapParams.deadline
+        );
+      }
+
+      const receipt = await tx.wait();
+      
+      // 10. Get tokenId from the mint event
+      const mintEvent = receipt.events.find((e: ethers.EventLog) => e.fragment.name === 'Mint');
+      if (!mintEvent) {
+        throw new Error('Mint event not found');
+      }
+      const tokenId = mintEvent.args.tokenId;
+      
+      // 11. Return position info
+      return this.getPositionInfo(tokenId);
+    } catch (error) {
+      console.error('Error adding liquidity with zap:', error);
+      throw error;
+    }
+  }
+
+  // 添加 ETH 流动性的特殊方法
   async addLiquidityETH(params: {
     token: string;
     amountTokenDesired: BigNumberish;
@@ -520,18 +1031,19 @@ export class PancakeService {
     try {
       const { token, amountTokenDesired, amountETHDesired, amountTokenMin, amountETHMin, deadline } = params;
 
-      // Execute add liquidity operation
-      const tx = await this.router.addLiquidityETH(
+      // 执行添加流动性操作
+      const tx = await this.router.exactInputSingle(
         token,
-        amountTokenDesired,
-        amountTokenMin,
-        amountETHMin,
+        ethers.ZeroAddress,
+        500,
+        ethers.ZeroAddress,
         deadline,
-        { value: amountETHDesired }
+        amountTokenDesired,
+        amountTokenMin
       );
 
       const receipt = await tx.wait();
-      const tokenId = receipt.events[0].args.tokenId;
+      const tokenId = receipt.events[0].args.amountOut;
       
       return this.getPositionInfo(tokenId);
     } catch (error) {
@@ -540,22 +1052,29 @@ export class PancakeService {
     }
   }
 
-  // Add new method to get wallet balances
+  // 添加新的方法来获取钱包余额
   async getWalletBalances(walletAddress: string): Promise<Map<string, BigNumber>> {
-    return this.walletService.getWalletBalances(walletAddress);
+    const balancesArray = await this.walletService.getWalletBalances(walletAddress);
+    const balancesMap = new Map<string, BigNumber>();
+    
+    for (const [token, balance] of balancesArray) {
+      balancesMap.set(token.toLowerCase(), BigNumber.from(balance));
+    }
+    
+    return balancesMap;
   }
 
   async getFormattedBalances(walletAddress: string): Promise<Map<string, string>> {
     return this.walletService.getFormattedBalances(walletAddress);
   }
 
-  // Get all liquidity positions information for wallet address
+  // 获取钱包地址下的所有流动性头寸信息
   async getAllPositions(walletAddress: string): Promise<PositionInfo[]> {
     try {
-      // 1. Get all tokenIds
+      // 1. 获取所有 tokenId
       const tokenIds = await this.walletService.getPositionTokenIds(walletAddress);
 
-      // 2. Get detailed information for each position
+      // 2. 获取每个头寸的详细信息
       const positions = await Promise.all(
         tokenIds.map(tokenId => this.getPositionInfo(tokenId))
       );
@@ -567,33 +1086,356 @@ export class PancakeService {
     }
   }
 
-  // Collect liquidity position fee rewards
-  async collect(tokenId: number): Promise<{ amount0: BigNumber; amount1: BigNumber }> {
+  // 收集流动性头寸的手续费奖励
+  async collectFees(tokenId: number, recipient?: string): Promise<string> {
     try {
-      // 1. Get position information
-      const position = await this.nftPositions.positions(tokenId);
-      
-      // 2. Calculate collectible fee amounts
-      const amount0 = position.tokensOwed0;
-      const amount1 = position.tokensOwed1;
+      // 1. Get position info to check available fees and owner
+      const position = await this.getPositionInfo(tokenId);
+      console.log('Position info for collect fees:', position);
 
-      // 3. Execute collect operation if there are fees to collect
-      if (BigNumber.from(amount0).gt(0) || BigNumber.from(amount1).gt(0)) {
-        const tx = await this.router.collect(
-          tokenId,
-          amount0, // amount0Max
-          amount1  // amount1Max
-        );
-        await tx.wait();
-      }
+      // 2. Get position owner if recipient is not provided
+      const positionInfo = await this.nftPositions.positions(tokenId);
+      const positionOwner = positionInfo.operator;
+      console.log('Position owner:', positionOwner);
 
-      return {
-        amount0: BigNumber.from(amount0),
-        amount1: BigNumber.from(amount1)
+      // 3. Prepare collect params
+      const collectParams = {
+        tokenId,
+        recipient: recipient || positionOwner,  // Use position owner as default recipient
+        amount0Max: '0xffffffffffffffffffffffffffffffff', // uint128 max value as string
+        amount1Max: '0xffffffffffffffffffffffffffffffff'  // uint128 max value as string
       };
+
+      console.log('Collect fees params:', collectParams);
+
+      // 4. Encode collect transaction data
+      const collectData = this.nftPositions.interface.encodeFunctionData('collect', [collectParams]);
+      console.log('Collect data:', collectData);
+
+      return collectData;
     } catch (error) {
-      console.error('Error collecting fees:', error);
+      console.error('Error preparing collect fees transaction:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+      }
       throw error;
     }
+  }
+
+  async getRemoveLiquidityTransactionData(params: RemoveLiquidityParams, recipient: string): Promise<{ decreaseLiquidityData: string; collectData: string }> {
+    try {
+      const { tokenId, liquidity, amount0Min, amount1Min, deadline } = params;
+      
+      // 1. Get position info
+      const position = await this.getPositionInfo(tokenId);
+      console.log('Position info:', position);
+      
+      // 2. Prepare decreaseLiquidity params
+      const decreaseLiquidityParams = {
+        tokenId: tokenId,
+        liquidity: liquidity || position.liquidity.toString(),
+        amount0Min: amount0Min || '0',
+        amount1Min: amount1Min || '0',
+        deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+      };
+
+      console.log('Decrease liquidity params:', decreaseLiquidityParams);
+      
+      // 3. Encode decreaseLiquidity transaction data
+      const decreaseLiquidityData = this.nftPositions.interface.encodeFunctionData('decreaseLiquidity', [decreaseLiquidityParams]);
+      console.log('Decrease liquidity data:', decreaseLiquidityData);
+
+      // 4. Prepare collect params
+      const collectParams = {
+        tokenId: tokenId,
+        recipient: recipient,
+        amount0Max: BigNumber.from('0xffffffffffffffffffffffffffffffff'), // uint128 max value
+        amount1Max: BigNumber.from('0xffffffffffffffffffffffffffffffff')  // uint128 max value
+      };
+
+      console.log('Collect params:', collectParams);
+      
+      // 5. Encode collect transaction data
+      const collectData = this.nftPositions.interface.encodeFunctionData('collect', [collectParams]);
+      console.log('Collect data:', collectData);
+      
+      return { decreaseLiquidityData, collectData };
+    } catch (error) {
+      console.error('Error getting remove liquidity transaction data:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+      }
+      throw error;
+    }
+  }
+
+  // 为现有 NFT 头寸增加流动性
+  async increaseLiquidity(params: {
+    tokenId: number;
+    amount0Desired: BigNumberish;
+    amount1Desired: BigNumberish;
+    amount0Min: BigNumberish;
+    amount1Min: BigNumberish;
+    deadline: number;
+  }): Promise<PositionInfo> {
+    try {
+      const { tokenId, amount0Desired, amount1Desired, amount0Min, amount1Min, deadline } = params;
+      
+      // 1. 获取当前头寸信息
+      const position = await this.getPositionInfo(tokenId);
+      console.log('Current position info:', position);
+
+      // 2. 准备增加流动性的参数
+      const increaseLiquidityParams = {
+        tokenId,
+        amount0Desired,
+        amount1Desired,
+        amount0Min: amount0Min || '0',
+        amount1Min: amount1Min || '0',
+        deadline: deadline || Math.floor(Date.now() / 1000) + 60 * 20
+      };
+
+      console.log('Increase liquidity params:', increaseLiquidityParams);
+
+      // 3. 编码增加流动性交易数据
+      const increaseLiquidityData = this.nftPositions.interface.encodeFunctionData('increaseLiquidity', [increaseLiquidityParams]);
+      console.log('Increase liquidity data:', increaseLiquidityData);
+
+      // 4. 创建交易
+      const transaction = ethers.Transaction.from({
+        to: PANCAKE_V3_NFT_POSITIONS_ADDRESS,
+        data: increaseLiquidityData
+      });
+
+      // 5. 返回交易数据
+      return {
+        tokenId,
+        liquidity: position.liquidity, // 当前流动性
+        token0Amount: position.token0Amount,
+        token1Amount: position.token1Amount,
+        feeGrowthInside0LastX128: position.feeGrowthInside0LastX128,
+        feeGrowthInside1LastX128: position.feeGrowthInside1LastX128,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+        fee: position.fee,
+        transactionData: transaction.serialized
+      };
+    } catch (error) {
+      console.error('Error preparing increase liquidity transaction:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+      }
+      throw error;
+    }
+  }
+
+  async getAmount1ForLiquidity(params: GetAmount1ForLiquidityParams): Promise<string> {
+    const { token0, token1, amount0, tickLower, tickUpper, fee } = params;
+
+    // Convert token symbols to addresses if needed
+    const token0Address = this.getTokenAddress(token0);
+    const token1Address = this.getTokenAddress(token1);
+
+    console.log('getAmount1ForLiquidity params:', {
+      token0,
+      token1,
+      token0Address,
+      token1Address,
+      amount0,
+      tickLower,
+      tickUpper,
+      fee
+    });
+
+    // Get token decimals
+    const token0Contract = new Contract(token0Address, ['function decimals() view returns (uint8)', 'function symbol() view returns (string)'], this.provider);
+    const token1Contract = new Contract(token1Address, ['function decimals() view returns (uint8)', 'function symbol() view returns (string)'], this.provider);
+    const [token0Decimals, token1Decimals, token0Symbol, token1Symbol] = await Promise.all([
+      token0Contract.decimals(),
+      token1Contract.decimals(),
+      token0Contract.symbol(),
+      token1Contract.symbol()
+    ]);
+
+    console.log('Token decimals:', {
+      [token0Symbol]: token0Decimals,
+      [token1Symbol]: token1Decimals
+    });
+
+    // Get pool contract and current price
+    console.log('Getting pool address...');
+    const poolAddress = await this.getPoolAddress(token0Address, token1Address, fee);
+    console.log('Pool address:', poolAddress);
+
+    // Validate pool address
+    if (!ethers.isAddress(poolAddress)) {
+      throw new Error(`Invalid pool address: ${poolAddress}`);
+    }
+
+    // Create pool contract with logging
+    console.log('Creating pool contract...');
+    
+    // Create contract with explicit ABI
+    const poolContract = new Contract(
+      poolAddress,
+      [
+        'function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
+        'function token0() external view returns (address)',
+        'function token1() external view returns (address)',
+        'function fee() external view returns (uint24)'
+      ],
+      this.provider
+    );
+
+    console.log('vvvvvvvvvvvvvvt...');
+    try {
+      const blockNumber = await this.provider.getBlockNumber();
+      console.log('Connected to network, current block:', blockNumber);
+    } catch (providerError) {
+      console.error('Error connecting to provider:', providerError);
+      throw new Error('Failed to connect to network provider');
+    }
+    
+    
+    // Verify contract by calling a simple function
+    try {
+      console.log('Verifying contract...');
+      console.log('Contract address:', poolAddress);
+
+      // First check if we can connect to the provider
+      try {
+        const blockNumber = await this.provider.getBlockNumber();
+        console.log('Connected to network, current block:', blockNumber);
+      } catch (providerError) {
+        console.error('Error connecting to provider:', providerError);
+        throw new Error('Failed to connect to network provider');
+      }
+      
+      // Check if contract exists by getting its bytecode
+      const code = await this.provider.getCode(poolAddress);
+      console.log('Contract bytecode length:', code.length);
+      if (code === '0x') {
+        throw new Error('Contract does not exist at this address');
+      }
+
+      // Get basic pool info
+      console.log('Getting pool info...');
+      const [poolToken0, poolToken1, poolFee] = await Promise.all([
+        poolContract.token0(),
+        poolContract.token1(),
+        poolContract.fee()
+      ]);
+      console.log('Pool info:', {
+        token0: poolToken0,
+        token1: poolToken1,
+        fee: poolFee
+      });
+    } catch (error: any) {
+      console.error('Error verifying contract:', error);
+      if (error.info) {
+        console.error('Error info:', error.info);
+      }
+      if (error.transaction) {
+        console.error('Transaction details:', error.transaction);
+      }
+      throw new Error('Failed to verify pool contract');
+    }
+
+    let tick;
+    // Try to get slot0 data with error handling
+    try {
+      console.log('Calling slot0...');
+      const slot0Data = await poolContract.slot0();
+      console.log('Slot0 data:', slot0Data);
+      tick = slot0Data.tick;
+      console.log('Tick value:', tick);
+    } catch (error) {
+      console.error('Error calling slot0:', error);
+      // Try to get the pool's token addresses to verify it's the correct pool
+      try {
+        const [poolToken0, poolToken1] = await Promise.all([
+          poolContract.token0(),
+          poolContract.token1()
+        ]);
+        console.log('Pool tokens:', {
+          token0: poolToken0,
+          token1: poolToken1,
+          expectedToken0: token0Address,
+          expectedToken1: token1Address
+        });
+      } catch (tokenError) {
+        console.error('Error getting pool tokens:', tokenError);
+      }
+      throw error;
+    }
+
+    // Calculate current price
+    const tickNumber = Number(tick);
+    const price = 1.0001 ** tickNumber;
+
+    // Get actual token order from pool
+    const [actualToken0, actualToken1] = await Promise.all([
+      poolContract.token0(),
+      poolContract.token1()
+    ]);
+
+    // Check if the price needs to be inverted based on token order
+    const isInverted = token0.toLowerCase() !== actualToken0.toLowerCase();
+    const currentPrice = isInverted ? 1 / price : price;
+
+    console.log('Price information:', {
+      currentPrice,
+      priceLower: 1.0001 ** tickLower,
+      priceUpper: 1.0001 ** tickUpper
+    });
+
+    // Convert amount0 to decimal number
+    const amount0Decimal = Number(amount0) / (10 ** Number(token0Decimals));
+
+    // Calculate amount1 based on current price
+    console.log('Current price is within range, calculating based on current price');
+    const amount1Decimal = amount0Decimal * currentPrice;
+    
+    // Convert amount1 back to wei
+    const amount1Wei = BigInt(Math.floor(amount1Decimal * (10 ** Number(token1Decimals))));
+
+    console.log(`Amount1 for ${amount0Decimal} ${await token0Contract.symbol()}: ${amount1Decimal} ${await token1Contract.symbol()}`);
+    
+    return amount1Wei.toString();
+  }
+
+  private async retryRpcCall<T>(call: () => Promise<T>, maxRetries = 3): Promise<T> {
+    let lastError;
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        return await call();
+      } catch (error) {
+        lastError = error;
+        console.error(`RPC call failed (attempt ${i + 1}/${maxRetries}):`, error);
+        if (i < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+        }
+      }
+    }
+    throw lastError;
+  }
+
+  async getPoolAddress(token0: string, token1: string, fee: number): Promise<string> {
+    return this.retryRpcCall(async () => {
+      const pool = await this.factory.getPool(token0, token1, fee);
+      if (pool === ethers.ZeroAddress) {
+        throw new Error(`Pool does not exist for token0: ${token0}, token1: ${token1}, fee: ${fee}`);
+      }
+      return pool;
+    });
   }
 } 

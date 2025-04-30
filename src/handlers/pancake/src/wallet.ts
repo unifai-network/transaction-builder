@@ -39,6 +39,7 @@ export class WalletService {
         new Token(ChainId.BSC, TOKEN_ADDRESSES.BTCB, 18, 'BTCB', 'Bitcoin BEP20'),
         new Token(ChainId.BSC, TOKEN_ADDRESSES.DOT, 18, 'DOT', 'Polkadot'),
         new Token(ChainId.BSC, TOKEN_ADDRESSES.LINK, 18, 'LINK', 'Chainlink'),
+        new Token(ChainId.BSC, TOKEN_ADDRESSES.WBNB, 18, 'WBNB', 'Binance WBNB'),
       ];
 
       // 2. Get token balances
@@ -101,7 +102,7 @@ export class WalletService {
     }
   }
 
-  // Get formatted token balances for display
+  // Get formatted display of token balances
   async getFormattedBalances(walletAddress: string): Promise<Map<string, string>> {
     const balances = await this.getWalletBalances(walletAddress);
     const formattedBalances = new Map<string, string>();
@@ -123,10 +124,10 @@ export class WalletService {
     return [];
   }
 
-  // Get all position tokenIds for a wallet address
+  // Get all liquidity position tokenIds under the wallet address
   async getPositionTokenIds(walletAddress: string): Promise<number[]> {
     try {
-      // 1. Get the number of positions for the wallet address
+      // 1. Get the number of positions under the wallet address
       const balance = await this.nftPositions.balanceOf(walletAddress);
       const positionCount = Number(balance);
 
@@ -142,5 +143,18 @@ export class WalletService {
       console.error('Error getting position tokenIds:', error);
       throw error;
     }
+  }
+
+  async sendTransaction(to: string, data: string): Promise<ethers.TransactionResponse> {
+    const tx = {
+      to,
+      data,
+      value: '0x0',
+      gasLimit: '0x100000',
+      gasPrice: await this.provider.getFeeData().then(feeData => feeData.gasPrice),
+      nonce: await this.provider.getTransactionCount(ethers.ZeroAddress)
+    };
+
+    return this.provider.broadcastTransaction(ethers.Transaction.from(tx).unsignedSerialized);
   }
 }

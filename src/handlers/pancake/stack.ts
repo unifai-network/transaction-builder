@@ -20,11 +20,6 @@ import { AddLiquidityParams, RemoveLiquidityParams, StakeParams, FEE_TIERS } fro
 const PayloadSchema = z.object({
   chain: z.string().nonempty('Missing required field: chain'),
   tokenId: z.string().nonempty('Missing required field: tokenId'),
-  poolAddress: z.string().nonempty('Missing required field: poolAddress'),
-  amount: z.union([
-    z.string().nonempty('Missing required field: amount'),
-    z.number().positive('Amount must be positive'),
-  ]),
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -47,10 +42,6 @@ export class PancakeV3StakeHandler implements TransactionHandler {
     }
     payload = validation.data;
     validateEvmChain(payload.chain.toLowerCase());
-
-    if (isNaN(Number(payload.amount))) {
-      throw new Error('Amount must be a valid number');
-    }
 
     return {
       chain: payload.chain,

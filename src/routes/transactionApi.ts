@@ -20,8 +20,9 @@ router.post("/create", async (req: Request, res: Response, next: NextFunction) =
     try {
       ({ chain, data, message, ...additionalData } = await handler.create(payload));
       chain = chain.toLowerCase();
-    } catch (error) {
-      return res.status(400).json({ error: (error as Error).message });
+    } catch (error: any) {
+      console.error(error);
+      return res.status(400).json({ error: error.message || error });
     }
 
     const txId = `${chain}-${uuidv4()}`;
@@ -53,8 +54,9 @@ router.get("/get/:txId", async (req: Request, res: Response, next: NextFunction)
     let transaction;
     try {
       transaction = await getPendingTransaction(txId);
-    } catch (error) {
-      return res.status(404).json({ error: (error as Error).message });
+    } catch (error: any) {
+      console.error(error);
+      return res.status(404).json({ error: error.message || error });
     }
 
     const data = JSON.parse(transaction.data);
@@ -77,8 +79,9 @@ router.post("/build", async (req: Request, res: Response, next: NextFunction) =>
     let transaction;
     try {
       transaction = await getPendingTransaction(txId);
-    } catch (error) {
-      return res.status(404).json({ error: (error as Error).message });
+    } catch (error: any) {
+      console.error(error);
+      return res.status(404).json({ error: error.message || error });
     }
 
     const handler = handlerRegistry.get(transaction.type);
@@ -105,8 +108,9 @@ router.post("/complete", async (req: Request, res: Response, next: NextFunction)
 
     try {
       await getPendingTransaction(txId);
-    } catch (error) {
-      return res.status(404).json({ error: (error as Error).message });
+    } catch (error: any) {
+      console.error(error);
+      return res.status(404).json({ error: error.message || error });
     }
 
     await prisma.transaction.update({
